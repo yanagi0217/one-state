@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+　<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -414,7 +414,7 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
   var CFG_KEY="oc_v4_cfg", LOG_KEY="oc_v3_log", FP_KEY="oc_fp";
   var API="https://api.onestate-rp.com/v2";
 
-  /* sdk first - it is the transport that works. */
+  /* sdk first - it is the transport that works */
   var TR=[
     {n:"sdk",          t:20000, sdk:true, u:function(s){return "https://proxy.corsfix.com/?"+s;}},
     {n:"direct",       t:7000,  u:function(s){return s;}},
@@ -518,20 +518,20 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
     });
   }
 
-  /* json first (that is what the api parses), then form, then text */
+  /* json first. success = data.accessToken (the api sends errorCode UNSPECIFIED on success) */
   function login(ident,pass){
     var json=JSON.stringify({ident:ident,password:pass,remember:true,fingerprint:fp()});
     var form="ident="+encodeURIComponent(ident)+"&password="+encodeURIComponent(pass)
            + "&remember=true&fingerprint="+encodeURIComponent(fp());
+    function ok(r){ return !!(r && r.data && r.data.accessToken); }
 
     return call("/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},body:json})
       .then(function(r){
-        if(r && !r.errorCode) return r;
-        if(r && r.errorCode && r.errorCode!=="MISSING_IDENT") return r;
+        if(ok(r)) return r;
+        if(r && r.errorCode && r.errorCode!=="MISSING_IDENT" && r.errorCode!=="UNSPECIFIED") return r;
         return call("/auth/login",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:form})
           .then(function(f){
-            if(f && !f.errorCode) return f;
-            if(f && f.errorCode!=="MISSING_IDENT") return f;
+            if(ok(f)) return f;
             return call("/auth/login",{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:json})
               .then(function(t){ return t||f||r; });
           });
@@ -628,13 +628,14 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
     $("acct").textContent="// connecting ...";
     timeout(login(entry.ident,entry.pass),90000).then(function(res){
       if(!res){ $("acct").textContent="// no response from api.onestate-rp.com (all transports failed)"; return; }
-      if(res.errorCode||!res.data){
+      if(!(res.data && res.data.accessToken)){
         $("acct").textContent="// login refused ["+tp+"] "+JSON.stringify(res).slice(0,400);
         return;
       }
+      var token=res.data.accessToken;
       entry.clientId=res.data.clientId||"";
       $("acct").textContent="// login OK via "+tp+" - probing endpoints ...";
-      timeout(probe(res.data.accessToken),90000).then(function(list){
+      timeout(probe(token),90000).then(function(list){
         if(!list){ $("acct").textContent="// probe timed out"; return; }
         var best=pick(list);
         if(best){
@@ -727,8 +728,8 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
       $("aLog").innerHTML="<div>connecting...</div>";
       timeout(login(id,pw),90000).then(function(res){
         if(!res){ $("aLog").innerHTML="<div>no response - all transports failed</div>"; return; }
-        if(res.errorCode||!res.data){
-          $("aLog").innerHTML="<div><b>login refused</b> ["+esc(tp)+"]<br>"+esc(JSON.stringify(res))+"</div>"; return;
+        if(!(res.data && res.data.accessToken)){
+          $("aLog").innerHTML="<div><b>login refused</b> ["+esc(tp)+"]<br>"+esc(JSON.stringify(res).slice(0,400))+"</div>"; return;
         }
         $("aLog").innerHTML="<div><b>login OK</b> via "+esc(tp)+"<br>clientId "+esc(res.data.clientId||"?")+"</div><div>probing...</div>";
         timeout(probe(res.data.accessToken),90000).then(function(list){

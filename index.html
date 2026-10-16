@@ -414,18 +414,17 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
   var CFG_KEY="oc_v4_cfg", LOG_KEY="oc_v3_log", FP_KEY="oc_fp";
   var API="https://api.onestate-rp.com/v2";
 
-  /* transports, priority order, per-transport timeout (ms) */
+  /* sdk first - it is the transport that works. */
   var TR=[
+    {n:"sdk",          t:20000, sdk:true, u:function(s){return "https://proxy.corsfix.com/?"+s;}},
     {n:"direct",       t:7000,  u:function(s){return s;}},
-    {n:"allorigins-g", t:28000, u:function(s){return "https://api.allorigins.win/get?url="+encodeURIComponent(s);}, wrap:true},
-    {n:"sdk",          t:15000, sdk:true},
     {n:"corsfix",      t:15000, u:function(s){return "https://proxy.corsfix.com/?"+s;}},
+    {n:"allorigins-g", t:25000, u:function(s){return "https://api.allorigins.win/get?url="+encodeURIComponent(s);}, wrap:true},
     {n:"codetabs",     t:18000, u:function(s){return "https://api.codetabs.com/v1/proxy?quest="+encodeURIComponent(s);}},
     {n:"cors.lol",     t:10000, u:function(s){return "https://api.cors.lol/?url="+encodeURIComponent(s);}},
     {n:"allorigins",   t:20000, u:function(s){return "https://api.allorigins.win/raw?url="+encodeURIComponent(s);}}
   ];
   var PATHS=["/auth/me","/user","/users/me","/me","/profile"];
-  var TOKQ=["access_token","accessToken","token"];
   var pref=null, tp="none";
   var $=function(i){return document.getElementById(i)};
   var esc=function(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]})};
@@ -519,40 +518,35 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
     });
   }
 
-  /* login: form-encoded first (no preflight), then json, then text */
+  /* json first (that is what the api parses), then form, then text */
   function login(ident,pass){
+    var json=JSON.stringify({ident:ident,password:pass,remember:true,fingerprint:fp()});
     var form="ident="+encodeURIComponent(ident)+"&password="+encodeURIComponent(pass)
            + "&remember=true&fingerprint="+encodeURIComponent(fp());
-    var json=JSON.stringify({ident:ident,password:pass,remember:true,fingerprint:fp()});
 
-    return call("/auth/login",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:form})
+    return call("/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},body:json})
       .then(function(r){
         if(r && !r.errorCode) return r;
         if(r && r.errorCode && r.errorCode!=="MISSING_IDENT") return r;
-        return call("/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},body:json})
-          .then(function(j){
-            if(j && !j.errorCode) return j;
-            if(j && j.errorCode!=="MISSING_IDENT") return j;
-            return call("/auth/login",{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:json}).then(function(t){
-              return t||j||r;
-            });
+        return call("/auth/login",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:form})
+          .then(function(f){
+            if(f && !f.errorCode) return f;
+            if(f && f.errorCode!=="MISSING_IDENT") return f;
+            return call("/auth/login",{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:json})
+              .then(function(t){ return t||f||r; });
           });
       });
   }
 
-  function probePath(path,token){
-    var i=0;
-    (function next(){
-    })();
-    function step(){
-      if(i>=TOKQ.length) return Promise.resolve(null);
-      var p=path+"?"+TOKQ[i++]+"="+encodeURIComponent(token);
-      return call(p,{}).then(function(d){
-        if(d && d.code!==16 && d.code!==12) return d;
-        return step();
-      });
-    }
-    return step();
+  function getWithToken(path,token){
+    return call(path,{headers:{Authorization:"Bearer "+token}}).then(function(d){
+      if(d && d.code===16){
+        return call(path+"?access_token="+encodeURIComponent(token),{}).then(function(e){
+          return (e && e.code!==16) ? e : d;
+        });
+      }
+      return d;
+    });
   }
 
   function probe(token){
@@ -560,12 +554,7 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
     var p=Promise.resolve();
     PATHS.forEach(function(path){
       p=p.then(function(){
-        return probePath(path,token).then(function(d){
-          if(d){ out.push({path:path,data:d}); return; }
-          return call(path,{headers:{Authorization:"Bearer "+token}}).then(function(h){
-            out.push({path:path,data:h});
-          });
-        });
+        return getWithToken(path,token).then(function(d){ out.push({path:path,data:d}); });
       });
     });
     return p.then(function(){ return out; });
@@ -636,8 +625,8 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
 
   function fetchAccount(entry){
     $("acctWrap").style.display="block";
-    $("acct").textContent="// connecting ... (may take up to 1 min)";
-    timeout(login(entry.ident,entry.pass),120000).then(function(res){
+    $("acct").textContent="// connecting ...";
+    timeout(login(entry.ident,entry.pass),90000).then(function(res){
       if(!res){ $("acct").textContent="// no response from api.onestate-rp.com (all transports failed)"; return; }
       if(res.errorCode||!res.data){
         $("acct").textContent="// login refused ["+tp+"] "+JSON.stringify(res).slice(0,400);
@@ -645,7 +634,7 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
       }
       entry.clientId=res.data.clientId||"";
       $("acct").textContent="// login OK via "+tp+" - probing endpoints ...";
-      timeout(probe(res.data.accessToken),120000).then(function(list){
+      timeout(probe(res.data.accessToken),90000).then(function(list){
         if(!list){ $("acct").textContent="// probe timed out"; return; }
         var best=pick(list);
         if(best){
@@ -736,13 +725,13 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
       var id=$("aIdent").value.trim(), pw=$("aPass").value;
       if(!id||!pw){ toast("Enter ID and password"); return; }
       $("aLog").innerHTML="<div>connecting...</div>";
-      timeout(login(id,pw),120000).then(function(res){
+      timeout(login(id,pw),90000).then(function(res){
         if(!res){ $("aLog").innerHTML="<div>no response - all transports failed</div>"; return; }
         if(res.errorCode||!res.data){
           $("aLog").innerHTML="<div><b>login refused</b> ["+esc(tp)+"]<br>"+esc(JSON.stringify(res))+"</div>"; return;
         }
         $("aLog").innerHTML="<div><b>login OK</b> via "+esc(tp)+"<br>clientId "+esc(res.data.clientId||"?")+"</div><div>probing...</div>";
-        timeout(probe(res.data.accessToken),120000).then(function(list){
+        timeout(probe(res.data.accessToken),90000).then(function(list){
           if(!list){ $("aLog").innerHTML="<div>probe timed out</div>"; return; }
           $("aLog").innerHTML="<div><b>transport: "+esc(tp)+"</b></div>"+list.map(function(x){
             return "<div><b>"+esc(x.path)+"</b><br>"+esc(JSON.stringify(x.data).slice(0,240))+"</div>";

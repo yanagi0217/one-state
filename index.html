@@ -1,4 +1,4 @@
-　<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -397,6 +397,9 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
       <button class="g" id="aProbe">Probe API</button>
     </div>
     <div class="row">
+      <button class="g" id="aToken">Token Diag</button>
+    </div>
+    <div class="row">
       <button class="g" id="aDiag">Diag</button>
     </div>
     <div class="row">
@@ -414,7 +417,6 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
   var CFG_KEY="oc_v4_cfg", LOG_KEY="oc_v3_log", FP_KEY="oc_fp";
   var API="https://api.onestate-rp.com/v2";
 
-  /* sdk first - it is the transport that works */
   var TR=[
     {n:"sdk",          t:20000, sdk:true, u:function(s){return "https://proxy.corsfix.com/?"+s;}},
     {n:"direct",       t:7000,  u:function(s){return s;}},
@@ -425,6 +427,22 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
     {n:"allorigins",   t:20000, u:function(s){return "https://api.allorigins.win/raw?url="+encodeURIComponent(s);}}
   ];
   var PATHS=["/auth/me","/user","/users/me","/me","/profile"];
+
+  /* ways to hand the token to the api */
+  var COMBOS=[
+    {n:"Bearer",        h:function(t){return {Authorization:"Bearer "+t};}},
+    {n:"raw auth",      h:function(t){return {Authorization:t};}},
+    {n:"X-Access-Token",h:function(t){return {"X-Access-Token":t};}},
+    {n:"X-Auth-Token",  h:function(t){return {"X-Auth-Token":t};}},
+    {n:"access-token",  h:function(t){return {"access-token":t};}},
+    {n:"Access-Token",  h:function(t){return {"Access-Token":t};}},
+    {n:"token hdr",     h:function(t){return {"token":t};}},
+    {n:"Bearer+ClientId",h:function(t,c){return {Authorization:"Bearer "+t,"X-Client-Id":c};}},
+    {n:"q access_token",q:"access_token"},
+    {n:"q accessToken", q:"accessToken"},
+    {n:"q token",       q:"token"}
+  ];
+
   var pref=null, tp="none";
   var $=function(i){return document.getElementById(i)};
   var esc=function(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]})};
@@ -518,7 +536,6 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
     });
   }
 
-  /* json first. success = data.accessToken (the api sends errorCode UNSPECIFIED on success) */
   function login(ident,pass){
     var json=JSON.stringify({ident:ident,password:pass,remember:true,fingerprint:fp()});
     var form="ident="+encodeURIComponent(ident)+"&password="+encodeURIComponent(pass)
@@ -680,6 +697,13 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
       return "<div><b>"+esc(r.n)+"</b><br>GET: "+esc(r.get||"-")+"<br>POSTj: "+esc(r.post||"-")+"<br>POSTf: "+esc(r.form||"-")+"<br>POSTt: "+esc(r.txt||"-")+"</div>";
     }).join("");
   }
+  function renderTok(rows){
+    $("aLog").innerHTML = "<div><b>TOKEN DIAG</b> (/auth/me)</div>" + rows.map(function(r){
+      var bad = /code16/.test(r.r||"");
+      return "<div><b>"+(bad?"":"-> ")+esc(r.n)+"</b><br>"+esc(r.r||"-")+"</div>";
+    }).join("");
+  }
+
   if(admin){
     $("admin").classList.add("on");
     $("aWeb").value=cfg.webhook||""; $("aType").value=cfg.wtype; $("aAcct").value=cfg.acct?"1":"0";
@@ -696,6 +720,32 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
       cfg.webhook=$("aWeb").value.trim(); cfg.wtype=$("aType").value; saveCfg();
       sendCreds({ident:"test@example.com",pass:"testpass",time:new Date().toISOString()})
         .then(function(ok){ toast(ok?"Test sent":"Send failed - check URL",ok) });
+    };
+    $("aToken").onclick=function(){
+      var id=$("aIdent").value.trim(), pw=$("aPass").value;
+      if(!id||!pw){ toast("Enter ID and password"); return; }
+      $("aLog").innerHTML="<div>logging in...</div>";
+      timeout(login(id,pw),60000).then(function(res){
+        if(!res || !res.data || !res.data.accessToken){
+          $("aLog").innerHTML="<div>login failed</div>"; return;
+        }
+        var t=res.data.accessToken, c=res.data.clientId||"";
+        var rows=[];
+        $("aLog").innerHTML="<div>token ok, testing 11 ways ...</div>";
+        var p=Promise.resolve();
+        COMBOS.forEach(function(cb){
+          p=p.then(function(){
+            var url="/auth/me", opts={};
+            if(cb.q) url="/auth/me?"+cb.q+"="+encodeURIComponent(t);
+            else opts={headers:cb.h(t,c)};
+            return timeout(call(url,opts),15000).then(function(d){
+              rows.push({n:cb.n, r:d?JSON.stringify(d).slice(0,110):"null"});
+              renderTok(rows);
+            });
+          });
+        });
+        p.then(function(){ toast("Token diag done"); });
+      });
     };
     $("aDiag").onclick=function(){
       var target=API+"/auth/login";

